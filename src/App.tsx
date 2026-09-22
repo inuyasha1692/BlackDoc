@@ -30,6 +30,7 @@ import {
   isBlockDocument,
   sourceFileName,
 } from "./editor/document";
+import { PreserveHeadingLevelExtension } from "./editor/preserveHeadingLevel";
 import { buildStandaloneHtml, downloadHtml } from "./export/standaloneHtml";
 import {
   deleteDraft,
@@ -75,6 +76,7 @@ export default function App() {
   const editor = useCreateBlockNote({
     initialContent: EMPTY_DOCUMENT,
     dictionary: zh,
+    extensions: [PreserveHeadingLevelExtension()],
     uploadFile: fileToDataUrl,
     links: {
       onClick: (event) => {
