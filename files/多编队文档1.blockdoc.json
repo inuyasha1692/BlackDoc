@@ -1,0 +1,6390 @@
+[
+  {
+    "id": "6ff12294-ddbe-4ada-931d-b19dc3382982",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 1,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "多编队文档",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "86f9611f-20c5-42f0-88f4-e04d16ab22dc",
+    "type": "divider",
+    "props": {},
+    "children": []
+  },
+  {
+    "id": "f5955f17-6741-4c5e-a572-ea9c2b2bf334",
+    "type": "divider",
+    "props": {},
+    "children": []
+  },
+  {
+    "id": "12a2a37c-04cc-4ab3-aea7-a98ddc9223fb",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "修订记录",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "a535ab39-41b1-4190-a20e-19d1a0a718e4",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "更新时间",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "更新人",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "更新内容",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "跳转",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "工单",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "2026.09.14",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "张敏",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "#_2026.09.14新增2",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "新增，将领同步界面的空状态",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "http://ll.jira.blackjack-local.com:8080/browse/PROLL-20848",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "PROLL-20848",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "2026.09.14",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "张敏",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "#_2026.09.14新增",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "新增，明确了更改职业线会影响自动同步的开关状态，是在非常用编队的语境中。对常用编队中的将领修改职业线，不应该影响非常用编队中的同步开关状态",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "2026.09.10",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "张敏",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "#_2026.09.10修改1",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "修改，编队切换界面交互逻辑，改为切换选中编队条目后背景上角色资源会直接刷新",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "#",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "修改2",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "http://ll.jira.blackjack-local.com:8080/browse/PROLL-20702",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "PROLL-20702",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "2026.09.10",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "张敏",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "#_2026.09.10新增",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "新增，编队切换面板允许点击左侧面板以外区域退出",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "2026.08.19",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "张敏",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "#_2026.08.19新增",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "新增，添加【将领同步】的美术效果图，并修改相应说明文本",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "2026.07.23",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "张敏",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "link",
+                  "href": "#_2026.07.23新增",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "新增，明确玩家手动切换将领同步开关后的保存时机",
+                      "styles": {}
+                    }
+                  ]
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "2026.07.02",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "张敏",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "创建文档",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "1dcb4647-9b64-461b-b45e-142ede8992b6",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "功能概述",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "11bd2168-4a82-4b8b-b791-ac020aa4d5ef",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "多编队系统用于让玩家保存多套编队方案，并在不同玩法场景中快速切换。玩家可以给编队自定义名称。\nMVP 阶段，默认编队作为常用编队，不可更改；后续版本可迭代为允许玩家指定常用编队",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "cc03454a-9f71-423b-9228-214751711f72",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "设计要点",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "df8c2271-6ce9-4715-93a4-3ec893f95b58",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "每个编队独立保存，修改后即时保存并刷新当前状态，玩家可以针对不同玩法维护不同方案。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "39e0d428-92db-4e19-9313-17293a9ff9bb",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "养成数据全局共享；装备、士兵、圣物等实例归属全局唯一，切换出击编队时按目标编队重新分配。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "002ed6ab-ed39-4415-b260-274a8178abdb",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "常用编队承载日常配置，其他编队可通过将领同步减少重复维护，同时保留玩法特化配置。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "f10c17cc-4c98-449d-8450-29bb1d05d5ea",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "界面需要明确区分：当前正在编辑的是哪套编队、当前玩法正在使用哪套编队。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "9662ea74-b536-4939-98aa-d9cbf138d44b",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "入口",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "824c2f02-7f08-4b3a-9f53-ae7e53b92214",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "原型图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "效果图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "编队界面-右上角【当前编队】【将领同步】\n",
+                  "styles": {
+                    "bold": true
+                  }
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "出击界面-左侧【切换编队】\n",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "ee1a7d6c-1879-46e2-bcab-a4933b4c307f",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "名词说明与数据结构",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "e2fb6255-b773-4aee-8ca5-0f7aec6fca23",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "MVP 阶段",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "9c09881b-fe16-41ba-a29a-f323b00e0463",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "系统初始提供 5 个编队槽，创建账号后初始化编队1，其他编队为空",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "6c184299-8a83-4168-bcbe-2f177add790b",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队 1 默认为常用编队，后续可能会开放玩家设置常用编队",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "a38497f5-feb0-4068-9d97-fb164aba772a",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "暂不支持新增编队数量",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "757c14d2-83ed-4d87-a21f-de1e01399ae1",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队存档",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：每套编队独立保存的数据快照，包含编队名称、将领穿戴库、部队槽中的将领 ID、将领同步开关。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "94c57f97-ceff-4ea2-adc0-cc054afa9702",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领穿戴库",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：编队存档中的一张表，按将领 ID 保存该将领在本编队内的职业线、携带技能、携带士兵、穿戴装备；未上阵将领也可以有记录。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "88ff331c-5f72-4559-be7e-78d7e4d1fbbe",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "部队槽",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：编队内最多 6 个双人部队槽，只保存主将 ID、副将 ID，以及该部队的士兵前后排站位、协力技、圣物。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "91ed998e-c273-4daf-9635-6d91e932e4a1",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "常用编队（★）",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：探索界面的将领详情读写这套编队，同时它也是将领同步的数据源。MVP 阶段只能是编队 1",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "424efe7c-4a4a-4d69-9c31-64843f1b9135",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "当前编辑编队",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：编队界面当前正在查看 / 修改的编队；是否影响玩法出击，取决于玩家是从哪个入口进入编队界面。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "0af8b08c-f3a9-44a7-b141-94ad712463f1",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "玩法当前编队",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：某个玩法中出击阶段时默认读取哪份编队存档；不同玩法分别记忆，会自动才有最后一次出击的编队。没有初始数据时，读取常用编队。目前玩法分为：剧情战斗、进阶本、经验本、装备本、金币本、兵营本",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "aabab2d2-a36b-400b-bf2d-2303c1f90b5e",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：玩家手动触发的维护功能；按将领同步开关，把常用编队中的部分将领配置覆盖到编队 N，具体字段见「同步字段」，开关规则见「将领同步开关」，执行规则见「执行将领同步」。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "120a6bcc-fbbb-4eda-88a8-90dd027eeb07",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步开关",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：编队 N 中按将领 ID 保存的开启 / 关闭状态；开启表示该将领参与同步，关闭表示保留本编队特化配置。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "895e1174-5150-43f6-8f1b-637d29659c90",
+    "type": "codeBlock",
+    "props": {
+      "language": "mermaid"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "flowchart LR\n    subgraph Global [\"全局数据\"]\n        Growth[\"养成数据\"]\n        Pool[\"装备 / 圣物实例数据\"]\n        Runtime[\"当前状态<br/>装备 / 士兵 / 圣物归属\"]\n        ModeChoice[\"各玩法使用哪个编队\"]\n    end\n\n    subgraph Save [\"编队存档 × 5\"]\n        Squad[\"本编队的6个部队槽<br/>主副将ID / 站位 / 协力技 / 圣物\"]\n        WearLib[\"本编队的将领穿戴库<br/>职业线 / 技能 / 士兵 / 装备\"]\n        SyncFlags[\"将领同步开关<br/>将领ID → 开启 / 关闭\"]\n    end\n\n    Squad -->|\"按将领 ID 读取\"| WearLib\n    SyncFlags -.->|\"决定是否参与同步\"| WearLib",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "97ebff74-4e5b-414f-bbd4-1a2a56f18560",
+    "type": "quote",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "[!note]\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "当前状态\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "当前实际生效的，此刻真实穿戴归属（谁穿哪件装备、谁带什么士兵，圣物在哪个部队），全账号 1 份\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "编队存档\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "每套编队保存的数据快照，每编队 1 份\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "养成数据",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "、",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "装备 / 圣物实例数据",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": " 始终是全局共享一份，不属于任一编队存档。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "112cab6d-7309-4fc6-81fe-43f193efe071",
+    "type": "divider",
+    "props": {},
+    "children": []
+  },
+  {
+    "id": "4d298102-5efd-4040-9952-aedcaa22bf64",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "影响界面",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "752baf17-fdab-41a6-8a32-2a2de5fc4e72",
+    "type": "quote",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "本章只说明多编队系统新增或改动的界面点。编队主界面的基础布局和功能沿用《编队功能》文档，不在本文重复。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "6fb63b7c-4ed4-4fe2-8e85-b787ae450197",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "交互原型见：",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "多编队交互演示/index.html",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "。当前原型只演示编队界面，因此原型中的当前状态均指“当前编辑编队”。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "0223d5c8-fa40-4019-96dc-9ba16920d4dc",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队界面",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "0ca5ec60-b2ed-49ae-a1f8-76927ae3b92e",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队界面新增2个入口",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "796d4af1-e8be-4fe5-9449-75c388644d43",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "原型图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "效果图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "a5ba7d3f-819e-4ecb-984e-e1dffc027149",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队界面右上角新增两个入口：「切换编队」和「将领同步」",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "ec057ffe-7623-4382-a0c4-7677db5df3f8",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "切换编队下拉按钮",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：始终显示，用于打开编队列表，查看和切换编队。入口上",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "显示当前正在编辑的编队编号和名称",
+        "styles": {
+          "code": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "55b9793a-fda5-4b04-9f28-d7735df61385",
+    "type": "quote",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "例如截图中的「2 材料本A」",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "ea05c090-8487-4b54-befb-2f452fed3d8b",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步按钮",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "处于常用编队时，该按钮不显示",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "，用于打开将领同步面板。\n截图中右上角的红点表示：当前编队存在可执行的同步差异，玩家可以进入面板查看并手动执行批量同步",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "91e1f34c-11e8-46a0-bb01-f457e59be8da",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 4,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "切换编队",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c5d19915-5d95-4612-b243-3f5ef0496bd3",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "原型图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "效果图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "3812ed26-c283-48c1-a684-b84ea390d852",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "点击右上角的「切换编队」入口后，从右侧展开编队列表。玩家可以在这里选择要查看和维护的编队。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "94d8a5d1-857a-4da8-bb47-8d116cdd7f04",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队列表需要同时表达三类状态：",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "fbe7c998-bbf8-4e9d-b97f-4aaea11b1133",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "常用",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：默认1号编队，MVP 阶段不提供更改",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3e1fc589-2e0d-4831-870c-8a753f5cebb1",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "当前使用中",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：当前正在使用和编辑的编队",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "1f98e1ac-061d-4f28-a6d8-20631973c7ec",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "待确认切换",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：已选中并完成背景人物和装配数据的刷新，尚未提交服务器",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "4473597e-ba36-4708-8753-ebd6ab285bfa",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "切换流程",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "72d97586-3c57-4480-b01a-c075e46977c2",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "在没有点击任何编队前，底部的【确认更换】为禁用状态",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "67d84b66-b004-4c1a-862f-fb316ba2cee4",
+        "type": "paragraph",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "\n",
+            "styles": {}
+          },
+          {
+            "type": "text",
+            "text": " ",
+            "styles": {
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          },
+          {
+            "type": "text",
+            "text": "2026.09.10修改1",
+            "styles": {
+              "textColor": "rgb(255, 0, 0)",
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "0d0cb1db-23d5-47e3-aae6-aec8021a9c80",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "点击列表中的某个编队（除当前编队），",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "点击列表中的其他编队后，立即按所选编队刷新背景人物资源，进入待确认状态；此时仅进行本地预览，不执行缺失记录补全，也不从常用编队复制新增将领的穿戴记录，不与服务器交互。【确认切换】按钮启用。",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": [
+      {
+        "id": "8fa91bba-bae0-4ca8-bc63-dac9a5a0904d",
+        "type": "image",
+        "props": {
+          "textAlignment": "left",
+          "backgroundColor": "default",
+          "name": "image-20260709151808258",
+          "url": "file:///D:/ProjectLL-P4V/Design/%E5%8A%9F%E8%83%BD%E6%96%87%E6%A1%A3/10.%E5%85%B6%E4%BB%96/%E7%BC%96%E9%98%9F%E7%B3%BB%E7%BB%9F/assets/image-20260709151808258.drawio.svg",
+          "caption": "",
+          "showPreview": true
+        },
+        "children": []
+      },
+      {
+        "id": "4d8b639d-a8d2-484b-9071-e6978c420ae6",
+        "type": "image",
+        "props": {
+          "textAlignment": "left",
+          "backgroundColor": "default",
+          "name": "image-20260709151720508",
+          "url": "http://127.0.0.1:5173/assets/image-20260709151720508.png",
+          "caption": "",
+          "showPreview": true
+        },
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "9f3e36ca-5346-42db-ad7a-be65bb45c996",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "点击【确认切换】后，才与服务器交互；服务器处理阶段先执行目标编队的缺失记录补全，处理成功后正式切换当前编辑编队并退出切换面板。",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "9d8ef44f-034a-4b85-ac80-7ae137cc27ea",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "确认切换成功后，退出切换面板，当前部队详情正式更新为新编队的数据。",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "f137940c-e174-4c46-b144-80fd3dbb6e83",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": " ",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "2026.09.10新增",
+        "styles": {
+          "textColor": "rgb(255, 0, 0)",
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "20cccf22-9ecd-4aeb-a79b-d53d0385b2e6",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "退出流程",
+        "styles": {
+          "bold": true,
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "5b3a4b1d-e5ba-4fd3-8172-1dadd965308f",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "在切换面板展开状态下，点击左侧面板以外区域，或者右上角关闭按钮，都能退出【切换面板】",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "adfba8ee-3255-4ce0-bea0-684d5de7406d",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "如果已经选中其他编队但尚未确认，退出面板时取消本次预览，恢复原编队的背景人物资源，不与服务器交互。",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "344e738a-17d9-4a34-823a-df24b57cc532",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "start": 2
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "点击【确认切换】，也会退出切换面板",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3c4c4bba-974e-4f68-b483-3ce2a69f0f63",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 4,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队改名",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "d79efdc3-9e34-4adc-b4bc-829688929e7e",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队列表中，每个条目右侧提供「修改名称」入口。点击后弹出改名弹窗，不触发条目选择，也不影响当前编辑编队或待确认切换状态。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "7a6be50b-5e5b-4916-a750-98a05cf99a8f",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "headerCols": 3,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "e7c527f4-1bfd-4599-a367-f5a0bf58cf3e",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "规则",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c8ee41f6-acf2-42cc-8bc9-070d4d748a7a",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "常用编队也允许修改名称。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "80a3fefa-bd88-4f9f-88d8-30d9e0f0c8aa",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "确认后立即写入对应编队存档；如果修改的是当前编辑编队，同时刷新右上角当前编队名称。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "e10e1418-6560-4631-af93-ed8622b69cdf",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "名称去除首尾空格后不能为空，最多 8 个汉字，允许重名。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "f61bcf15-5465-4bd5-9ccc-45e8ca62841a",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "移动设备上注意切换出输入法时，弹窗中的文本编辑位置需要保持可见。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "93cd047e-dcb7-41dd-b470-564eb6f20495",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 4,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步面板",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "ab7ffd1e-f7f9-4469-9002-83b732c19d9c",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "让玩家预览差异，并能按自己的同步意图时执行批量同步",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "bde87bbf-31d5-467b-b0dc-b6e2377b2cf5",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "原型图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "效果图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "5a7e75cc-5c5a-49d2-b818-c926b5f58036",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "界面元素",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "（已根据美术效果图修订）",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "4fe1bab7-0a79-4f7d-9c88-03e6e8faa40a",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "面板以大弹窗展示；窗口顶部显示总标题，右上角为",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "关闭",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "按钮",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "d75d5342-885c-4ab3-a706-a226d0f89da6",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "中间主体，列出当前编队的部队槽位中的将领。没有在部队槽中的，即使将领同步状态有开关数据，也不会出现在面板里",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "1fe8d925-f26c-4f40-b0b0-0655c0c456a9",
+        "type": "paragraph",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "\n",
+            "styles": {}
+          },
+          {
+            "type": "text",
+            "text": " ",
+            "styles": {
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          },
+          {
+            "type": "text",
+            "text": "2026.08.19新增",
+            "styles": {
+              "textColor": "rgb(255, 0, 0)",
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "dfc26ad6-8660-44cd-a71e-f83827514bbe",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "头像信息区域",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": [
+      {
+        "id": "c4a3d314-be35-4fa7-a26a-416ed3e95c9e",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "将领职业线头像",
+            "styles": {
+              "code": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "：当前编队中该将领的的职业线对应的头像",
+            "styles": {
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "56ac2c7f-6919-4527-9696-f4f7427b4c1b",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "将领名称",
+            "styles": {
+              "code": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "：不管什么职业线，将领名字是相同的",
+            "styles": {
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "ca5cdebb-9ba0-4c7a-a4d7-f214ff5983ef",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "主/副将职位",
+            "styles": {
+              "code": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "：当前编队中该将领在部队槽中担任的岗位，会以或的图标显示",
+            "styles": {
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "f543f8c7-64d8-4114-a640-73b5e36a67db",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "兵种图标",
+            "styles": {
+              "code": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "和",
+            "styles": {
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          },
+          {
+            "type": "text",
+            "text": "职业线名称",
+            "styles": {
+              "code": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "：当前编队中该将领所处的职业线名称和兵种",
+            "styles": {
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "497dd784-ec35-41fa-bec1-9d410fa03ee8",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "将领头像和职业线只显示一份，原因是职业线不同时，并不会把职业线同步。因此，头像不会改变，同步前后只对比技能、士兵、装备这些可被写入的字段。",
+            "styles": {
+              "italic": true,
+              "backgroundColor": "rgb(255, 244, 204)"
+            }
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "f60a1634-54f6-4c59-8f6f-8bc0dd536082",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [],
+    "children": [
+      {
+        "id": "32a5d0c0-95c0-4f64-8402-94ca337101bd",
+        "type": "table",
+        "props": {
+          "textColor": "default"
+        },
+        "content": {
+          "type": "tableContent",
+          "columnWidths": [
+            null,
+            null,
+            null,
+            null
+          ],
+          "headerRows": 1,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "同步前后",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "主/副将技能",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "士兵",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "装备",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "上半部分（同步前）",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "技能图标左下角带有",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "主副将角标\n替换状态",
+                      "styles": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "（技能卸下也视为替换)\n",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "不变状态\n空槽状态",
+                      "styles": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "，将领在部队中的职位用不到该技能，例如担任主将的这里不显示装配的副将技能\n",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "同步前所携带的士兵，若不变也需要做降低透明度处理\n\n",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "替换状态\n不变状态",
+                      "styles": {
+                        "code": true
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "同步前的装备，若不变也需要做降低透明度处理\n",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "替换状态\n不变状态\n卸下状态",
+                      "styles": {
+                        "code": true
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "下半部分（同步后）",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "替换状态",
+                      "styles": {
+                        "code": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "（技能卸下也视为替换)\n",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "不变状态\n空槽状态",
+                      "styles": {
+                        "code": true
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "替换状态\n不变状态",
+                      "styles": {
+                        "code": true
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "替换状态\n不变状态\n卸下状态",
+                      "styles": {
+                        "code": true
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "type": "tableCell",
+                  "content": [],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "注意",
+                      "styles": {
+                        "bold": true,
+                        "textColor": "rgb(255, 0, 0)",
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "：因唯一士兵，或者巨型士兵，导致被迫触发士兵自动装配逻辑的也归为",
+                      "styles": {
+                        "backgroundColor": "rgb(255, 244, 204)"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": "替换状态",
+                      "styles": {
+                        "code": true
+                      }
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "204df374-109e-48fc-b041-24f242c1ce30",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "不同步的将领，若执行同步后会因装备归属冲突被脱下，需要在对应也需要显示装备的",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "卸下状态",
+        "styles": {
+          "code": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "bdc47e47-594e-4f9f-b0d0-5495649b7600",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "主体底部，将领同步模式：",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "全额同步",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "，",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "仅同步装备",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "，",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "不同步",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "，用来说明按哪种规则处理。以及同步开关按钮",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": [
+      {
+        "id": "2db8f600-58ff-4cbc-8bdd-3dfe8de0698a",
+        "type": "image",
+        "props": {
+          "textAlignment": "left",
+          "backgroundColor": "default",
+          "name": "image-20260819175644926",
+          "url": "http://127.0.0.1:5173/assets/image-20260819175644926.png",
+          "caption": "",
+          "showPreview": true
+        },
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "68051f58-9b6f-4ad0-9ef3-1ceb2629f3a0",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "窗口底部，图例说明，批量同步按钮",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": [
+      {
+        "id": "062166bc-5238-46fa-825a-14d4ea72f12d",
+        "type": "image",
+        "props": {
+          "textAlignment": "left",
+          "backgroundColor": "default",
+          "name": "image-20260819180303553",
+          "url": "http://127.0.0.1:5173/assets/image-20260819180303553.png",
+          "caption": "",
+          "showPreview": true
+        },
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "67c7f854-a090-4028-a6ad-6a147e031c48",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "图例说明文字：需要支持策划配置（通过文本表配置），包括",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "仅装备",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "说明、",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "替换角标",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "说明、",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "卸下角标",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "说明",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "7913305b-557e-4418-9942-0cf2135b4f68",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "图例中的图标、颜色和角标样式由 UI 样式控制，不通过文本表配置",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "a9510388-bb42-43f2-ae43-22030b2fd0b5",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": " ",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "2026.09.14新增2",
+        "styles": {
+          "textColor": "rgb(255, 0, 0)",
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "d9654eee-8b69-4e14-b025-0e469729cc78",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "空状态",
+        "styles": {
+          "textColor": "rgb(255, 0, 0)",
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": [
+      {
+        "id": "0b9fd4e8-1b87-4365-8c0c-c0089a100182",
+        "type": "table",
+        "props": {
+          "textColor": "default"
+        },
+        "content": {
+          "type": "tableContent",
+          "columnWidths": [
+            null,
+            null
+          ],
+          "headerRows": 1,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "空状态原型图",
+                      "styles": {}
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "效果图",
+                      "styles": {}
+                    }
+                  ],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "type": "tableCell",
+                  "content": [],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                },
+                {
+                  "type": "tableCell",
+                  "content": [],
+                  "props": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "backgroundColor": "default",
+                    "textColor": "default",
+                    "textAlignment": "left"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "556da514-9432-449e-bfb3-3b7aa1c6284e",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "交互逻辑",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "54961efe-6a3c-42e0-8794-b4b847422171",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "点击技能、士兵、装备",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "09c6ff2e-3243-4379-94ab-d95863399ceb",
+        "type": "paragraph",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "弹出各自的预制体浮层，伴有半透黑色遮罩，点击半透部分关闭浮层\n浮层弹出位置，水平方向默认在图标左侧，若左侧会超出设备屏幕则显示在右侧，纵向方向居中",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "8988c5dd-054f-4ff8-b27f-9b02acfc03a3",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "批量同步",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "32a7d02f-3b85-4d71-9888-1ae39e0fb904",
+        "type": "paragraph",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "按“该编队的当前状态 → 执行同步后的状态”的逻辑展示，告知玩家点击「批量同步」后会变成什么样子\n同步模式沿用「执行将领同步」规则。面板中只需要展示该将领当前属于「全额同步」「仅装备」还是「不同步」\n点击批量同步后，会按照每个将领的同步模式，批量处理，弹出通用弱提示",
+            "styles": {}
+          },
+          {
+            "type": "text",
+            "text": "已完成批量同步",
+            "styles": {
+              "code": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "（通过文本表配置），并关闭面板",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "b8972de8-6cfd-46c0-a422-f730504acdfe",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "排序\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "从部队1号位的主将副将到6号位的主将副将",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "edd6ed97-d328-4cbe-9a52-3977a54cdd13",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "出击界面→切换编队",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "feb921e3-d094-4299-be23-1b241537e317",
+    "type": "image",
+    "props": {
+      "textAlignment": "left",
+      "backgroundColor": "default",
+      "name": "267",
+      "url": "file:///D:/ProjectLL-P4V/Design/%E5%8A%9F%E8%83%BD%E6%96%87%E6%A1%A3/10.%E5%85%B6%E4%BB%96/%E7%BC%96%E9%98%9F%E7%B3%BB%E7%BB%9F/assets/Pasted%20image%2020260701111905.drawio.svg",
+      "caption": "",
+      "showPreview": true
+    },
+    "children": []
+  },
+  {
+    "id": "35b17085-aac2-4ccb-8836-d9e8af39ee6c",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "原型图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "效果图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "d48283bd-63df-4edc-8c6b-4e2238d6c6da",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "切换编队按钮\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "左侧有【切换编队】按钮，按钮上显示「编队序号」「编队名称」",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c2dc59ae-5945-47ad-b137-355fdc4929e6",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "快速切换面板\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "点击【切换编队】按钮后，打开快速切换面板，面板内数据与编队界面的快速切换下拉框一致",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "498a43fa-2f00-49d9-b47c-8f72c49a2613",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "编队条目\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "需要通过高亮等美术语言体现当前使用中的编队",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "6247adcc-8dcb-4132-a337-ca0bedd6e41d",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "切换编队动作",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "78f1f479-2046-43c6-a78e-bf09c277334b",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": " ",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "2026.09.10修改2",
+        "styles": {
+          "textColor": "rgb(255, 0, 0)",
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "77228ae1-7f09-4ece-93df-2b70b5959ac4",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "点击某条编队条目后，背景人物资源立即按所选编队刷新，进入待确认状态，此时仅进行本地预览，不与服务器交互。点击【确认切换】后，与服务器交互；成功后正式更新玩法当前编队、刷新相关部队数据并关闭面板。",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "675b5876-080d-40da-9149-d4244cbff88a",
+    "type": "quote",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "考虑到不关闭界面连续切换，可能会有刷新卡顿问题，程序说正在优化这方面的性能，若无法做到流畅再考虑妥协",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "ca3a69c8-a010-4254-b4ed-ef5916082b71",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "数据变化\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "在双人详情中将领层面的技能或者装备，部队层面的协力技，圣物等，也会同步更新到当前编队的穿戴库中",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "63a022af-d5e6-4620-bd42-2d4c04f80a98",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "关闭面板\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "点击切换面板以外的部分，不响应该点击位置原本的交互该触发的交互，只关闭这个切换编队面板",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "6e130361-5104-4470-ad1a-f8d439852333",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "若已经选中其他编队但未确认，关闭面板时取消本次预览，恢复原编队的背景人物资源。",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "300b5f35-f406-4e5e-a001-d8255f907cd9",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "7b66bc99-b7ac-4cf1-834e-ecfa3925edd7",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "处理方式和范围",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "5a26ba6f-17e8-4ed2-9a7a-b4031853c5cd",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "以常用编队为数据源，写入到当前编辑编队 N 的将领穿戴库。\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "处理对象",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：位于当前编队 N 的 部队槽内 ",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "AND",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": " 将领同步开关「开」",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "ae593f26-43ac-468f-b85b-6f0f82f953b9",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "情况",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "同步字段",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "职业线相同时",
+                  "styles": {
+                    "bold": true
+                  }
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "同步携带技能，携带士兵，穿戴装备",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "职业线不同时",
+                  "styles": {
+                    "bold": true
+                  }
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "只同步装备。不同步技能和士兵",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "始终不同步",
+                  "styles": {
+                    "bold": true
+                  }
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "职业线：只用于判断同步模式。本身不会被同步\n士兵前后排：由士兵默认站位逻辑处理。\n协力技：由协力技自动装备逻辑处理。\n圣物：由圣物红点或对应模块处理。",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "a0cde88d-5f25-4e6c-b8e0-342b387d0740",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步开关规则",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "45e70e57-5bd0-42e9-9ff8-996dc87c49f9",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步开关，按",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "将领ID",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": " 记录，不按槽位记录，存放在编队 N 存档中。常用编队作为被同步的源头，不需要这个记录",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "173ccfcc-1b63-427c-88b9-d82827aac63b",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "记录创建\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "将领首次进入编队 N 的主 / 副将槽位时，创建该将领在编队 N 中的同步开关记录。\n初始状态由职业线决定：\n与常用编队职业线相同：默认开启。\n与常用编队职业线不同：默认关闭。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "902c5232-5b62-4bc2-badf-d7896ff507de",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "记录保留\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "将领从部队槽撤下后，记录仍保留。\n再次进入部队槽时，沿用原同步开关状态。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3a2f47c2-1527-4200-9f9c-7ea2219db928",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "自动变化",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "dc1724e3-437c-4680-8f62-7ce051042233",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": " ",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "2026.09.14新增",
+        "styles": {
+          "textColor": "rgb(255, 0, 0)",
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "db44c532-0f5c-4ac1-a918-f059df39cc80",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "特指非常用编队中，常用编队的职业线变更不会触发非常用编队中的将领的同步状态：\n",
+        "styles": {
+          "textColor": "rgb(255, 0, 0)",
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "职业线改为与常用编队相同 ID：自动开启。\n职业线改为与常用编队不同 ID：自动关闭。\n在编队 N 上下文中，手动修改该将领技能 / 士兵种类 / 装备：自动关闭。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "1682939b-5786-4ea5-ac79-e2914b946187",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "\n\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": " ",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "2026.07.23新增\n",
+        "styles": {
+          "textColor": "rgb(255, 0, 0)",
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "玩家手动切换\n",
+        "styles": {
+          "bold": true,
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      },
+      {
+        "type": "text",
+        "text": "玩家在将领同步面板点击开关后，立即更新并保存编队 N 存档中的该将领同步开关状态。\n\n 关闭面板或未点击「批量同步」时，已切换的开关状态仍然保留。\n\n 切换开关只改变同步意图，不立即执行将领同步，也不修改将领技能、士兵或装备。\n",
+        "styles": {
+          "backgroundColor": "rgb(255, 244, 204)"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c26d7f41-62b4-4698-8d3d-d3bde3da236a",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "不改变开关\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "探索界面修改常用编队中的该将领的职业线，技能，士兵，装备。\n「冲突处理汇总」中的资源剥夺。\n仅修改站位 / 协力技 / 圣物。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "7f000b81-a118-4c14-9952-9d7f8a3a3779",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "不显示 / 不参与\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "将领不在 12 个主 / 副将槽位中时，不显示在同步面板，也不参与同步。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3113376b-77ca-428c-a6b8-de756d9d0f12",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "执行将领同步",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "d532063f-bd07-4a0a-bced-99ea22396fe4",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步不会自动发生。唯一触发方式是：打开「将领同步」面板 → 点击「批量同步」。\n切换到编队 N 不会自动执行将领同步。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "23f6336e-9b59-4744-b6f3-fdf5eafd023f",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "同步模式",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "e244ef9f-6d3a-4a2c-9984-f1a56d6b998f",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "全额同步",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：当编队 N 与常用编队中该将领的职业线 ID 相同时，同步携带技能、携带士兵、穿戴装备。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "a67ce521-1d2a-49d2-a7fe-ec2a5f36cf49",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "仅装备",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：当职业线 ID 不同，且将领同步开关开启时，仅同步穿戴装备。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "f16e47af-51d8-42f9-adf1-b094f5a3c4cd",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "冲突处理\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "点击「批量同步」时，实例归属冲突按「冲突处理汇总」处理。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "64c40704-060b-4aa7-8a6b-0a6e40877df5",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "执行流程",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "1264380a-11e6-4aa0-8872-a701327560d3",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "按同步模式和「冲突处理汇总」规则，把要同步的字段写入 编队N ；",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "84cd3405-8d30-45ea-a666-7bec59ae1fec",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "触发士兵站位 / 协力技相关自动装备逻辑；",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c0529785-fb51-47ad-9b77-fede40d0a0ed",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "显示 Toast「已同步」，无有效变更时也显示",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "e45f0a68-0deb-4ee0-a1f8-ae1ecb506fed",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "不同情景的写入规则",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "b25e9b8e-db70-4d82-89a5-e404bbbd5132",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "本章说明玩家从不同情景下修改配置时，数据写入哪份编队存档",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "d8ddd881-53b8-439d-bd49-c5d6154a6e1c",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "在编队界面编辑",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c2f32294-7150-4e79-a0c3-4b552b003c86",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "玩家在编队界面编辑编队 N 时，所有修改都写入编队 N 存档，并",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "立即刷新",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "当前状态，不需要额外点击「保存」。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "196964b2-10b6-40cc-a3fb-1747d30714d6",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "编辑对象",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "修改内容",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "写入位置",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "将领",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "职业线、携带技能、携带士兵、穿戴装备",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "编队 N 的将领穿戴库",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "部队",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "主将、副将、士兵前后排站位、协力技、圣物",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "编队 N 的部队槽",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "编队",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "编队名称、将领穿戴库、将领同步开关",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "编队 N 存档",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "eaf6a9df-d797-4c2e-a78c-17f2a4434ae1",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "在出击界面编辑",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "b898c054-9e2a-4f85-99b5-c7b2c4c5d72c",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "在出击界面的双人详情，或其关联的编队功能中修改配置时，写入当前使用的编队存档，并立即刷新当前状态。\n进入编队界面编辑后并返回时，把当前编辑的编队N带回该玩法的出击界面，并更新该玩法的「玩法当前编队」\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "玩法当前编队\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "某个玩法中战前阶段时默认读取哪份编队存档；不同玩法分别记忆。没有初始数据时，读取常用编队。\n目前分为：剧情战斗、进阶本、经验本、装备本、金币本、兵营本",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "82812b1b-8b23-48b6-9965-94e3e2df13b2",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "在将领详情编辑",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "9b90787e-f823-4e54-ac74-b19fb82b1f77",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "探索界面的将领详情固定读写常用编队的将领穿戴库。\n原因是探索界面展示的是常用配置，而不是当前编辑编队或某个玩法当前编队。\n如果从编队 N 的编辑上下文",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "跳转到将领详情",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "，即使修改的是未上阵将领，也",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "仍然写入编队 N",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": " 的将领穿戴库。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "22521b51-55de-46a4-9372-953f65188c9c",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "获得新技能、新士兵后的处理",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "0abb0ac4-fb26-45a9-8fb4-9222dfb552b2",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "新技能、新士兵的自动更替按获得渠道分两类：",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "2650d441-4b52-456a-ace1-0dd703fb2ad1",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领进阶获得",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": [
+      {
+        "id": "a2b15b96-651c-47e0-8426-26571ff045a8",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "常规的进阶界面，以及",
+            "styles": {}
+          },
+          {
+            "type": "text",
+            "text": "便捷切换时进阶获得",
+            "styles": {
+              "bold": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "的新士兵、新技能。",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "6d3a5936-833e-4de9-8187-65be408ae94a",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "对该将领的",
+            "styles": {}
+          },
+          {
+            "type": "text",
+            "text": "所有编队、所有职业线、无论是否上阵",
+            "styles": {
+              "bold": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "，都做检查和更替处理。",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "14a78b48-538b-4a14-acea-9fe6c20fb67f",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "其他通用渠道获得",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": [
+      {
+        "id": "3bbd7e6f-707d-4b60-abbd-30175579cede",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "主要指探索、任务、剧情、科技等，",
+            "styles": {}
+          },
+          {
+            "type": "text",
+            "text": "只对常用编队的当前职业线",
+            "styles": {
+              "bold": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "做立即更新（因为这些行为一般都是在探索模式下）",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "d26351ad-611a-40c1-bfec-d81764fc8f0f",
+        "type": "bulletListItem",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "其他编队或职业线在以下节点再检查和更替：",
+            "styles": {}
+          }
+        ],
+        "children": [
+          {
+            "id": "b006bec5-3527-445f-abfa-089b8b2cb6a1",
+            "type": "bulletListItem",
+            "props": {
+              "backgroundColor": "default",
+              "textColor": "default",
+              "textAlignment": "left"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "切换编队时，对部队槽中的将领更替；",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "8f4b8ed0-987f-4942-8b3e-647c38262d60",
+            "type": "bulletListItem",
+            "props": {
+              "backgroundColor": "default",
+              "textColor": "default",
+              "textAlignment": "left"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "将领放入当前编队的部队槽；",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "8ba8f1e6-810d-4c69-8d2e-c7dd8770c5f0",
+            "type": "bulletListItem",
+            "props": {
+              "backgroundColor": "default",
+              "textColor": "default",
+              "textAlignment": "left"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "将领转职；",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "9d77977c-c807-452f-836f-bd3011ea04b9",
+            "type": "bulletListItem",
+            "props": {
+              "backgroundColor": "default",
+              "textColor": "default",
+              "textAlignment": "left"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "后续新增的关键节点……",
+                "styles": {}
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cf812672-bddb-40e0-910d-a2866b335ee7",
+    "type": "quote",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "处理原则",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：数据处理压力小时，尽量做全量的立即更替处理，以免遗漏。在处理压力较大时，只在关键节点时做更替处理.\n",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "已知缺陷",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：转职界面查看目标职业线上携带的技能、编队界面查看未放入部队槽位的将领、会出现技能和士兵“过时”的情况，前者还好转职过去后会立即检查更替，后者玩家可能不知道放入部队后自动更替，还在那里徒劳的先自己更换",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "1e07bd1d-3a8e-434d-9138-4d1fe02ebf35",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "自动更替处理",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "19465c69-97b9-4c9e-9f40-512f90ea0016",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "对于技能，有空槽位的填空槽，同名高级技能替换低级技能",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "5f8df1e1-b325-4a91-a7ec-27646d5fc928",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "对于士兵，遵循《将领携带士兵》中判断逻辑和优先级",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "2ca98e28-0d6b-4f93-9cf7-819bd4f255b1",
+        "type": "paragraph",
+        "props": {
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "系统自动更替不视为玩家手动修改，不会因此关闭将领同步开关",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "077ba051-3041-4767-b50d-e8b63ebe617f",
+    "type": "quote",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "处理原则",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：不做有争议的更替，尽量只做肯定变强的替换",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "b6286c0f-07f8-4010-b27b-31f23f734a85",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "切换编队的数据处理",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "ec71dc23-f667-4524-b4fa-79ccc424d0b1",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "本章说明当某个玩法最终使用编队 N 出击时，系统如何用编队 N 存档刷新当前状态。\n典型时机是：玩家在某个玩法战前阶段确认使用编队 N，或从该玩法进入编队界面后，确认把编队 N 带回出击界面。此时系统需要先补全必要存档数据，再用 N 的方案刷新当前状态。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "9300b1f6-baa0-491f-902d-956010db0d19",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "缺失记录补全",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c48bd3da-80ed-4f0b-b388-16c5f1f30a69",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "当编队 N 没有某个将领的穿戴记录，但常用编队中已有该将领记录时，需要补全。\n原因：编队 N 创建较早，当时尚未获得该将领，因此没有该将领记录。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "d6181f65-620c-402f-922e-8653d640bd96",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "触发条件",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：\n某将领在常用编队穿戴库有记录，而在编队N穿戴库从未有过",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "ac1da97c-8931-448f-a340-afa5096714fd",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "执行时机\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "仅在玩家点击【确认切换】并正式使用编队 N 时执行；选中编队进行本地预览时不执行。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3cd5f450-2965-4e46-ba98-87c0e8d3ad1c",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "处理方式",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：\n把该将领在常用编队中的穿戴记录复制到 N\n如果补全内容与 N 已有归属冲突，按「冲突处理汇总」处理。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "d51f2084-308f-46d4-88a2-3fb716dc15a3",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "不会处理",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "：\n不改 N 的 6 个部队槽，不覆盖 N 中已有记录\n不改其他编队，不改常用编队穿戴内容",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "f63d6a1f-0dd4-4f61-865a-0b17c0b27023",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "MVP 阶段不开放玩家修改常用编队。后续若开放「设为常用」，需要在切换常用指针前完成必要导入，避免探索界面短暂缺将。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "5a6d9b16-964a-4f8d-999d-36ad179a5e56",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "用编队 N 存档刷新当前状态",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "83afa348-4bc6-469b-a47d-0287157addbf",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "缺失记录补全完成后，系统按编队 N 存档重建当前状态。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "25b20c3d-e36b-437f-ab70-f2b4fdd54800",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "处理范围\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "部队槽内的将领 / 部队，主将、副将、穿戴、士兵前后排、协力技、圣物全部按 N 存档对齐。\n不在部队槽、但 N 穿戴库有记录的将领，仅穿戴按 N 存档对齐。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "bea52166-83e4-4e7d-a441-5dd595b3cd9b",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "冲突处理\n",
+        "styles": {
+          "bold": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "装备、士兵、圣物的实例归属冲突，按「冲突处理汇总」处理。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "6162b622-6e64-489e-858d-f81eeaecf4e3",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 3,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "红点",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "2122a4f5-b801-4f2b-a564-dba822f884d1",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "切换编队后，会按原先红点文档中的逻辑规则，对「重点将领」提示红点（参见《红点提示功能》文档）\n即使将领同步开关关闭的，再放入部队的将领仍可由装备系统推送常规红点。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "17611eea-9949-4f8c-b282-672247215763",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "冲突处理汇总",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "8ca1a8b4-23c0-4583-95e3-b8a0c3d1a6ab",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "同一装备、士兵或圣物实例，同一时刻只能有一个真实归属。不同操作场景下，系统采用不同处理策略，不能混用。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "83c105f4-fac9-4884-a595-dd50cb435fe5",
+    "type": "quote",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "核心原则是：谁正在表达玩家的当前意图，就以谁为准。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "94bbefa7-5136-49ab-8347-706e18165c74",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "场景",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "优先级",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "处理规则",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "原因",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "缺失记录补全",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "N 已有归属",
+                  "styles": {
+                    "bold": true
+                  }
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "不剥夺 N 中已归属给他人的资源；装不上则留空",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "补全只是兜底，不应破坏 N 已保存的方案",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "切换出击编队 / 即时编辑",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "N 存档",
+                  "styles": {
+                    "bold": true
+                  }
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "按 N 存档意图处理；能装则装，不能装则留空",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "玩家正在使用 N 出击或编辑 N，N 是当前意图",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "将领同步 · 执行",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "常用编队",
+                  "styles": {
+                    "bold": true
+                  }
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "以常用编队为准，可剥夺本编队其他将领的装备 / 士兵；装不上则留空",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "玩家主动点击同步，预期就是让勾选将领跟常用对齐",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "dcab7e32-12c6-4c37-8f99-d5f3bb574ac8",
+    "type": "quote",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "[!Tip]\n当「仅装备」或者「不同步」的将领，与「全额同步」的将领发生",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "唯一士兵",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "或",
+        "styles": {}
+      },
+      {
+        "type": "text",
+        "text": "装备冲突",
+        "styles": {
+          "code": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "，需要按「全额同步」的 意图为优先\n例如：当前非常用编队里，装备现在属于 B；但玩家点击批量同步后，常用编队的配置要求 A 使用这件装备。那么按照以上规则就需要，按优先级来处理，该装备的从属关系。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "a9773bf0-e534-45e9-956b-97680c63acec",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "补充规则",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "8108d6bd-eced-41ac-825d-d5c25621a6e5",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步中，唯一士兵被剥夺后，走士兵自动携带逻辑补位；",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c11ba430-7016-4ba9-b490-b87b733dc20b",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "因系统处理导致某将领资源被剥夺，不会自动关闭该将领的将领同步开关。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "194f7edb-e862-4cd5-a380-3383603dc8e9",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "玩家说明（引导 / 帮助）",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "b27d2f47-534f-40aa-a0a3-8a6e70057335",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "用于编队系统左上角的帮助按钮点出的弹窗内配置的文本",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "59dad630-1ad1-43c6-8e23-6caaa99988a2",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "每个编队都会单独保存配置，调整后会自动保存。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "0a043837-cd69-463a-b36e-c13fbf5177eb",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "不同玩法会记住各自上次使用的编队。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "d1706877-2d42-4e04-86ac-3d4788f89d78",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "探索界面的将领详情使用常用编队配置。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "8cdf72fe-16b7-4897-8ed2-4dc616cd539f",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "需要把常用编队的配置同步到其他编队时，可在「将领同步」中点击「批量同步」。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "42e4df08-cea1-42c8-bef5-e945869bdcd3",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "将领同步不会自动执行；出现红点时，只表示有可同步内容。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "410ca140-388f-402e-85a4-72ef102543e6",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left",
+      "level": 2,
+      "isToggleable": false
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "后续迭代",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c131ebbf-b6bd-49ae-a75a-87727d061250",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "后续可能会开放玩家修改常用编队；若开放，需要补充设为常用入口、确认提示、指针切换与导入规则",
+        "styles": {}
+      }
+    ],
+    "children": []
+  }
+]
