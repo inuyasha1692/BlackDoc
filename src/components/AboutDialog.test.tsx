@@ -8,6 +8,7 @@ const props = () => ({
   version: "0.1.0",
   update: { kind: "current" as const },
   updateAction: { kind: "idle" as const },
+  showUpdateGuide: false,
   onCheck: vi.fn(),
   onDownload: vi.fn(),
   onInstall: vi.fn(),

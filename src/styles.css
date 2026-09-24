@@ -348,6 +348,13 @@ button {
   font-size: 11px;
 }
 
+.update-dot-inline {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--app-accent);
+}
+
 .toolbar-separator {
   width: 1px;
   height: 22px;
@@ -875,6 +882,7 @@ button {
 }
 
 .about-update button {
+  position: relative;
   display: inline-grid;
   flex: 0 0 28px;
   width: 28px;
@@ -885,6 +893,17 @@ button {
   color: var(--app-text);
   background: transparent;
   cursor: pointer;
+}
+
+.update-dot-check {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--app-surface);
+  border-radius: 50%;
+  background: var(--app-accent);
 }
 
 .about-update button:hover,
