@@ -82,6 +82,36 @@ const expectTarget = (document: Document, link: HTMLAnchorElement, id: string) =
 };
 
 describe("buildStandaloneHtml outline", () => {
+  it("uses the editor's minimum cell width for tables without explicit column widths", async () => {
+    const { BlockNoteEditor } = await import("@blocknote/core");
+    const { blackDocSchema } = await import("../editor/schema");
+    const { importMarkdownBlocks } = await import("../editor/markdownImport");
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema });
+    try {
+      const markdown = [
+        "| 日期 | 更新人 | 更新内容 | 跳转 | 工单 |",
+        "| --- | --- | --- | --- | --- |",
+        "| 2026.09.17 | 张敏 | [新增，调整探索度统计](#调整) | 新增2 | CB 0.5 |",
+        "",
+        "| 项目 | 说明 |",
+        "| --- | --- |",
+        "| A | 另一张普通表格 |",
+      ].join("\n");
+      const blocks = importMarkdownBlocks(editor, markdown).blocks;
+      const { document } = await exportDocument(blocks, editor.blocksToFullHTML(blocks));
+      const tables = document.querySelectorAll(".bn-block-content[data-content-type='table'] table");
+      const css = document.querySelector("style")?.textContent ?? "";
+      expect(tables).toHaveLength(2);
+      expect(css).toContain(":is(th, td):not([colwidth]) { min-width: var(--default-cell-min-width, 120px); }");
+      expect(css).toContain("table { width: auto; margin: 0; word-break: break-word; }");
+      expect(css).not.toContain("revision-history-table");
+      expect(Array.from(tables, table => table.querySelectorAll("col:not([style])").length))
+        .toEqual([5, 2]);
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
+
   it("preserves BlockNote formatting in the standalone document", async () => {
     const { BlockNoteEditor } = await import("@blocknote/core");
     const { blackDocSchema } = await import("../editor/schema");

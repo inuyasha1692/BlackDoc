@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { importMarkdownBlocks } from "./markdownImport";
 import { isBlackDocument } from "./document";
 import { blackDocSchema } from "./schema";
+import { buildStandaloneHtml } from "../export/standaloneHtml";
 
 const image = "data:image/png;base64,iVBORw0KGgo=";
 
@@ -73,6 +74,86 @@ describe("Markdown import", () => {
       editor._tiptapEditor.destroy();
     }
   });
+
+  it.each([3, 4])("keeps pictures inside consecutive %i-column display rows", columns => {
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema });
+    try {
+      const headers = ["名称", "图片", "说明", "备注"].slice(0, columns);
+      const row = (name: string) => [
+        name, `![${name}](${image})`, "图文说明", "待确认",
+      ].slice(0, columns);
+      const result = importMarkdownBlocks(editor, [
+        `| ${headers.join(" | ")} |`,
+        `| ${headers.map(() => "---").join(" | ")} |`,
+        `| ${row("第一行").join(" | ")} |`,
+        `| ${row("第二行").join(" | ")} |`,
+      ].join("\n"));
+      const rows = result.blocks.filter(block => block.type === "columnList");
+      expect(rows).toHaveLength(3);
+      expect(rows.every(block => block.children.length === columns)).toBe(true);
+      expect(rows[1].children[1].children.some(block => block.type === "image")).toBe(true);
+      expect(rows[2].children[1].children.some(block => block.type === "image")).toBe(true);
+      expect(result.blocks.some(block => block.type === "image")).toBe(false);
+      expect(isBlackDocument(result.blocks)).toBe(true);
+      expect(result.warnings).toEqual([]);
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
+
+  it.each([3, 4])("exports pictures inside their converted %i-column rows", async columns => {
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema });
+    try {
+      const header = ["名称", "图示", "说明", "备注"].slice(0, columns);
+      const row = (name: string, description: string) =>
+        [name, `![${name}](${image})`, description, "其他"].slice(0, columns);
+      const result = importMarkdownBlocks(editor, [
+        `| ${header.join(" | ")} |`,
+        `| ${header.map(() => "---").join(" | ")} |`,
+        `| ${row("第一行", "描述一").join(" | ")} |`,
+        `| ${row("第二行", "描述二").join(" | ")} |`,
+      ].join("\n"));
+      const { html } = await buildStandaloneHtml(editor, result.blocks);
+      const exported = new DOMParser().parseFromString(html, "text/html");
+      const rows = exported.querySelectorAll(".bn-block-column-list");
+      expect(rows).toHaveLength(3);
+      expect(rows[1].querySelectorAll(".bn-block-column")[1].querySelector("img")?.getAttribute("src")).toBe(image);
+      expect(rows[2].querySelectorAll(".bn-block-column")[1].querySelector("img")?.getAttribute("src")).toBe(image);
+      expect(rows[1].querySelectorAll(".bn-block-column")[2].textContent).toContain("描述一");
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
+
+  it("keeps pictures in ordinary data table cells through save and HTML export", async () => {
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema });
+    try {
+      const result = importMarkdownBlocks(editor, [
+        "| 名称 | 类型 | 图标 | 状态 | 备注 |",
+        "| --- | --- | --- | --- | --- |",
+        `| 路点 | 交互物 | 前![图一](${image})后![图二](${image}) | 激活 | 已确认 |`,
+      ].join("\n"));
+      const table = result.blocks.find(block => block.type === "table");
+      expect(table).toBeDefined();
+      const cell = table?.type === "table" && table.content.type === "tableContent"
+        ? table.content.rows[1].cells[2] : null;
+      expect(cell && "content" in cell ? cell.content.map(part => part.type) : null)
+        .toEqual(["text", "tableImage", "text", "tableImage"]);
+      expect(result.blocks.some(block => block.type === "image")).toBe(false);
+      expect(result.warnings).toEqual([]);
+      const restored = JSON.parse(JSON.stringify(result.blocks));
+      expect(isBlackDocument(restored)).toBe(true);
+      editor.replaceBlocks(editor.document, restored);
+      const { html } = await buildStandaloneHtml(editor, editor.document);
+      const exported = new DOMParser().parseFromString(html, "text/html");
+      const imageCell = exported.querySelectorAll("table tbody tr")[1]?.querySelectorAll("td,th")[2];
+      expect(imageCell?.querySelectorAll("img")).toHaveLength(2);
+      expect(imageCell?.textContent).toContain("前");
+      expect(imageCell?.textContent).toContain("后");
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
 });
 
 const samplePath = process.env.BLACKDOC_IMPORT_SAMPLE;
@@ -86,7 +167,8 @@ if (samplePath) {
         const serialized = JSON.stringify(result.blocks);
         expect(result.blocks.some(block => block.type === "table")).toBe(true);
         expect(result.blocks.filter(block => block.type === "splitPane").length).toBeGreaterThan(10);
-        expect(serialized.match(/"type":"image"/g)?.length).toBe(118);
+        expect((serialized.match(/"type":"image"/g) ?? []).length +
+          (serialized.match(/"type":"tableImage"/g) ?? []).length).toBe(118);
         expect((serialized.match(/BLACKDOCIMPORT[A-Z]*\d+END/g) ?? []).slice(0, 5)).toEqual([]);
         expect(isBlackDocument(result.blocks)).toBe(true);
         expect(JSON.stringify(result.blocks)).toContain("#block=");

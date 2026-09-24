@@ -51,7 +51,7 @@ describe("document helpers", () => {
 
     expect(htmlFileName(null, blocks)).toBe("建筑系统.html");
     expect(htmlFileName("新文件.bdoc", blocks)).toBe("新文件.html");
-    expect(htmlFileName("旧文件.blackdoc", blocks)).toBe("旧文件.html");
+    expect(htmlFileName("旧文件.blackdoc", blocks)).toBe("建筑系统.html");
 
   });
 

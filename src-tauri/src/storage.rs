@@ -51,12 +51,12 @@ pub fn is_document_path(path: &Path) -> bool {
         .unwrap_or_default()
         .to_string_lossy()
         .to_lowercase();
-    name.ends_with(".bdoc") || name.ends_with(".blackdoc")
+    name.ends_with(".bdoc")
 }
 
 pub fn read_document(path: &Path) -> Result<(Value, Vec<u8>)> {
     if !is_document_path(path) {
-        return Err("Expected .bdoc or .blackdoc".into());
+        return Err("Expected a .bdoc document".into());
     }
     let bytes = fs::read(path).map_err(error)?;
     let value = serde_json::from_slice(&bytes).map_err(error)?;
@@ -280,7 +280,7 @@ pub fn json_bytes(value: &impl Serialize) -> Result<Vec<u8>> {
 
 pub fn suggested_name(input: &str, html: bool) -> String {
     let mut stem = input.trim().to_string();
-    for suffix in [".blackdoc", ".bdoc", ".html"] {
+    for suffix in [".bdoc", ".html"] {
         if stem.to_lowercase().ends_with(suffix) {
             stem.truncate(stem.len() - suffix.len());
             break;
@@ -327,7 +327,7 @@ pub fn save_target(mut path: PathBuf, html: bool) -> Result<PathBuf> {
             return Err("HTML export requires the .html extension".into());
         }
     } else if !is_document_path(&path) {
-        return Err("Save using .bdoc or .blackdoc".into());
+        return Err("Save using the .bdoc extension".into());
     }
     canonical_target(&path)
 }

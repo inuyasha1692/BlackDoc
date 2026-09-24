@@ -64,19 +64,36 @@ const paletteColor = (value: string, kind: "textColor" | "backgroundColor"): str
 const imageDescriptionPanes = (blocks: BlackDocBlock[]): BlackDocBlock[] => blocks.flatMap(block => {
   if (block.type !== "table" || block.content.type !== "tableContent") return [block];
   const rows = block.content.rows;
-  if (rows.length === 0 || rows.some(row => row.cells.length !== 2)) return [block];
+  if (rows.length === 0 || rows.some(row => row.cells.length !== rows[0].cells.length)) return [block];
+  const columnCount = rows[0].cells.length;
+  if (columnCount < 2 || columnCount > 4) return [block];
   const header = rows[0].cells.map(cell => plainText(cell).trim());
-  const firstRow = header[0] === "图片" && header[1] === "说明" ? 1 : 0;
+  const isImageDescription = columnCount === 2 && header[0] === "图片" && header[1] === "说明";
+  const firstRow = isImageDescription ? 1 :
+    block.content.headerRows && !header.some(text => text.includes(IMAGE_MARKER)) ? 1 : 0;
   const contentRows = rows.slice(firstRow);
   if (!contentRows.length || contentRows.some(row =>
-    !plainText(row.cells[0]).includes(IMAGE_MARKER) || !plainText(row.cells[1]).trim())) return [block];
-  return contentRows.map(row => ({
-    ...createSplitPane(), id: crypto.randomUUID(),
-    props: { leftWidth: 50, rightHeight: SPLIT_AUTO_HEIGHT },
-    children: row.cells.map((cell, index) => ({
-      id: crypto.randomUUID(), type: "splitColumn", props: { side: index === 0 ? "left" : "right" },
-      children: [{ id: crypto.randomUUID(), type: "paragraph",
-        content: isObject(cell) && Array.isArray(cell.content) ? cell.content : cell, children: [] }],
+    !row.cells.some(cell => plainText(cell).includes(IMAGE_MARKER)) ||
+    !row.cells.some(cell => plainText(cell).replace(/BLACKDOCIMPORTIMAGE\d+END/g, "").trim()))) return [block];
+  const cellContent = (cell: unknown) =>
+    isObject(cell) && Array.isArray(cell.content) ? cell.content : cell;
+  if (columnCount === 2 && contentRows.every(row =>
+    plainText(row.cells[0]).includes(IMAGE_MARKER))) {
+    return contentRows.map(row => ({
+      ...createSplitPane(), id: crypto.randomUUID(),
+      props: { leftWidth: 50, rightHeight: SPLIT_AUTO_HEIGHT },
+      children: row.cells.map((cell, index) => ({
+        id: crypto.randomUUID(), type: "splitColumn", props: { side: index === 0 ? "left" : "right" },
+        children: [{ id: crypto.randomUUID(), type: "paragraph", content: cellContent(cell), children: [] }],
+      })),
+    } as unknown as BlackDocBlock));
+  }
+  const displayRows = firstRow === 1 ? rows : contentRows;
+  return displayRows.map(row => ({
+    id: crypto.randomUUID(), type: "columnList", props: {},
+    children: row.cells.map(cell => ({
+      id: crypto.randomUUID(), type: "column", props: { width: 1 },
+      children: [{ id: crypto.randomUUID(), type: "paragraph", content: cellContent(cell), children: [] }],
     })),
   } as unknown as BlackDocBlock));
 });
@@ -154,7 +171,8 @@ export const importMarkdownBlocks = (
   const flatten = (items: BlackDocBlock[]): BlackDocBlock[] => items.flatMap(block =>
     [block, ...flatten(block.children)]);
   const anchorSources = flatten(parsed).filter(block =>
-    block.type !== "splitPane" && block.type !== "splitColumn");
+    block.type !== "splitPane" && block.type !== "splitColumn" &&
+    block.type !== "columnList" && block.type !== "column");
   for (const [index, block] of anchorSources.entries()) {
     if (block.type === "heading") {
       const title = plainText(block.content).trim();
@@ -214,6 +232,32 @@ export const importMarkdownBlocks = (
       ? { ...image, props: { ...image.props, previewWidth: source.previewWidth } }
       : image;
   };
+  const embedTableImages = (block: BlackDocBlock): void => {
+    visit(block, object => {
+      if (object.type !== "tableCell" || !Array.isArray(object.content)) return;
+      object.content = object.content.flatMap((item: unknown) => {
+        if (!isObject(item) || item.type !== "text" || typeof item.text !== "string" ||
+          !item.text.includes(IMAGE_MARKER)) return [item];
+        const inline: unknown[] = [];
+        let start = 0;
+        for (const match of item.text.matchAll(imagePattern)) {
+          if (match.index > start) inline.push({ ...item, text: item.text.slice(start, match.index) });
+          const index = Number(match[1]);
+          const source = masked.images[index];
+          if (source) {
+            placedImages.add(index);
+            inline.push({
+              type: "tableImage",
+              props: { url: source.url, name: source.name, previewWidth: source.previewWidth ?? 0 },
+            });
+          }
+          start = match.index + match[0].length;
+        }
+        if (start < item.text.length) inline.push({ ...item, text: item.text.slice(start) });
+        return inline;
+      });
+    });
+  };
   const expandColumn = (column: BlackDocBlock): BlackDocBlock => {
     const children: BlackDocBlock[] = [];
     for (const child of column.children) {
@@ -251,10 +295,11 @@ export const importMarkdownBlocks = (
     return { ...column, children };
   };
   for (const block of blocks) {
-    if (block.type === "splitPane") {
+    if (block.type === "splitPane" || block.type === "columnList") {
       withImages.push({ ...block, children: block.children.map(expandColumn) });
       continue;
     }
+    if (block.type === "table") embedTableImages(block);
     const indexes: number[] = [];
     const videoIndexes: number[] = [];
     visit(block, object => {

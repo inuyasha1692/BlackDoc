@@ -1,9 +1,11 @@
 import { BlockNoteEditor, blockToNode } from "@blocknote/core";
+import { Node as PMNode } from "@tiptap/pm/model";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { blackDocSchema, type BlackDocEditor, type BlackDocPartialBlock } from "./schema";
 import { SPLIT_DOCUMENT_REPLACE_META, SplitPaneExtension } from "./splitPaneExtension";
+import { OptimizedTrailingNodeExtension } from "./trailingNodeExtension";
 
 const editors: BlackDocEditor[] = [];
 const pane = (content: BlackDocPartialBlock[] = [{ id: "left-text", type: "paragraph", content: "Left" }]): BlackDocPartialBlock => ({
@@ -15,10 +17,13 @@ const pane = (content: BlackDocPartialBlock[] = [{ id: "left-text", type: "parag
   ],
 });
 
-function createEditor(block = pane()) {
+function createEditor(block = pane(), optimizeTrailingNode = false) {
   const editor = BlockNoteEditor.create({
     schema: blackDocSchema,
-    extensions: [SplitPaneExtension()],
+    disableExtensions: optimizeTrailingNode ? ["trailingNode"] : [],
+    extensions: optimizeTrailingNode
+      ? [SplitPaneExtension(), OptimizedTrailingNodeExtension()]
+      : [SplitPaneExtension()],
     initialContent: [block, { id: "after", type: "paragraph", content: "After" }],
   });
   editor.mount(document.createElement("div"));
@@ -174,6 +179,75 @@ describe("native split pane paste", () => {
 });
 
 describe("split pane structural protection", () => {
+  it("does not traverse the document for a paragraph edit", () => {
+    const editor = createEditor(pane(), true);
+    editor.setTextCursorPosition("left-text", "end");
+    const descendants = vi.spyOn(PMNode.prototype, "descendants");
+
+    const { state, view } = editor._tiptapEditor;
+    view.dispatch(state.tr.insertText("x"));
+
+    expect(descendants).not.toHaveBeenCalled();
+    descendants.mockRestore();
+  });
+
+  it("updates the trailing widget when typing into the last empty paragraph", () => {
+    const editor = BlockNoteEditor.create({
+      schema: blackDocSchema,
+      disableExtensions: ["trailingNode"],
+      extensions: [OptimizedTrailingNodeExtension()],
+      initialContent: [{ id: "last", type: "paragraph", content: "" }],
+    });
+    editor.mount(document.createElement("div"));
+    editors.push(editor);
+    expect(editor._tiptapEditor.view.dom.querySelector(".bn-trailing-block")).toBeNull();
+
+    editor.setTextCursorPosition("last", "end");
+    const { state, view } = editor._tiptapEditor;
+    view.dispatch(state.tr.insertText("x"));
+
+    expect(editor._tiptapEditor.view.dom.querySelector(".bn-trailing-block")).not.toBeNull();
+    const descendants = vi.spyOn(PMNode.prototype, "descendants");
+    const nextState = view.state;
+    view.dispatch(nextState.tr.insertText("y"));
+    expect(descendants).not.toHaveBeenCalled();
+    descendants.mockRestore();
+  });
+
+  it("preserves numbered-list indices while typing and refreshes them after insertion", () => {
+    const editor = BlockNoteEditor.create({
+      schema: blackDocSchema,
+      disableExtensions: ["trailingNode"],
+      extensions: [OptimizedTrailingNodeExtension()],
+      initialContent: [
+        { id: "first-item", type: "numberedListItem", content: "First" },
+        { id: "second-item", type: "numberedListItem", content: "Second" },
+      ],
+    });
+    editor.mount(document.createElement("div"));
+    editors.push(editor);
+    const indexedItem = (id: string) => editor._tiptapEditor.view.dom
+      .querySelector<HTMLElement>(`.bn-block-outer[data-id="${id}"] .bn-block-content`);
+    expect(indexedItem("first-item")?.getAttribute("data-index")).toBe("1");
+    expect(indexedItem("second-item")?.getAttribute("data-index")).toBe("2");
+
+    editor.setTextCursorPosition("first-item", "end");
+    const descendants = vi.spyOn(PMNode.prototype, "descendants");
+    const { state, view } = editor._tiptapEditor;
+    view.dispatch(state.tr.insertText(" edited"));
+    expect(descendants).not.toHaveBeenCalled();
+    descendants.mockRestore();
+
+    editor.insertBlocks(
+      [{ id: "inserted-item", type: "numberedListItem", content: "Inserted" }],
+      "first-item",
+      "before",
+    );
+    expect(indexedItem("inserted-item")?.getAttribute("data-index")).toBe("1");
+    expect(indexedItem("first-item")?.getAttribute("data-index")).toBe("2");
+    expect(indexedItem("second-item")?.getAttribute("data-index")).toBe("3");
+  });
+
   it("allows regular content editing and layout props", () => {
     const editor = createEditor();
     editor.updateBlock("left-text", { content: "Edited", type: "heading" });

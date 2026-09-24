@@ -3,6 +3,7 @@ import "@blocknote/mantine/style.css";
 import "./styles.css";
 import { combineByGroup } from "@blocknote/core";
 import {
+  FormattingToolbarExtension,
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
@@ -45,6 +46,8 @@ import { useAppTheme } from "./useAppTheme";
 
 type UpdateGuideStage = "more" | "about" | "check" | "done";
 
+export const AUTO_SAVE_DELAY_MS = 60_000;
+
 const updateGuideKey = (version: string) => `blackdoc:update-guide:${version.replace(/^v/, "")}`;
 
 const readUpdateGuideStage = (version: string): UpdateGuideStage => {
@@ -82,12 +85,14 @@ import {
 import { PreserveHeadingLevelExtension } from "./editor/preserveHeadingLevel";
 import { HeadingNumberExtension } from "./editor/headingNumberExtension";
 import { importMarkdownBlocks } from "./editor/markdownImport";
+import { changesAffectOutline } from "./editor/outline";
 import { FindAndReplaceExtension } from "./editor/findAndReplace";
 import { InheritColumnFormatExtension } from "./editor/inheritColumnFormat";
 import { TableEnterNavigationExtension } from "./editor/tableEnterNavigation";
 import { blackDocSchema, type BlackDocBlock, type BlackDocEditor } from "./editor/schema";
 import { createSplitPane, isInsideSplitPane } from "./editor/splitPane";
 import { SplitPaneExtension, SPLIT_DOCUMENT_REPLACE_META } from "./editor/splitPaneExtension";
+import { OptimizedTrailingNodeExtension } from "./editor/trailingNodeExtension";
 import { CanvasEditorHost } from "./canvas/CanvasPreview";
 import { buildStandaloneHtml } from "./export/standaloneHtml";
 import {
@@ -142,7 +147,9 @@ export default function App() {
       multi_column: multiColumnLocales.zh,
     },
     dropCursor: multiColumnDropCursor,
+    disableExtensions: ["trailingNode"],
     extensions: [
+      OptimizedTrailingNodeExtension(),
       PreserveHeadingLevelExtension(),
       HeadingNumberExtension(),
       FindAndReplaceExtension(),
@@ -196,10 +203,34 @@ export default function App() {
     cloneDocument(editor.document),
   );
   const editorInstanceRef = useRef(editor);
+
+  useEffect(() => {
+    if (typeof editor.getExtension !== "function") return;
+
+    const formattingToolbar = editor.getExtension(FormattingToolbarExtension);
+    if (!formattingToolbar) return;
+
+    const editorDom = editor.prosemirrorView.dom;
+
+    const showSelectedImageToolbar = () => {
+      requestAnimationFrame(() => {
+        if (editorDom.querySelector(
+          '.ProseMirror-selectednode[data-content-type="image"]',
+        )) {
+          formattingToolbar.store.setState(true);
+        }
+      });
+    };
+
+    editorDom.addEventListener("pointerup", showSelectedImageToolbar);
+    return () => editorDom.removeEventListener("pointerup", showSelectedImageToolbar);
+  }, [editor]);
+
   const bootstrappedRef = useRef(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [busy, setBusy] = useState(false);
+  const [importingMarkdown, setImportingMarkdown] = useState(false);
   const [desktopReady, setDesktopReady] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -271,7 +302,7 @@ export default function App() {
   }, []);
 
   const schedulePersistence = useCallback(
-    (delay = 1000) => {
+    (delay = AUTO_SAVE_DELAY_MS) => {
       clearSaveTimer();
       saveTimerRef.current = window.setTimeout(() => {
         saveTimerRef.current = null;
@@ -287,7 +318,7 @@ export default function App() {
       return;
     }
 
-    const snapshot = cloneDocument(editor.document);
+    const snapshot = editor.document;
     const version = changeVersionRef.current;
     saveInFlightRef.current = true;
 
@@ -401,9 +432,10 @@ export default function App() {
 
   useEffect(() => {
     if (editorInstanceRef.current === editor) return;
+    const previousEditor = editorInstanceRef.current;
     editorInstanceRef.current = editor;
-    replaceDocument(blocks);
-  }, [blocks, editor, replaceDocument]);
+    replaceDocument(previousEditor.document);
+  }, [editor, replaceDocument]);
 
   const saveCurrentDocument = useCallback(
     async (saveAs = false): Promise<boolean> => {
@@ -412,7 +444,7 @@ export default function App() {
         return false;
       }
 
-      const snapshot = cloneDocument(editor.document);
+      const snapshot = editor.document;
       const version = changeVersionRef.current;
       saveInFlightRef.current = true;
       setBusy(true);
@@ -508,6 +540,7 @@ export default function App() {
 
   const importSelectedMarkdown = useCallback(async () => {
     setBusy(true);
+    setImportingMarkdown(true);
     try {
       const imported = await importDesktopMarkdown();
       if (!imported) return;
@@ -522,25 +555,24 @@ export default function App() {
       changeVersionRef.current += 1;
       setStatus("unsaved");
       await deleteDraft();
-      const saved = await saveCurrentDocument();
+      schedulePersistence();
       const warnings = [...imported.warnings, ...converted.warnings];
-      if (saved) {
-        setNotice({
-          tone: warnings.length ? "warning" : "info",
-          message: warnings.length
-            ? `Markdown 已导入并保存；${warnings.slice(0, 3).join("；")}`
-            : "Markdown 已导入并保存。",
-        });
-      }
+      setNotice({
+        tone: warnings.length ? "warning" : "info",
+        message: warnings.length
+          ? `Markdown 已导入；${warnings.slice(0, 3).join("；")}`
+          : "Markdown 已导入。",
+      });
     } catch (error) {
       setNotice({
         tone: "error",
         message: error instanceof Error ? error.message : String(error),
       });
     } finally {
+      setImportingMarkdown(false);
       setBusy(false);
     }
-  }, [clearSaveTimer, editor, replaceDocument, saveCurrentDocument]);
+  }, [clearSaveTimer, editor, replaceDocument, schedulePersistence]);
 
   const requestImportMarkdown = useCallback(() => {
     requestTransition("导入 Markdown", importSelectedMarkdown);
@@ -608,11 +640,16 @@ export default function App() {
   }, [editor, fileName]);
 
   const handleEditorChange = useCallback<Parameters<BlackDocEditor["onChange"]>[0]>((_editor, { getChanges }) => {
-    if (suppressChangesRef.current || !desktopReady || getChanges().length === 0) {
+    if (suppressChangesRef.current || !desktopReady) {
       return;
     }
 
-    setBlocks(cloneDocument(editor.document));
+    const changes = getChanges();
+    if (changes.length === 0) return;
+
+    if (changesAffectOutline(changes)) {
+      setBlocks(cloneDocument(editor.document));
+    }
     changeVersionRef.current += 1;
     dirtyRef.current = true;
     unsafeChangesRef.current = true;
@@ -842,6 +879,13 @@ export default function App() {
           >
             <X aria-hidden="true" size={16} />
           </button>
+        </div>
+      )}
+
+      {importingMarkdown && (
+        <div className="notice import-progress" role="status" aria-live="polite">
+          <span className="import-progress-spinner" aria-hidden="true" />
+          <span>正在导入 Markdown，请稍候…</span>
         </div>
       )}
 

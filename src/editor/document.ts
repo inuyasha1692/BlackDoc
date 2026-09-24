@@ -145,9 +145,8 @@ export const htmlFileName = (
   currentSourceName: string | null,
   blocks: readonly BlackDocBlock[],
 ): string => {
-  const suffix = [".bdoc", ".blackdoc"].find(extension =>
-    currentSourceName?.toLowerCase().endsWith(extension));
-  if (currentSourceName && suffix) {
+  const suffix = ".bdoc";
+  if (currentSourceName?.toLowerCase().endsWith(suffix)) {
     return `${currentSourceName.slice(0, -suffix.length)}.html`;
   }
 
