@@ -1,0 +1,29 @@
+.canvas-block { width: 100%; margin: 12px 0; }
+.canvas-preview { position: relative; display: grid; place-items: center; width: 100%; min-height: 220px; padding: 20px; border: 1px solid var(--app-border); border-radius: 6px; background: var(--app-surface); color: var(--app-muted); cursor: pointer; }
+.canvas-preview img { display: block; width: 100%; height: auto; object-fit: contain; }
+.canvas-preview:has(img) { min-height: 0; }
+.canvas-preview-frame { position: relative; max-width: 100%; }
+.canvas-alignment { display: flex; justify-content: flex-end; gap: 2px; margin-bottom: 4px; }
+.canvas-alignment button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--app-muted); cursor: pointer; }
+.canvas-alignment button:hover { background: var(--app-hover); }
+.canvas-alignment button[aria-pressed="true"] { border-color: var(--app-accent); background: var(--app-accent-soft); color: var(--app-accent); }
+.canvas-alignment button:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 1px; }
+.canvas-resize-handle { position: absolute; top: 50%; transform: translateY(-50%); width: 10px; height: 44px; padding: 0; border: 1px solid var(--app-surface); border-radius: 4px; background: var(--app-muted); cursor: ew-resize; touch-action: none; opacity: 0; }
+.canvas-resize-left { left: 4px; }
+.canvas-resize-right { right: 4px; }
+.canvas-preview-frame:hover .canvas-resize-handle, .canvas-preview-frame:focus-within .canvas-resize-handle { opacity: 1; }
+.canvas-resize-handle:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
+.canvas-preview-frame .canvas-edit-label { max-width: calc(100% - 24px); box-sizing: border-box; }
+@media (hover: none) { .canvas-resize-handle { opacity: 1; } }
+.canvas-preview:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
+.canvas-edit-label { position: absolute; right: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 8px; background: var(--app-raised); color: var(--app-text); border-radius: 4px; font: 13px "Segoe UI", sans-serif; }
+.canvas-dialog { width: min(1440px, calc(100vw - 32px)); height: calc(100dvh - 32px); max-width: none; max-height: none; padding: 0; border: 1px solid var(--app-border); border-radius: 6px; overflow: hidden; background: var(--app-surface); color: var(--app-text); }
+.canvas-dialog::backdrop { background: var(--app-overlay); }
+.canvas-dialog-header { display: flex; height: 48px; align-items: center; justify-content: space-between; padding: 0 14px; border-bottom: 1px solid var(--app-border); background: var(--app-surface); }
+.canvas-dialog-header span { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.canvas-editor-surface { height: calc(100% - 48px); min-height: 0; }
+.canvas-excalidraw { height: 100%; width: 100%; }
+.canvas-editor-surface > p { padding: 20px; }
+@media (max-width: 640px) {
+  .canvas-dialog { width: 100vw; height: 100dvh; margin: 0; border: 0; border-radius: 0; }
+}

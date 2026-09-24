@@ -4,6 +4,7 @@ import {
   DragHandleMenu,
   RemoveBlockItem,
   SideMenu,
+  SideMenuController,
   type SideMenuProps,
   TableColumnHeaderItem,
   TableRowHeaderItem,
@@ -11,6 +12,7 @@ import {
   useExtensionState,
 } from "@blocknote/react";
 import { Link2 } from "lucide-react";
+import { sideMenuHeadingPosition } from "../editor/sideMenuPosition";
 import {
   BLOCK_LINK_COPIED_EVENT,
   BLOCK_LINK_COPY_FAILED_EVENT,
@@ -64,7 +66,7 @@ const CopyBlockLinkItem = () => {
   );
 };
 
-const BlockDocDragHandleMenu = () => (
+const BlackDocDragHandleMenu = () => (
   <DragHandleMenu>
     <CopyBlockLinkItem />
     <RemoveBlockItem>删除</RemoveBlockItem>
@@ -74,6 +76,12 @@ const BlockDocDragHandleMenu = () => (
   </DragHandleMenu>
 );
 
-export const BlockDocSideMenu = (props: SideMenuProps) => (
-  <SideMenu {...props} dragHandleMenu={BlockDocDragHandleMenu} />
+export const BlackDocSideMenu = (props: SideMenuProps) => (
+  <SideMenu {...props} dragHandleMenu={BlackDocDragHandleMenu} />
 );
+
+export const BlackDocSideMenuController = () => {
+  const block = useExtensionState(SideMenuExtension, { selector: state => state?.block });
+  return <SideMenuController sideMenu={BlackDocSideMenu} floatingUIOptions={block?.type === "heading"
+    ? { useFloatingOptions: { middleware: [sideMenuHeadingPosition] } } : undefined} />;
+};
