@@ -51,8 +51,10 @@ interface ToolbarProps {
   onSaveAs: () => void;
   onExport: () => void;
   onAbout: () => void;
+  onMoreOpen?: () => void;
   onShortcuts: () => void;
   updateAvailable?: boolean;
+  updateGuideStage?: "more" | "about" | "check" | "done";
 }
 
 export function Toolbar({
@@ -71,8 +73,10 @@ export function Toolbar({
   onSaveAs,
   onExport,
   onAbout,
+  onMoreOpen,
   onShortcuts,
   updateAvailable = false,
+  updateGuideStage = "done",
 }: ToolbarProps) {
   const moreMenuRef = useRef<HTMLDivElement>(null);
   const moreTriggerRef = useRef<HTMLButtonElement>(null);
@@ -158,13 +162,17 @@ export function Toolbar({
             aria-haspopup="true"
             aria-label={updateAvailable ? "更多操作，有新版本" : "更多操作"}
             className="icon-button toolbar-more-trigger"
-            onClick={() => setMoreOpen(open => !open)}
+            onClick={() => {
+              const opening = !moreOpen;
+              setMoreOpen(opening);
+              if (opening) onMoreOpen?.();
+            }}
             title={updateAvailable ? "更多操作，有新版本" : "更多操作"}
             ref={moreTriggerRef}
             type="button"
           >
             <Ellipsis aria-hidden="true" size={19} />
-            {updateAvailable && <span className="update-dot" aria-hidden="true" />}
+            {updateAvailable && updateGuideStage === "more" && <span className="update-dot" aria-hidden="true" />}
           </button>
           {moreOpen && (
             <div className="toolbar-menu-panel" id="toolbar-more-menu" aria-label="更多操作">
@@ -211,6 +219,7 @@ export function Toolbar({
                 >
                   <Info aria-hidden="true" size={16} />
                   <span>关于与更新</span>
+                  {updateAvailable && updateGuideStage === "about" && <span className="update-dot-inline" aria-hidden="true" />}
                   {updateAvailable && <span className="toolbar-menu-update">新版本</span>}
                 </button>
               </div>

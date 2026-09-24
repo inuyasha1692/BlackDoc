@@ -13,6 +13,7 @@ interface AboutDialogProps {
   version: string;
   update: UpdateCheckResult | { kind: "checking" };
   updateAction: UpdateAction;
+  showUpdateGuide: boolean;
   onCheck: () => void;
   onDownload: () => void;
   onInstall: () => void;
@@ -26,6 +27,7 @@ export function AboutDialog({
   version,
   update,
   updateAction,
+  showUpdateGuide,
   onCheck,
   onDownload,
   onInstall,
@@ -56,6 +58,7 @@ export function AboutDialog({
           type="button"
         >
           <RefreshCw aria-hidden="true" size={16} />
+          {showUpdateGuide && <span className="update-dot-check" aria-hidden="true" />}
         </button>
       </div>
       {update.kind === "available" && (

@@ -42,6 +42,15 @@ import exampleDocumentSource from "../files/BlackDoc功能展示示例.bdoc?raw"
 import { checkForUpdate, type UpdateCheckResult } from "./updates";
 import { AppThemeContext } from "./theme";
 import { useAppTheme } from "./useAppTheme";
+
+type UpdateGuideStage = "more" | "about" | "check" | "done";
+
+const updateGuideKey = (version: string) => `blackdoc:update-guide:${version.replace(/^v/, "")}`;
+
+const readUpdateGuideStage = (version: string): UpdateGuideStage => {
+  const saved = localStorage.getItem(updateGuideKey(version));
+  return saved === "about" || saved === "check" || saved === "done" ? saved : "more";
+};
 import {
   bootstrapDesktop,
   closeDesktopWindow,
@@ -198,6 +207,7 @@ export default function App() {
   const [findOpen, setFindOpen] = useState(false);
   const [updateDismissed, setUpdateDismissed] = useState(false);
   const [update, setUpdate] = useState<UpdateCheckResult | { kind: "checking" }>({ kind: "checking" });
+  const [updateGuideStage, setUpdateGuideStage] = useState<UpdateGuideStage>("done");
   const [updateAction, setUpdateAction] = useState<UpdateAction>({ kind: "idle" });
   const downloadedUpdateRef = useRef<Update | null>(null);
   const updateBusyRef = useRef(false);
@@ -206,8 +216,23 @@ export default function App() {
     const request = ++updateRequestRef.current;
     setUpdate({ kind: "checking" });
     const result = await checkForUpdate(packageInfo.version);
-    if (request === updateRequestRef.current) setUpdate(result);
+    if (request === updateRequestRef.current) {
+      setUpdate(result);
+      setUpdateGuideStage(result.kind === "available" ? readUpdateGuideStage(result.version) : "done");
+    }
   }, []);
+  const advanceUpdateGuide = useCallback((expected: UpdateGuideStage, next: UpdateGuideStage) => {
+    if (update.kind !== "available" || updateGuideStage !== expected) return;
+    localStorage.setItem(updateGuideKey(update.version), next);
+    setUpdateGuideStage(next);
+  }, [update, updateGuideStage]);
+  const openAboutDialog = useCallback(() => {
+    if (update.kind === "available" && updateGuideStage !== "done") {
+      localStorage.setItem(updateGuideKey(update.version), "check");
+      setUpdateGuideStage("check");
+    }
+    setAboutOpen(true);
+  }, [update, updateGuideStage]);
   useEffect(() => {
     const timer = window.setTimeout(() => void checkUpdates(), 0);
     return () => {
@@ -762,9 +787,11 @@ export default function App() {
         onOpenExample={requestExampleDocument}
         onSave={() => void saveCurrentDocument(false)}
         onSaveAs={() => void saveCurrentDocument(true)}
-        onAbout={() => setAboutOpen(true)}
+        onAbout={openAboutDialog}
+        onMoreOpen={() => advanceUpdateGuide("more", "about")}
         onShortcuts={() => setShortcutsOpen(true)}
         updateAvailable={update.kind === "available"}
+        updateGuideStage={updateGuideStage}
         status={status}
       />
       {findOpen && <FindReplaceBar editor={editor} onClose={() => setFindOpen(false)} />}
@@ -772,7 +799,7 @@ export default function App() {
       {update.kind === "available" && !updateDismissed && (
         <div className="update-notice" role="status">
           <span>BlackDoc v{update.version.replace(/^v/, "")} 已发布</span>
-          <button onClick={() => setAboutOpen(true)} type="button">查看更新</button>
+          <button onClick={openAboutDialog} type="button">查看更新</button>
           <button
             aria-label="关闭更新提示"
             className="icon-button"
@@ -886,7 +913,11 @@ export default function App() {
           version={packageInfo.version}
           update={update}
           updateAction={updateAction}
-          onCheck={() => void checkUpdates()}
+          showUpdateGuide={update.kind === "available" && updateGuideStage === "check"}
+          onCheck={() => {
+            advanceUpdateGuide("check", "done");
+            void checkUpdates();
+          }}
           onDownload={() => void downloadAvailableUpdate()}
           onInstall={() => void installAvailableUpdate()}
           onClose={() => setAboutOpen(false)}
