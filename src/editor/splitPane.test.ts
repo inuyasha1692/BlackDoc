@@ -67,7 +67,7 @@ describe("split pane document", () => {
     expect(clampSplitHeight(NaN)).toBe(400);
   });
 
-  it("reveals a right-side heading in both the inner region and page", () => {
+  it("moves a right-side heading and page together without an initial jump", () => {
     document.body.innerHTML = '<div class="split-pane"><div class="split-pane-right-scroll"><div id="block=target"></div></div></div>';
     const pane = document.querySelector<HTMLElement>(".split-pane")!;
     const scroll = document.querySelector<HTMLElement>(".split-pane-right-scroll")!;
@@ -79,13 +79,49 @@ describe("split pane document", () => {
     scroll.scrollTo = vi.fn();
     target.animate = vi.fn(() => ({ cancel: vi.fn(), addEventListener: vi.fn() }) as unknown as Animation);
     vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    vi.spyOn(window, "scrollY", "get").mockReturnValue(50);
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation(callback => {
+      frames.push(callback);
+      return frames.length;
+    });
     document.documentElement.style.setProperty("--app-anchor-highlight", "#514827");
     expect(revealBlock("target")).toBe(true);
-    expect(scroll.scrollTo).toHaveBeenCalledWith({ top: 748, behavior: "smooth" });
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 616, behavior: "smooth" });
+    expect(scroll.scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    frames.shift()?.(0);
+    expect(scroll.scrollTo).toHaveBeenLastCalledWith({ top: 100, behavior: "instant" });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 50, behavior: "instant" });
+    frames.shift()?.(210);
+    expect(scroll.scrollTo).toHaveBeenCalledTimes(2);
+    expect(window.scrollTo).toHaveBeenCalledTimes(2);
+    frames.shift()?.(420);
+    expect(scroll.scrollTo).toHaveBeenLastCalledWith({ top: 748, behavior: "instant" });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 666, behavior: "instant" });
     expect(target.animate).toHaveBeenCalledWith(
       expect.arrayContaining([expect.objectContaining({ backgroundColor: "#514827" })]),
       expect.anything(),
     );
+  });
+
+  it("starts an ordinary heading navigation at the current page position", () => {
+    document.body.innerHTML = '<div id="block=heading"></div>';
+    const target = document.getElementById("block=heading")!;
+    target.getBoundingClientRect = () => ({ top: 1200 }) as DOMRect;
+    target.animate = vi.fn(() => ({ cancel: vi.fn(), addEventListener: vi.fn() }) as unknown as Animation);
+    vi.spyOn(window, "scrollY", "get").mockReturnValue(120);
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation(callback => {
+      frames.push(callback);
+      return frames.length;
+    });
+
+    expect(revealBlock("heading")).toBe(true);
+    expect(scrollTo).not.toHaveBeenCalled();
+    frames.shift()?.(0);
+    expect(scrollTo).toHaveBeenLastCalledWith({ top: 120, behavior: "instant" });
+    frames.shift()?.(10_000);
+    expect(scrollTo).toHaveBeenLastCalledWith({ top: 1236, behavior: "instant" });
   });
 });

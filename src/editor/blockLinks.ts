@@ -37,6 +37,7 @@ export const getBlockElement = (blockId: string): HTMLElement | null =>
   ) ?? document.getElementById(`block=${blockId}`);
 
 let activeHighlight: Animation | null = null;
+let activeScrollFrame: number | null = null;
 
 export const revealBlock = (blockId: string): boolean => {
   const target = getBlockElement(blockId);
@@ -49,30 +50,63 @@ export const revealBlock = (blockId: string): boolean => {
   }
   const scroll = target.closest<HTMLElement>(RIGHT_SCROLL_SELECTOR);
   const section = scroll?.closest<HTMLElement>(".split-pane");
-  if (scroll) {
-    scroll.scrollTo({
-      top: Math.max(0, scroll.scrollTop + target.getBoundingClientRect().top -
-        scroll.getBoundingClientRect().top - 12),
-      behavior: "smooth",
-    });
-  }
-  const top = window.scrollY + (section ?? target).getBoundingClientRect().top - 84;
-  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  const innerStart = scroll?.scrollTop ?? 0;
+  const innerEnd = scroll
+    ? Math.max(0, innerStart + target.getBoundingClientRect().top -
+      scroll.getBoundingClientRect().top - 12)
+    : 0;
+  const outerStart = window.scrollY;
+  const outerTarget = (section ?? target).getBoundingClientRect();
+  const outerEnd = section &&
+    outerTarget.top >= 84 && outerTarget.top < window.innerHeight - 80
+    ? outerStart
+    : Math.max(0, outerStart + outerTarget.top - 84);
 
-  const highlight = getComputedStyle(document.documentElement)
-    .getPropertyValue("--app-anchor-highlight").trim() || "#fff3bf";
+  if (activeScrollFrame !== null) cancelAnimationFrame(activeScrollFrame);
   activeHighlight?.cancel();
-  activeHighlight = target.animate(
-    [
-      { backgroundColor: highlight, boxShadow: `0 0 0 5px ${highlight}` },
-      { backgroundColor: highlight, boxShadow: `0 0 0 5px ${highlight}`, offset: 0.45 },
-      { backgroundColor: "transparent", boxShadow: "none" },
-    ],
-    { duration: 1800, easing: "ease-out" },
-  );
-  activeHighlight.addEventListener("finish", () => {
-    activeHighlight = null;
-  });
+  const showHighlight = () => {
+    const highlight = getComputedStyle(document.documentElement)
+      .getPropertyValue("--app-anchor-highlight").trim() || "#fff3bf";
+    activeHighlight = target.animate(
+      [
+        { backgroundColor: highlight, boxShadow: `0 0 0 5px ${highlight}` },
+        { backgroundColor: highlight, boxShadow: `0 0 0 5px ${highlight}`, offset: 0.45 },
+        { backgroundColor: "transparent", boxShadow: "none" },
+      ],
+      { duration: 1800, easing: "ease-out" },
+    );
+    activeHighlight.addEventListener("finish", () => {
+      activeHighlight = null;
+    });
+  };
+  const move = (progress: number) => {
+    if (scroll && innerEnd !== innerStart) {
+      scroll.scrollTo({ top: innerStart + (innerEnd - innerStart) * progress, behavior: "instant" });
+    }
+    if (outerEnd !== outerStart) {
+      window.scrollTo({ top: outerStart + (outerEnd - outerStart) * progress, behavior: "instant" });
+    }
+  };
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    activeScrollFrame = null;
+    move(1);
+    showHighlight();
+    return true;
+  }
+  let startedAt: number | null = null;
+  const distance = Math.max(Math.abs(innerEnd - innerStart), Math.abs(outerEnd - outerStart));
+  const duration = Math.min(650, Math.max(240, distance * 0.4));
+  const tick = (time: number) => {
+    startedAt ??= time;
+    const elapsed = Math.min(1, (time - startedAt) / duration);
+    move(elapsed < 0.5 ? 4 * elapsed ** 3 : 1 - (-2 * elapsed + 2) ** 3 / 2);
+    if (elapsed < 1) activeScrollFrame = requestAnimationFrame(tick);
+    else {
+      activeScrollFrame = null;
+      showHighlight();
+    }
+  };
+  activeScrollFrame = requestAnimationFrame(tick);
 
   return true;
 };

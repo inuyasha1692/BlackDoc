@@ -89,6 +89,7 @@ import { changesAffectOutline } from "./editor/outline";
 import { FindAndReplaceExtension } from "./editor/findAndReplace";
 import { InheritColumnFormatExtension } from "./editor/inheritColumnFormat";
 import { TableEnterNavigationExtension } from "./editor/tableEnterNavigation";
+import { pasteTableImage } from "./editor/tableImagePaste";
 import { blackDocSchema, type BlackDocBlock, type BlackDocEditor } from "./editor/schema";
 import { createSplitPane, isInsideSplitPane } from "./editor/splitPane";
 import { SplitPaneExtension, SPLIT_DOCUMENT_REPLACE_META } from "./editor/splitPaneExtension";
@@ -182,6 +183,9 @@ export default function App() {
       },
     },
     pasteHandler: ({ event, editor: activeEditor, defaultPasteHandler }) => {
+      if (pasteTableImage(activeEditor, event.clipboardData, fileToDataUrl, error => {
+        setNotice({ tone: "error", message: `表格图片粘贴失败：${String(error)}` });
+      })) return true;
       const pastedText = event.clipboardData?.getData("text/plain").trim() ?? "";
       if (!isBlockLink(pastedText)) {
         return defaultPasteHandler();
