@@ -31,8 +31,27 @@ describe("getOutlineItems", () => {
 
     expect(getOutlineItems(blocks)).toEqual([
       { id: "h1", level: 1, text: "标题" },
-      { id: "h2", level: 2, text: "章节" },
+      { id: "h2", level: 2, text: "章节", number: "1" },
+    ]);
+  });
+
+  it("numbers headings by their levels and resets child counters", () => {
+    const blocks = [
+      { id: "chapter-1", type: "heading", props: { level: 2 }, content: "第一章", children: [
+        { id: "section-1", type: "heading", props: { level: 3 }, content: "第一节", children: [] },
+        { id: "section-2", type: "heading", props: { level: 3 }, content: "第二节", children: [] },
+      ] },
+      { id: "chapter-2", type: "heading", props: { level: 2 }, content: "第二章", children: [
+        { id: "section-1-next", type: "heading", props: { level: 3 }, content: "第一节", children: [] },
+      ] },
+    ] as unknown as Block[];
+
+    expect(getOutlineItems(blocks).map(item => [item.id, item.number])).toEqual([
+      ["chapter-1", "1"],
+      ["section-1", "1.1"],
+      ["section-2", "1.2"],
+      ["chapter-2", "2"],
+      ["section-1-next", "2.1"],
     ]);
   });
 });
-

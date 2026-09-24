@@ -1,0 +1,186 @@
+.bn-editor .split-pane-editor {
+  --split-left-width: 50%;
+  --split-right-height: 400px;
+  --split-toolbar-height: 40px;
+  position: relative;
+  min-width: 360px;
+  margin: 16px 0;
+  padding-bottom: 14px;
+}
+
+.bn-editor .split-pane-editor > .bn-block > .bn-block-content {
+  padding: 0;
+}
+
+.split-pane-controls {
+  width: 100%;
+  user-select: none;
+}
+
+.split-pane-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--split-toolbar-height);
+  border-top: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
+.split-pane-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+.split-height-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.split-pane-toolbar select,
+.split-pane-toolbar input {
+  height: 26px;
+  padding: 2px 4px;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+  background: var(--app-input-bg);
+  color: var(--app-text);
+  font: inherit;
+}
+
+.split-pane-toolbar input { width: 64px; }
+.split-pane-toolbar select { width: 68px; }
+.split-pane-delete {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 4px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+}
+.split-pane-delete:hover { background: var(--app-danger-soft); color: var(--app-danger); }
+
+.bn-editor .split-pane-editor > .bn-block > .bn-block-group {
+  display: grid;
+  grid-template-columns: minmax(0, var(--split-left-width)) minmax(0, 1fr);
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.bn-editor .split-pane-editor > .bn-block > .bn-block-group::before,
+.bn-editor .split-pane-column > .bn-block > .bn-block-group::before { display: none; }
+
+.bn-editor .split-pane-editor > .bn-block > .bn-block-group > .bn-block-outer::before,
+.bn-editor .split-pane-column > .bn-block > .bn-block-group > .bn-block-outer::before { display: none; }
+
+.bn-editor .split-pane-editor > .bn-block > .bn-block-group > .bn-block-outer {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.bn-editor .split-pane-editor > .bn-block > .bn-block-group > .bn-block-outer:nth-child(2) {
+  border-left: 1px solid var(--app-border);
+}
+
+.bn-editor .split-pane-column > .bn-block > .bn-block-content {
+  display: none;
+}
+
+.bn-editor .split-pane-column > .bn-block > .bn-block-group {
+  margin: 0;
+  padding: 12px 0 16px 28px;
+  min-height: 70px;
+  border: 0;
+}
+
+.bn-editor .split-pane-column > .bn-block > .bn-block-group > .bn-block-outer > .bn-block > .bn-block-content {
+  padding-right: 18px;
+}
+
+.bn-editor .split-pane-column > .bn-block > .split-pane-right-scroll {
+  box-sizing: border-box;
+  height: var(--split-right-height);
+  overflow: auto;
+  overscroll-behavior: auto;
+  scrollbar-gutter: stable;
+  /* Keep the 6px WebView scrollbar below BlockNote's 10px hit-test inset.
+     Non-auto standard properties override the WebKit scrollbar rules. */
+  scrollbar-width: auto;
+  scrollbar-color: auto;
+}
+
+.bn-editor .split-pane-column > .bn-block > .split-pane-right-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.bn-editor .split-pane-column > .bn-block > .split-pane-right-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bn-editor .split-pane-column > .bn-block > .split-pane-right-scroll::-webkit-scrollbar-thumb {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--app-border);
+  background-clip: padding-box;
+}
+
+.bn-editor .split-pane-column > .bn-block > .split-pane-right-scroll:hover::-webkit-scrollbar-thumb {
+  background: var(--app-subtle);
+  background-clip: padding-box;
+}
+
+.split-width-handle,
+.split-height-handle {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--app-muted);
+  background: transparent;
+  touch-action: none;
+  z-index: 2;
+}
+
+.split-width-handle {
+  top: var(--split-toolbar-height);
+  bottom: 14px;
+  left: calc(var(--split-left-width) - 6px);
+  width: 12px;
+  cursor: col-resize;
+  background: linear-gradient(to right, transparent 5px, var(--app-border) 5px, var(--app-border) 6px, transparent 6px);
+}
+.split-width-handle svg { background: var(--app-surface); flex-shrink: 0; }
+.split-height-handle {
+  top: calc(var(--split-toolbar-height) + var(--split-right-height));
+  left: var(--split-left-width);
+  right: 0;
+  height: 14px;
+  border-top: 1px solid var(--app-border);
+  cursor: row-resize;
+  background: var(--app-raised);
+}
+.split-width-handle:hover,
+.split-height-handle:hover { color: var(--app-accent); background-color: var(--app-accent-soft); }
+.split-pane-controls :focus-visible { outline: 2px solid var(--app-accent); outline-offset: -2px; }
+
+.bn-editor .split-pane-column img,
+.bn-editor .split-pane-column video { max-width: 100%; }
+.bn-editor .split-pane-column .bn-block-content { min-width: 0; }
+.bn-editor .split-pane-column pre { max-width: 100%; overflow-x: auto; }

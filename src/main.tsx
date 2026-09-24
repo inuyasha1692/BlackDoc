@@ -1,12 +1,19 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "@blocknote/core/fonts/inter.css";
-import "@blocknote/mantine/style.css";
-import "./styles.css";
-import App from "./App";
+import { isTauri } from "@tauri-apps/api/core";
+import { applyTheme, readTheme } from "./theme";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+applyTheme(readTheme());
+
+const root = document.getElementById("root")!;
+if (isTauri()) {
+  void import("./App").then(({ default: App }) => {
+    createRoot(root).render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    );
+  });
+} else {
+  root.textContent = "请从 BlackDoc 桌面客户端启动编辑器。";
+}

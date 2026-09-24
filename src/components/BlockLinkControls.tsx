@@ -1,4 +1,6 @@
 import { isTableCellSelection } from "@blocknote/core";
+import { getDiagramBlockTypeSelectItems } from "@blocknote/diagram-block";
+import { getMathBlockTypeSelectItems } from "@blocknote/math-block";
 import {
   DEFAULT_LINK_PROTOCOL,
   FormattingToolbarExtension,
@@ -7,7 +9,9 @@ import {
   VALID_LINK_PROTOCOLS,
 } from "@blocknote/core/extensions";
 import {
+  BasicTextStyleButton,
   FormattingToolbar,
+  blockTypeSelectItems,
   type FormattingToolbarProps,
   getFormattingToolbarItems,
   type LinkToolbarProps,
@@ -25,6 +29,7 @@ import {
   useState,
 } from "react";
 import { createBlockLink, parseBlockLink } from "../editor/blockLinks";
+import { FormattingColorButton } from "./FormattingColorButton";
 
 const normalizeLink = (url: string): string => {
   const blockId = parseBlockLink(url);
@@ -97,7 +102,7 @@ const BlockLinkForm = (props: BlockLinkFormProps) => {
   );
 };
 
-export const BlockDocEditLinkButton = (
+export const BlackDocEditLinkButton = (
   props: Pick<
     LinkToolbarProps,
     "url" | "text" | "range" | "setToolbarOpen" | "setToolbarPositionFrozen"
@@ -128,7 +133,7 @@ export const BlockDocEditLinkButton = (
   );
 };
 
-const BlockDocCreateLinkButton = () => {
+const BlackDocCreateLinkButton = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext()!;
   const formattingToolbar = useExtension(FormattingToolbarExtension);
@@ -163,8 +168,8 @@ const BlockDocCreateLinkButton = () => {
   });
 
   useEffect(() => {
-    showSelection(open, "blockDocCreateLinkButton");
-    return () => showSelection(false, "blockDocCreateLinkButton");
+    showSelection(open, "blackDocCreateLinkButton");
+    return () => showSelection(false, "blackDocCreateLinkButton");
   }, [open, showSelection]);
 
   useEffect(() => {
@@ -210,16 +215,32 @@ const BlockDocCreateLinkButton = () => {
   );
 };
 
-export const BlockDocFormattingToolbar = (
+export const BlackDocFormattingToolbar = (
   props: FormattingToolbarProps,
-) => (
+) => {
+  const editor = useBlockNoteEditor();
+  const items = props.blockTypeSelectItems ?? [
+    ...blockTypeSelectItems(editor.dictionary),
+    ...getDiagramBlockTypeSelectItems(editor),
+    ...getMathBlockTypeSelectItems(editor),
+  ];
+  return (
   <FormattingToolbar {...props}>
-    {getFormattingToolbarItems(props.blockTypeSelectItems).map((item) =>
-      item.key === "createLinkButton" ? (
-        <BlockDocCreateLinkButton key="createLinkButton" />
-      ) : (
-        item
-      ),
-    )}
+    {getFormattingToolbarItems(items).flatMap((item) => {
+      if (item.key === "strikeStyleButton") {
+        return [
+          item,
+          <BasicTextStyleButton basicTextStyle="code" key="codeStyleButton" />,
+        ];
+      }
+      if (item.key === "createLinkButton") {
+        return <BlackDocCreateLinkButton key="createLinkButton" />;
+      }
+      if (item.key === "colorStyleButton") {
+        return <FormattingColorButton key="colorStyleButton" />;
+      }
+      return item;
+    })}
   </FormattingToolbar>
-);
+  );
+};

@@ -1,9 +1,11 @@
-import type { Block } from "@blocknote/core";
+import type { BlackDocBlock } from "./schema";
+import { getHeadingNumbers } from "./headingNumbers";
 
 export interface OutlineItem {
   id: string;
   level: number;
   text: string;
+  number?: string;
 }
 
 const contentText = (content: unknown): string => {
@@ -34,10 +36,11 @@ const contentText = (content: unknown): string => {
     .join("");
 };
 
-export const getOutlineItems = (blocks: readonly Block[]): OutlineItem[] => {
+export const getOutlineItems = (blocks: readonly BlackDocBlock[]): OutlineItem[] => {
   const items: OutlineItem[] = [];
+  const numbers = getHeadingNumbers(blocks);
 
-  const visit = (currentBlocks: readonly Block[]) => {
+  const visit = (currentBlocks: readonly BlackDocBlock[]) => {
     for (const block of currentBlocks) {
       if (block.type === "heading") {
         const text = contentText(block.content).replace(/\s+/g, " ").trim();
@@ -46,6 +49,7 @@ export const getOutlineItems = (blocks: readonly Block[]): OutlineItem[] => {
             id: block.id,
             level: Number(block.props.level) || 1,
             text,
+            number: numbers.get(block.id),
           });
         }
       }
@@ -56,4 +60,3 @@ export const getOutlineItems = (blocks: readonly Block[]): OutlineItem[] => {
   visit(blocks);
   return items;
 };
-

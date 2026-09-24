@@ -5,11 +5,11 @@ import {
   type LinkToolbarProps,
 } from "@blocknote/react";
 import { isBlockLink } from "../editor/blockLinks";
-import { BlockDocEditLinkButton } from "./BlockLinkControls";
+import { BlackDocEditLinkButton } from "./BlockLinkControls";
 
-export const BlockDocLinkToolbar = (props: LinkToolbarProps) => (
+export const BlackDocLinkToolbar = (props: LinkToolbarProps) => (
   <LinkToolbar {...props}>
-    <BlockDocEditLinkButton
+    <BlackDocEditLinkButton
       range={props.range}
       setToolbarOpen={props.setToolbarOpen}
       setToolbarPositionFrozen={props.setToolbarPositionFrozen}

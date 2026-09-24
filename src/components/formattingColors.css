@@ -1,0 +1,11 @@
+.formatting-color-panel { width: 288px; max-width: calc(100vw - 24px); padding: 10px !important; }
+.formatting-color-label { font-size: 12px; margin-bottom: 6px; }
+.formatting-color-panel section + section { margin-top: 12px; }
+.formatting-color-swatches { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; }
+.formatting-color-swatches button { display: grid; place-items: center; width: 100%; aspect-ratio: 1; padding: 1px; border: 1px solid var(--app-border); border-radius: 3px; background: transparent; cursor: pointer; }
+.formatting-color-swatches button[aria-pressed="true"] { outline: 2px solid var(--app-accent); outline-offset: 0; }
+.formatting-color-swatches button:hover { border-color: var(--app-accent); }
+.formatting-color-swatches .bn-color-icon { width: 100%; height: 100%; display: grid; place-items: center; font-size: 15px; line-height: 1; border-radius: 1px; }
+.formatting-color-swatches .color-clear { background: linear-gradient(135deg, transparent 47%, var(--app-accent) 48%, var(--app-accent) 52%, transparent 53%); }
+.formatting-color-reset { width: 100%; margin-top: 12px; padding: 4px; border: 1px solid var(--app-border); border-radius: 3px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; }
+.formatting-color-panel button:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
