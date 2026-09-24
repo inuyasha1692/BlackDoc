@@ -342,7 +342,6 @@
 "npm"	"@iconify/utils"	"3.1.7"	"MIT"	"_iconify_utils_3.1.7__license.txt"	"included"
 "npm"	"@mantine/core"	"9.6.2"	"MIT"	"_mantine_core_9.6.2__LICENSE"	"included"
 "npm"	"@mantine/hooks"	"9.6.2"	"MIT"	"_mantine_hooks_9.6.2__LICENSE"	"included"
-"npm"	"@mantine/utils"	"6.0.22"	"MIT"	""	"missing"
 "npm"	"@mermaid-js/parser"	"0.6.3"	"MIT"	"_mermaid-js_parser_0.6.3__LICENSE"	"included"
 "npm"	"@mermaid-js/parser"	"1.2.1"	"MIT"	"_mermaid-js_parser_1.2.1__LICENSE"	"included"
 "npm"	"@radix-ui/primitive"	"1.0.0"	"MIT"	""	"missing"

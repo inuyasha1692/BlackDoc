@@ -8,6 +8,28 @@ export interface OutlineItem {
   number?: string;
 }
 
+type ChangedOutlineBlock = {
+  type: string;
+  children?: readonly ChangedOutlineBlock[];
+};
+
+export function changesAffectOutline(
+  changes: readonly {
+    block: ChangedOutlineBlock;
+    prevBlock?: ChangedOutlineBlock;
+  }[],
+): boolean {
+  const containsHeading = (block: ChangedOutlineBlock | undefined): boolean =>
+    block !== undefined && (
+      block.type === "heading" ||
+      block.children?.some(child => containsHeading(child)) === true
+    );
+
+  return changes.some(change =>
+    containsHeading(change.block) || containsHeading(change.prevBlock),
+  );
+}
+
 const contentText = (content: unknown): string => {
   if (typeof content === "string") {
     return content;

@@ -29,7 +29,7 @@
     },
     "icon": ["icons/icon.png", "icons/icon.ico"],
     "fileAssociations": [
-      { "ext": ["bdoc", "blackdoc"], "name": "BlackDoc Document", "description": "BlackDoc block document", "role": "Editor", "mimeType": "application/json" }
+      { "ext": ["bdoc"], "name": "BlackDoc Document", "description": "BlackDoc block document", "role": "Editor", "mimeType": "application/json" }
     ],
     "windows": { "nsis": { "installMode": "currentUser" } }
   },

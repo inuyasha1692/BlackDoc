@@ -1,6 +1,22 @@
 import type { Block } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
-import { getOutlineItems } from "./outline";
+import { changesAffectOutline, getOutlineItems } from "./outline";
+
+describe("changesAffectOutline", () => {
+  it("ignores paragraph edits and detects heading changes in nested blocks", () => {
+    expect(changesAffectOutline([
+      { block: { type: "paragraph" } },
+      { block: { type: "splitPane", children: [{ type: "splitColumn", children: [{ type: "paragraph" }] }] } },
+    ])).toBe(false);
+
+    expect(changesAffectOutline([
+      { block: { type: "paragraph" }, prevBlock: {
+        type: "splitPane",
+        children: [{ type: "splitColumn", children: [{ type: "heading" }] }],
+      } },
+    ])).toBe(true);
+  });
+});
 
 describe("getOutlineItems", () => {
   it("collects headings in document order and preserves their levels", () => {

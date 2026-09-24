@@ -26,6 +26,11 @@ export function SplitPaneControls({
   const width = clampSplitWidth(preview.leftWidth ?? leftWidth);
   const autoHeight = rightHeight === SPLIT_AUTO_HEIGHT && preview.rightHeight === undefined;
   const height = clampSplitHeight(preview.rightHeight ?? rightHeight);
+  const currentHeight = () => {
+    const right = ref.current?.closest(".split-pane-editor")
+      ?.querySelector<HTMLElement>(".split-pane-right-scroll");
+    return clampSplitHeight(autoHeight ? right?.getBoundingClientRect().height ?? height : height);
+  };
 
   const startResize = (event: PointerEvent<HTMLButtonElement>, axis: ResizeAxis) => {
     if (event.button !== 0 || !editable) return;
@@ -36,8 +41,8 @@ export function SplitPaneControls({
     drag.current = {
       axis, x: event.clientX, y: event.clientY,
       width: root.getBoundingClientRect().width,
-      start: axis === "width" ? width : height,
-      value: axis === "width" ? width : height,
+      start: axis === "width" ? width : currentHeight(),
+      value: axis === "width" ? width : currentHeight(),
     };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -64,7 +69,7 @@ export function SplitPaneControls({
   };
 
   return <div className="split-pane-controls" contentEditable={false} ref={ref}>
-    <style>{`.bn-block-outer[data-id="${CSS.escape(id)}"] { --split-left-width: ${width}%; --split-right-height: ${autoHeight ? "auto" : `${height}px`}; }`}</style>
+    <style>{`.bn-block-outer[data-id="${CSS.escape(id)}"] { --split-left-width: ${width}%; --split-right-height: ${autoHeight ? "auto" : `${height}px`}; --split-height-handle-top: ${autoHeight ? "auto" : `calc(var(--split-toolbar-height) + ${height}px)`}; --split-height-handle-bottom: ${autoHeight ? "14px" : "auto"}; }`}</style>
     <div className="split-pane-toolbar">
       <span className="split-pane-label"><Columns2 size={15} aria-hidden="true" />双分区</span>
       {editable && <>
@@ -84,9 +89,13 @@ export function SplitPaneControls({
         <input
           aria-label="右侧高度（像素）"
           type="number" min={SPLIT_HEIGHT.min} max={SPLIT_HEIGHT.max}
-          key={autoHeight ? "auto" : height} defaultValue={autoHeight ? undefined : height}
-          disabled={autoHeight}
-          onBlur={event => onChange({ rightHeight: clampSplitHeight(Number(event.target.value)) })}
+          key={autoHeight ? "auto" : height} defaultValue={autoHeight ? "" : height}
+          placeholder={autoHeight ? "自动" : undefined}
+          onBlur={event => {
+            if (event.target.value.trim() === "") return;
+            const next = clampSplitHeight(Number(event.target.value));
+            if (autoHeight || next !== height) onChange({ rightHeight: next });
+          }}
           onKeyDown={event => {
             if (event.key === "Enter") { event.preventDefault(); event.currentTarget.blur(); }
             event.stopPropagation();
@@ -116,10 +125,11 @@ export function SplitPaneControls({
         }}>
         <GripVertical size={14} aria-hidden="true" />
       </button>
-      {!autoHeight && <button type="button" className="split-height-handle" role="separator"
+      <button type="button" className="split-height-handle" role="separator"
         aria-label="右侧分区高度" aria-orientation="horizontal"
-        aria-valuemin={SPLIT_HEIGHT.min} aria-valuemax={SPLIT_HEIGHT.max} aria-valuenow={height}
-        title={`调整右侧高度：${height}px`}
+        aria-valuemin={SPLIT_HEIGHT.min} aria-valuemax={SPLIT_HEIGHT.max}
+        aria-valuenow={autoHeight ? undefined : height} aria-valuetext={autoHeight ? "自适应" : `${height}px`}
+        title={autoHeight ? "拖动以设置固定高度" : `调整右侧高度：${height}px`}
         onPointerDown={event => startResize(event, "height")} onPointerMove={moveResize}
         onPointerUp={event => finishResize(event)} onPointerCancel={event => finishResize(event, true)}
         onLostPointerCapture={event => finishResize(event, true)}
@@ -127,10 +137,10 @@ export function SplitPaneControls({
           if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
           event.preventDefault(); event.stopPropagation();
           onChange({ rightHeight: event.key === "Home" ? SPLIT_HEIGHT.min : event.key === "End"
-            ? SPLIT_HEIGHT.max : clampSplitHeight(height + (event.key === "ArrowUp" ? -20 : 20)) });
+            ? SPLIT_HEIGHT.max : clampSplitHeight(currentHeight() + (event.key === "ArrowUp" ? -20 : 20)) });
         }}>
         <GripHorizontal size={18} aria-hidden="true" />
-      </button>}
+      </button>
     </>}
   </div>;
 }

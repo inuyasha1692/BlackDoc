@@ -7,5 +7,10 @@ test-results/
 .playwright-cli/
 output/
 
+# Local backups and rendered exports of the checked-in example document
+/files/BlackDoc功能展示示例.bdoc.backup-*
+/files/BlackDoc功能展示示例.bdoc.cleared-*
+/files/BlackDoc功能展示示例.html
+
 src-tauri/target/
 src-tauri/gen/schemas/

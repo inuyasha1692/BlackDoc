@@ -168,7 +168,8 @@
 }
 .split-width-handle svg { background: var(--app-surface); flex-shrink: 0; }
 .split-height-handle {
-  top: calc(var(--split-toolbar-height) + var(--split-right-height));
+  top: var(--split-height-handle-top, calc(var(--split-toolbar-height) + var(--split-right-height)));
+  bottom: var(--split-height-handle-bottom, auto);
   left: var(--split-left-width);
   right: 0;
   height: 14px;

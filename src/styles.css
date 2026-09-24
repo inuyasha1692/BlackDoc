@@ -92,6 +92,16 @@
   font-size: 0.9em;
 }
 
+.bn-editor a[href] {
+  color: var(--bn-colors-highlights-blue-text, #0b6e99);
+}
+
+.bn-editor [data-inline-content-type="tableImage"] img {
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+}
+
 .bn-editor [data-content-type="heading"][data-level="1"] { --level: 2em; }
 .bn-editor [data-content-type="heading"][data-level="2"] { --level: 1.75em; }
 .bn-editor [data-content-type="heading"][data-level="3"] { --level: 1.5em; }
@@ -595,6 +605,7 @@ button {
   padding: 30px 16px 40px 6px;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior-y: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--app-border) transparent;
 }
@@ -728,6 +739,24 @@ button {
   box-shadow: 0 8px 24px var(--app-shadow);
   background: var(--app-surface);
   font-size: 13px;
+}
+
+.import-progress-spinner {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border: 2px solid var(--app-border);
+  border-top-color: var(--app-accent);
+  border-radius: 50%;
+  animation: import-progress-spin 0.8s linear infinite;
+}
+
+@keyframes import-progress-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .import-progress-spinner { animation: none; }
 }
 
 .notice-content {

@@ -1,7 +1,7 @@
 import type { Block } from "@blocknote/core";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import App from "./App";
+import App, { AUTO_SAVE_DELAY_MS } from "./App";
 import exampleDocumentSource from "../files/BlackDoc功能展示示例.bdoc?raw";
 import {
   bootstrapDesktop,
@@ -305,7 +305,7 @@ describe("desktop App lifecycle", () => {
     expect(screen.getByRole("status")).toHaveTextContent("未保存");
     expect(deleteDraft).toHaveBeenCalledOnce();
     expect(saveDesktopDocument).not.toHaveBeenCalled();
-    await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });
     expect(writeDraft).toHaveBeenCalledWith(example);
 
     await clickButton("保存");
@@ -326,7 +326,7 @@ describe("desktop App lifecycle", () => {
     expect(harness.editor.document[0].id).toBe("demo-document-title");
   });
 
-  it("imports Markdown into a detached document and saves it to a new path", async () => {
+  it("imports Markdown without prompting for a path until Save is clicked", async () => {
     await mountApp();
     const imported = documentWithTitle("Imported");
     vi.mocked(importDesktopMarkdown).mockResolvedValue({
@@ -340,11 +340,29 @@ describe("desktop App lifecycle", () => {
     await clickButton("导入 MD");
 
     expect(detachDesktopDocument).toHaveBeenCalledOnce();
-    expect(saveDesktopDocument).toHaveBeenCalledWith(
-      imported, null, "Imported.bdoc", false,
-    );
+    expect(saveDesktopDocument).not.toHaveBeenCalled();
     expectDocument(imported);
+    expect(screen.getByRole("alert")).toHaveTextContent("Markdown 已导入。");
+    expect(screen.queryByText("正在导入 Markdown，请稍候…")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("未保存");
+    await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });
+    expect(writeDraft).toHaveBeenCalledWith(imported);
+
+    await clickButton("保存");
+    expect(saveDesktopDocument).toHaveBeenCalledWith(imported, null, "Imported.bdoc", false);
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
+  });
+
+  it("shows import feedback while reading and clears it when the picker is canceled", async () => {
+    await mountApp();
+    const pending = deferred<Awaited<ReturnType<typeof importDesktopMarkdown>>>();
+    vi.mocked(importDesktopMarkdown).mockReturnValue(pending.promise);
+
+    await clickButton("导入 MD");
+    expect(screen.getByText("正在导入 Markdown，请稍候…")).toBeInTheDocument();
+
+    await act(async () => { pending.resolve(null); await pending.promise; });
+    expect(screen.queryByText("正在导入 Markdown，请稍候…")).not.toBeInTheDocument();
   });
 
   it("switches the editor theme without marking the document dirty or saving it", async () => {
@@ -424,7 +442,9 @@ describe("desktop App lifecycle", () => {
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
     expect(harness.setTitle).toHaveBeenLastCalledWith(`${file.name} - BlackDoc`);
     await editDocument();
-    await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS - 1); });
+    expect(saveDesktopDocument).not.toHaveBeenCalled();
+    await act(async () => { await vi.advanceTimersByTimeAsync(1); });
     expect(saveDesktopDocument).toHaveBeenLastCalledWith(edited, file.path, sourceFileName(edited), false);
   });
 
@@ -442,7 +462,7 @@ describe("desktop App lifecycle", () => {
   it("does not reuse an edited untitled document even after its draft is stored", async () => {
     await mountEmptyApp();
     await editDocument();
-    await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });
     await clickButton("打开");
     expect(openDesktopWindow).toHaveBeenCalledExactlyOnceWith(false);
     expectDocument(edited);
@@ -534,7 +554,7 @@ describe("desktop App lifecycle", () => {
     expect(harness.setTitle).toHaveBeenCalledWith(`${file.name} - BlackDoc`);
 
     await editDocument();
-    await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });
     expect(saveDesktopDocument).toHaveBeenCalledExactlyOnceWith(edited, file.path, sourceFileName(edited), false);
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
   });
@@ -611,7 +631,7 @@ describe("desktop App lifecycle", () => {
     vi.mocked(saveDesktopDocument).mockReturnValue(saving.promise);
     await mountApp();
     await editDocument();
-    await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });
     expect(saveDesktopDocument).toHaveBeenCalledOnce();
     harness.closeCanvas.mockClear();
 

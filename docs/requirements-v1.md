@@ -34,7 +34,7 @@ BlackDoc 第一版是一款在用户自己的电脑上启动、通过浏览器�
 
 ### 2.3 源文件格式
 
-- 新源文件扩展名为 `.bdoc`；旧 `.blackdoc` 文件可打开并写回原路径。
+- 源文件使用 `.bdoc` 扩展名。
 - 文件内容直接保存 `editor.document` 对应的 BlockNote 原生块数组。
 - 文件根节点不增加 `title`、`format`、`version`、`metadata` 等包装字段。
 - 打开文件时，将该数组作为 BlockNote 的初始内容加载。

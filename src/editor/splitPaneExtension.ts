@@ -4,6 +4,7 @@ import { isHistoryTransaction } from "@tiptap/pm/history";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { Plugin, PluginKey, type Transaction } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
+import { transactionTouchesNodeTypes } from "./transactionTouchesNodeTypes";
 
 /** Set on the transaction that replaces a document already validated by the loader. */
 export const SPLIT_DOCUMENT_REPLACE_META = "split-document-replace";
@@ -84,98 +85,128 @@ function hasContent(pane: PMNode): boolean {
   return nonempty;
 }
 
-export const SplitPaneExtension = createExtension(() => ({
-  key: "split-pane-protection",
-  keyboardShortcuts: {
-    Backspace: ({ editor }) => {
-      const { state, view } = editor._tiptapEditor;
-      const { $from, empty } = state.selection;
-      if (!empty || $from.parentOffset !== 0 || $from.parent.type.name !== "paragraph") return false;
-      const depth = $from.depth;
-      if (
-        depth < 3 ||
-        $from.node(depth - 1).type.name !== "blockContainer" ||
-        $from.node(depth - 2).type.name !== "blockGroup" ||
-        $from.node(depth - 3).firstChild?.type.name !== "splitColumn"
-      ) return false;
-      // BlockNote normally lifts nested paragraphs first. Column children instead
-      // merge with their previous sibling, while the first child stays in its column.
-      if ($from.index(depth - 2) === 0) return true;
-      return joinBackward(state, view.dispatch, view);
+const splitDecorationTypes = new Set(["splitPane", "splitColumn"]);
+const blockContainerType = new Set(["blockContainer"]);
+
+function buildSplitDecorations(doc: PMNode): DecorationSet {
+  const decorations: Decoration[] = [];
+  doc.descendants((node, pos) => {
+    if (node.type.name !== "blockContainer") return;
+    const content = node.firstChild!;
+    if (content.type.name === "splitPane") {
+      decorations.push(Decoration.node(pos, pos + node.nodeSize, {
+        class: "split-pane split-pane-editor",
+      }));
+    } else if (content.type.name === "splitColumn") {
+      decorations.push(Decoration.node(pos, pos + node.nodeSize, { class: "split-pane-column" }));
+      if (content.attrs.side === "right" && node.childCount === 2) {
+        const start = pos + 1 + content.nodeSize;
+        decorations.push(Decoration.node(start, start + node.child(1).nodeSize, {
+          class: "split-pane-right-scroll",
+        }));
+      }
+    }
+  });
+  return DecorationSet.create(doc, decorations);
+}
+
+export const SplitPaneExtension = createExtension(() => {
+  const decorationKey = new PluginKey<DecorationSet>("split-pane-decorations");
+  return {
+    key: "split-pane-protection",
+    keyboardShortcuts: {
+      Backspace: ({ editor }) => {
+        const { state, view } = editor._tiptapEditor;
+        const { $from, empty } = state.selection;
+        if (!empty || $from.parentOffset !== 0 || $from.parent.type.name !== "paragraph") return false;
+        const depth = $from.depth;
+        if (
+          depth < 3 ||
+          $from.node(depth - 1).type.name !== "blockContainer" ||
+          $from.node(depth - 2).type.name !== "blockGroup" ||
+          $from.node(depth - 3).firstChild?.type.name !== "splitColumn"
+        ) return false;
+        // BlockNote normally lifts nested paragraphs first. Column children instead
+        // merge with their previous sibling, while the first child stays in its column.
+        if ($from.index(depth - 2) === 0) return true;
+        return joinBackward(state, view.dispatch, view);
+      },
     },
-  },
-  prosemirrorPlugins: [
-    new Plugin({
-      key: new PluginKey("split-pane-protection"),
-      props: {
-        decorations(state) {
-          const decorations: Decoration[] = [];
-          state.doc.descendants((node, pos) => {
-            if (node.type.name !== "blockContainer") return;
-            const content = node.firstChild!;
-            if (content.type.name === "splitPane") {
-              decorations.push(Decoration.node(pos, pos + node.nodeSize, {
-                class: "split-pane split-pane-editor",
-              }));
-            } else if (content.type.name === "splitColumn") {
-              decorations.push(Decoration.node(pos, pos + node.nodeSize, { class: "split-pane-column" }));
-              if (content.attrs.side === "right" && node.childCount === 2) {
-                const start = pos + 1 + content.nodeSize;
-                decorations.push(Decoration.node(start, start + node.child(1).nodeSize, {
-                  class: "split-pane-right-scroll",
-                }));
-              }
-            }
-          });
-          return DecorationSet.create(state.doc, decorations);
+    prosemirrorPlugins: [
+      new Plugin({
+        key: decorationKey,
+        state: {
+          init: (_config, state) => buildSplitDecorations(state.doc),
+          apply(transaction, decorations) {
+            if (!transaction.docChanged) return decorations;
+            const mapped = decorations.map(transaction.mapping, transaction.doc);
+            return (
+              transactionTouchesNodeTypes(transaction, splitDecorationTypes, false) ||
+              transactionTouchesNodeTypes(transaction, blockContainerType, false)
+            )
+              ? buildSplitDecorations(transaction.doc)
+              : mapped;
+          },
         },
-      },
-      filterTransaction(tr, state) {
-        if (!tr.docChanged || bypass(tr)) return true;
-        const before = inspect(state.doc);
-        const after = inspect(tr.doc);
-        if (!after.valid) return false;
-
-        for (const pane of before.panes) {
-          const remaining = after.blocks.get(pane.node.attrs.id);
-          if (!remaining) continue;
-          if (remaining.type !== "splitPane") return false;
-          // Columns keep their identities and order even if their side props change.
-          const oldColumns = pane.node.lastChild!;
-          const newColumns = remaining.node.lastChild!;
-          if (oldColumns.childCount !== newColumns.childCount) return false;
-          for (let index = 0; index < oldColumns.childCount; index++) {
-            if (oldColumns.child(index).attrs.id !== newColumns.child(index).attrs.id) return false;
+        props: {
+          decorations(state) {
+            return decorationKey.getState(state) ?? DecorationSet.empty;
+          },
+        },
+        filterTransaction(tr, state) {
+          if (!tr.docChanged || bypass(tr) ||
+            !transactionTouchesNodeTypes(tr, new Set(["splitPane", "splitColumn"]), false)) {
+            return true;
           }
-        }
-        for (const column of before.columns) {
-          const remaining = after.blocks.get(column.node.attrs.id);
-          if (remaining && (
-            remaining.type !== "splitColumn" || remaining.parentId !== column.parentId
-          )) return false;
-        }
+          const before = inspect(state.doc);
+          const after = inspect(tr.doc);
+          if (!after.valid) return false;
 
-        const deletesContent = before.panes.some(
-          pane => pane.node.attrs.id != null &&
-            !after.blocks.has(pane.node.attrs.id) && hasContent(pane.node),
-        );
-        return !deletesContent || window.confirm("此分栏包含内容，确定删除整个分栏及其中的内容吗？");
-      },
-      appendTransaction(transactions, _oldState, state) {
-        if (!transactions.some(tr => tr.docChanged) || transactions.some(bypass)) return null;
-        const emptyColumns = inspect(state.doc).columns.filter(column => column.node.childCount === 1);
-        if (!emptyColumns.length) return null;
-        const tr = state.tr;
-        // Work backwards so inserting a group does not shift the remaining positions.
-        for (const column of emptyColumns.reverse()) {
-          const paragraph = blockToNode({ type: "paragraph" }, state.schema);
-          tr.insert(
-            column.pos + column.node.nodeSize - 1,
-            state.schema.nodes.blockGroup.createChecked(null, paragraph),
+          for (const pane of before.panes) {
+            const remaining = after.blocks.get(pane.node.attrs.id);
+            if (!remaining) continue;
+            if (remaining.type !== "splitPane") return false;
+            // Columns keep their identities and order even if their side props change.
+            const oldColumns = pane.node.lastChild!;
+            const newColumns = remaining.node.lastChild!;
+            if (oldColumns.childCount !== newColumns.childCount) return false;
+            for (let index = 0; index < oldColumns.childCount; index += 1) {
+              if (oldColumns.child(index).attrs.id !== newColumns.child(index).attrs.id) return false;
+            }
+          }
+          for (const column of before.columns) {
+            const remaining = after.blocks.get(column.node.attrs.id);
+            if (remaining && (
+              remaining.type !== "splitColumn" || remaining.parentId !== column.parentId
+            )) return false;
+          }
+
+          const deletesContent = before.panes.some(
+            pane => pane.node.attrs.id != null &&
+              !after.blocks.has(pane.node.attrs.id) && hasContent(pane.node),
           );
-        }
-        return tr;
-      },
-    }),
-  ],
-}));
+          return !deletesContent || window.confirm("此分栏包含内容，确定删除整个分栏及其中的内容吗？");
+        },
+        appendTransaction(transactions, _oldState, state) {
+          if (!transactions.some(tr => tr.docChanged) || transactions.some(bypass)) return null;
+          const changedSplitStructure = transactions.some(tr =>
+            transactionTouchesNodeTypes(tr, blockContainerType, false),
+          );
+          if (!changedSplitStructure) return null;
+          const emptyColumns = inspect(state.doc).columns.filter(column => column.node.childCount === 1);
+          if (!emptyColumns.length) return null;
+          const tr = state.tr;
+          // Work backwards so inserting a group does not shift the remaining positions.
+          for (const column of emptyColumns.reverse()) {
+            const paragraph = blockToNode({ type: "paragraph" }, state.schema);
+            tr.insert(
+              column.pos + column.node.nodeSize - 1,
+              state.schema.nodes.blockGroup.createChecked(null, paragraph),
+            );
+          }
+          return tr;
+        },
+      }),
+    ],
+  };
+});

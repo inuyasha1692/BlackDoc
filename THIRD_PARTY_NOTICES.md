@@ -24,6 +24,6 @@ The Windows desktop build includes Tauri and its dialog, opener, single-instance
 
 ## License texts and scope
 
-This file is a license summary, not a replacement for the license texts. The current lockfiles contain 308 production npm package versions and 311 Windows Rust crate versions; collected license files cover 268 npm packages and 299 Rust crates. The remaining 52 dependency entries have no root license file in the installed package or crate source and are listed in [`MISSING_LICENSE_FILES.tsv`](third_party_licenses/MISSING_LICENSE_FILES.tsv). Verify and add their upstream notices before distributing a new binary. This includes bundled fonts and transitive components. Refresh this snapshot whenever dependencies change.
+This file is a license summary, not a replacement for the license texts. The current lockfiles contain 307 production npm package versions and 311 Windows Rust crate versions; collected license files cover 268 npm packages and 299 Rust crates. The remaining 51 dependency entries have no root license file in the installed package or crate source and are listed in [`MISSING_LICENSE_FILES.tsv`](third_party_licenses/MISSING_LICENSE_FILES.tsv). Verify and add their upstream notices before distributing a new binary. This includes bundled fonts and transitive components. Refresh this snapshot whenever dependencies change.
 
 The sample `.bdoc` document and screenshots are project materials, not software dependencies. Their authorship and any embedded third-party material should be checked separately before redistribution.

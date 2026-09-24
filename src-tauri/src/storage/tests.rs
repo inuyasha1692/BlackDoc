@@ -149,17 +149,22 @@ fn default_extension_and_opening_are_supported() {
     let directory = tempfile::tempdir().unwrap();
     let path = save_target(directory.path().join("new"), false).unwrap();
     assert_eq!(path.extension().unwrap(), "bdoc");
-    for filename in ["a.bdoc", "a.BDOC", "legacy.blackdoc", "legacy.BLACKDOC"] {
+    for filename in ["a.bdoc", "a.BDOC"] {
         let path = directory.path().join(filename);
         write_json(&path, &blocks()).unwrap();
         assert!(read_document(&path).is_ok());
         assert!(save_target(path, false).is_ok());
     }
+    for filename in ["legacy.blackdoc", "legacy.BLACKDOC"] {
+        let path = directory.path().join(filename);
+        write_json(&path, &blocks()).unwrap();
+        assert!(read_document(&path).is_err());
+        assert!(save_target(path, false).is_err());
+    }
     assert!(save_target(directory.path().join("a.json"), false).is_err());
     assert!(save_target(directory.path().join("a.bdoc"), true).is_err());
 
     assert_eq!(suggested_name("New.bdoc", false), "New.bdoc");
-    assert_eq!(suggested_name("Legacy.blackdoc", false), "Legacy.bdoc");
     assert_eq!(suggested_name("Title.bdoc", true), "Title.html");
     assert_eq!(suggested_name("CON", false), "_CON.bdoc");
     assert_eq!(suggested_name(" ../a:b ", false), "_a_b.bdoc");

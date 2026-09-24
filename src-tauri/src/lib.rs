@@ -284,7 +284,7 @@ async fn desktop_open_window(
             .file()
             .set_parent(&parent)
             .set_title("Open BlackDoc")
-            .add_filter("BlackDoc", &["bdoc", "blackdoc"])
+            .add_filter("BlackDoc", &["bdoc"])
             .blocking_pick_file()
     })
     .await
@@ -371,7 +371,7 @@ async fn desktop_save_document(
                 .file()
                 .set_parent(&parent)
                 .set_title("Save BlackDoc")
-                .add_filter("BlackDoc", &["bdoc", "blackdoc"])
+                .add_filter("BlackDoc", &["bdoc"])
                 .set_file_name(storage::suggested_name(&suggested_name, false));
             if let Some(directory) = bound.as_ref().and_then(|path| path.parent()) {
                 dialog = dialog.set_directory(directory);
