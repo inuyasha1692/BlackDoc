@@ -23,6 +23,10 @@ HTML 导出会尝试内嵌远程图片。若图片源站禁止跨域读取或网
 
 BlackDoc 保留 BlockNote 的文本格式工具栏、`/` 插入菜单、表格、列表、媒体等编辑体验，并接入官方多栏、图表和数学公式扩展。左侧大纲、块链接、双分区、Excalidraw 画布、查找替换、自动暂存和主题切换由 BlackDoc 提供或定制。
 
+## 许可证
+
+BlackDoc 自身代码采用 GNU General Public License v3.0 only（GPL-3.0-only），详见仓库根目录的 [LICENSE](LICENSE)。第三方依赖、字体和其他资源仍按各自许可证授权，清单见 [第三方许可声明](THIRD_PARTY_NOTICES.md)。
+
 ## 试用功能示例
 
 下载并用 BlackDoc 打开[功能展示示例](files/BlackDoc功能展示示例.bdoc)，可以检查原生编辑操作和 BlackDoc 的特色功能。双分区章节展示左侧固定参考表、右侧滚动阅读长篇说明。

@@ -21,6 +21,12 @@
     "active": true,
     "createUpdaterArtifacts": true,
     "targets": ["nsis"],
+    "license": "GPL-3.0-only",
+    "licenseFile": "../LICENSE",
+    "resources": {
+      "../THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md",
+      "../third_party_licenses/": "third_party_licenses/"
+    },
     "icon": ["icons/icon.png", "icons/icon.ico"],
     "fileAssociations": [
       { "ext": ["bdoc", "blackdoc"], "name": "BlackDoc Document", "description": "BlackDoc block document", "role": "Editor", "mimeType": "application/json" }
