@@ -143,7 +143,6 @@ export function DocumentOutline({
                 key={item.id}
                 onClick={() => {
                   revealBlock(item.id);
-                  setActiveId(item.id);
                 }}
                 onMouseDown={(event) => event.preventDefault()}
                 style={{ paddingLeft: `${10 + (item.level - 1) * 12}px` }}

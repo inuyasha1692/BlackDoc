@@ -54,15 +54,15 @@ body { margin: 0; color: #202124; background: #fff; line-height: 1.7; }
 [data-style-type="textColor"][data-value="blue"], [data-text-color="blue"] { color: #0b6e99; }
 [data-style-type="textColor"][data-value="purple"], [data-text-color="purple"] { color: #6940a5; }
 [data-style-type="textColor"][data-value="pink"], [data-text-color="pink"] { color: #ad1a72; }
-[data-style-type="backgroundColor"][data-value="gray"], [data-background-color="gray"] { background-color: #ebeced; }
-[data-style-type="backgroundColor"][data-value="brown"], [data-background-color="brown"] { background-color: #e9e5e3; }
-[data-style-type="backgroundColor"][data-value="red"], [data-background-color="red"] { background-color: #fbe4e4; }
-[data-style-type="backgroundColor"][data-value="orange"], [data-background-color="orange"] { background-color: #f6e9d9; }
-[data-style-type="backgroundColor"][data-value="yellow"], [data-background-color="yellow"] { background-color: #fbf3db; }
-[data-style-type="backgroundColor"][data-value="green"], [data-background-color="green"] { background-color: #ddedea; }
-[data-style-type="backgroundColor"][data-value="blue"], [data-background-color="blue"] { background-color: #ddebf1; }
-[data-style-type="backgroundColor"][data-value="purple"], [data-background-color="purple"] { background-color: #eae4f2; }
-[data-style-type="backgroundColor"][data-value="pink"], [data-background-color="pink"] { background-color: #f4dfeb; }
+[data-style-type="backgroundColor"][data-value="gray"], [data-background-color="gray"] { background-color: #e5e5e5; }
+[data-style-type="backgroundColor"][data-value="brown"], [data-background-color="brown"] { background-color: #f2d5c3; }
+[data-style-type="backgroundColor"][data-value="red"], [data-background-color="red"] { background-color: #ffcccc; }
+[data-style-type="backgroundColor"][data-value="orange"], [data-background-color="orange"] { background-color: #ffe5cc; }
+[data-style-type="backgroundColor"][data-value="yellow"], [data-background-color="yellow"] { background-color: #fff4cc; }
+[data-style-type="backgroundColor"][data-value="green"], [data-background-color="green"] { background-color: #ccffcc; }
+[data-style-type="backgroundColor"][data-value="blue"], [data-background-color="blue"] { background-color: #cce5ff; }
+[data-style-type="backgroundColor"][data-value="purple"], [data-background-color="purple"] { background-color: #ccccff; }
+[data-style-type="backgroundColor"][data-value="pink"], [data-background-color="pink"] { background-color: #ffcce5; }
 .split-pane { display: grid; grid-template-columns: minmax(0, var(--split-left-width, 50fr)) minmax(0, var(--split-right-width, 50fr)); gap: 16px; align-items: stretch; margin: 16px 0; }
 .split-pane > .bn-block-outer { min-width: 0; }
 .split-pane > .bn-block-outer:nth-child(2) { border-left: 1px solid #e3e6ea; padding-left: 8px; }

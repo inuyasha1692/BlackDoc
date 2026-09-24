@@ -1,3 +1,4 @@
+import { marked } from "marked";
 import type { BlackDocBlock, BlackDocEditor } from "./schema";
 import { createSplitPane, SPLIT_AUTO_HEIGHT } from "./splitPane";
 
@@ -68,6 +69,7 @@ const imageDescriptionPanes = (blocks: BlackDocBlock[]): BlackDocBlock[] => bloc
   const columnCount = rows[0].cells.length;
   if (columnCount < 2 || columnCount > 4) return [block];
   const header = rows[0].cells.map(cell => plainText(cell).trim());
+  if (["状态", "图片", "说明"].every(label => header.includes(label))) return [block];
   const isImageDescription = columnCount === 2 && header[0] === "图片" && header[1] === "说明";
   const firstRow = isImageDescription ? 1 :
     block.content.headerRows && !header.some(text => text.includes(IMAGE_MARKER)) ? 1 : 0;
@@ -140,6 +142,105 @@ const maskAssets = (markdown: string): {
   return { markdown: lines.join("\n"), images, videos };
 };
 
+const isListItem = (block: BlackDocBlock): boolean =>
+  block.type === "bulletListItem" || block.type === "numberedListItem" ||
+  block.type === "checkListItem";
+
+// BlockNote flattens some Markdown lists when a parent item has its own paragraph.
+// Use the source list tree for depth, but retain BlockNote's blocks and inline formatting.
+const restoreListDepths = (markdown: string, blocks: BlackDocBlock[]): BlackDocBlock[] => {
+  const sourceItems: { depth: number; label: string }[] = [];
+  const label = (text: string) => {
+    const firstLine = text.split(/\n|<br\s*\/?>/i)[0];
+    const html = new DOMParser().parseFromString(firstLine, "text/html").body.textContent ?? "";
+    return html.replace(/\\([\\`*_{}[\]()#+.!<>-])/g, "$1")
+      .replace(/[*_`~\s]/g, "").toLowerCase();
+  };
+  const scan = (tokens: ReturnType<typeof marked.lexer>, depth: number) => {
+    for (const token of tokens) {
+      if (token.type === "list") {
+        for (const item of token.items) {
+          sourceItems.push({ depth, label: label(item.text) });
+          scan(item.tokens as ReturnType<typeof marked.lexer>, depth + 1);
+        }
+      } else if ("tokens" in token && Array.isArray(token.tokens)) {
+        scan(token.tokens as ReturnType<typeof marked.lexer>, depth);
+      }
+    }
+  };
+  scan(marked.lexer(markdown), 0);
+  if (!sourceItems.some(item => item.depth > 0)) return blocks;
+
+  const parsedItems: BlackDocBlock[] = [];
+  const collect = (items: BlackDocBlock[]) => {
+    for (const block of items) {
+      if (isListItem(block)) parsedItems.push(block);
+      collect(block.children);
+    }
+  };
+  collect(blocks);
+  const parsedLabels = parsedItems.map(block => label(plainText(block.content)));
+  const score = (source: string, parsed: string): number => {
+    if (!source || !parsed) return 0;
+    if (source === parsed) return 3;
+    if (source.length >= 4 && parsed.length >= 4 &&
+      (source.startsWith(parsed) || parsed.startsWith(source))) return 2;
+    return 0;
+  };
+  // Align by content rather than position: BlockNote can create an extra empty list item.
+  const table = Array.from({ length: sourceItems.length + 1 },
+    () => Array<number>(parsedItems.length + 1).fill(0));
+  for (let i = sourceItems.length - 1; i >= 0; i--) {
+    for (let j = parsedItems.length - 1; j >= 0; j--) {
+      table[i][j] = Math.max(table[i + 1][j], table[i][j + 1],
+        score(sourceItems[i].label, parsedLabels[j]) + table[i + 1][j + 1]);
+    }
+  }
+  const depths = new Map<string, number>();
+  let i = 0;
+  let j = 0;
+  while (i < sourceItems.length && j < parsedItems.length) {
+    const matched = score(sourceItems[i].label, parsedLabels[j]);
+    if (matched && table[i][j] === matched + table[i + 1][j + 1]) {
+      depths.set(parsedItems[j].id, sourceItems[i].depth);
+      i++;
+      j++;
+    } else if (table[i + 1][j] >= table[i][j + 1]) {
+      i++;
+    } else {
+      j++;
+    }
+  }
+
+  const rebuild = (items: BlackDocBlock[], parentDepth = -1): BlackDocBlock[] => {
+    const result: BlackDocBlock[] = [];
+    const parents = new Map<number, BlackDocBlock>();
+    for (const original of items) {
+      const block = original.children.length
+        ? { ...original, children: rebuild(original.children, depths.get(original.id) ?? parentDepth) }
+        : original;
+      const depth = depths.get(block.id);
+      if (depth === undefined || !isListItem(block)) {
+        result.push(block);
+        parents.clear();
+        continue;
+      }
+      for (const level of [...parents.keys()]) {
+        if (level >= depth) parents.delete(level);
+      }
+      const parent = parents.get(depth - 1);
+      if (depth > parentDepth + 1 && parent) {
+        parent.children.push(block);
+      } else {
+        result.push(block);
+      }
+      parents.set(depth, block);
+    }
+    return result;
+  };
+  return rebuild(blocks);
+};
+
 export const importMarkdownBlocks = (
   editor: BlackDocEditor,
   markdown: string,
@@ -160,7 +261,8 @@ export const importMarkdownBlocks = (
         .slice(0, 18);
       return `${MARKER}${index}END${tag}`;
     });
-  const parsed = imageDescriptionPanes(editor.tryParseMarkdownToBlocks(normalized));
+  const parsed = restoreListDepths(normalized,
+    imageDescriptionPanes(editor.tryParseMarkdownToBlocks(normalized)));
   if (parsed.length === 0) {
     throw new Error("Markdown 文档没有可导入的内容。");
   }
@@ -258,48 +360,98 @@ export const importMarkdownBlocks = (
       });
     });
   };
-  const expandColumn = (column: BlackDocBlock): BlackDocBlock => {
-    const children: BlackDocBlock[] = [];
-    for (const child of column.children) {
-      if (child.type !== "paragraph" || !Array.isArray(child.content)) {
-        children.push(child);
+  const expandTextImages = (block: BlackDocBlock): BlackDocBlock[] => {
+    const children = block.children.flatMap(expandTextImages);
+    const isListItem = block.type === "bulletListItem" ||
+      block.type === "numberedListItem" || block.type === "checkListItem";
+    if ((block.type !== "paragraph" && !isListItem) || !Array.isArray(block.content)) {
+      return [{ ...block, children }];
+    }
+    const expanded: BlackDocBlock[] = [];
+    let pending: typeof block.content = [];
+    let seenImage = false;
+    let stripNextBreak = false;
+    const flush = () => {
+      if (pending.some(item => item.type !== "text" || item.text.trim())) {
+        const id = isListItem || expanded.length ? crypto.randomUUID() : block.id;
+        expanded.push(isListItem ? {
+          id, type: "paragraph",
+          props: {
+            backgroundColor: block.props.backgroundColor,
+            textColor: block.props.textColor,
+            textAlignment: block.props.textAlignment,
+          },
+          content: pending, children: [],
+        } as BlackDocBlock : { ...block, id, content: pending, children: [] });
+      }
+      pending = [];
+    };
+    const trimLastBreak = () => {
+      const last = pending.at(-1);
+      if (last?.type !== "text") return;
+      const text = last.text.replace(/\r?\n[ \t]*$/, "");
+      if (text === last.text) return;
+      if (text) pending[pending.length - 1] = { ...last, text };
+      else pending.pop();
+    };
+    const addText = (item: Extract<typeof block.content[number], { type: "text" }>, value: string) => {
+      const text = stripNextBreak ? value.replace(/^[ \t]*\r?\n[ \t]*/, "") : value;
+      if (text) {
+        pending.push({ ...item, text });
+        stripNextBreak = false;
+      }
+    };
+    for (const item of block.content) {
+      if (item.type !== "text") {
+        pending.push(item);
+        stripNextBreak = false;
         continue;
       }
-      let pending: typeof child.content = [];
-      let seenImage = false;
-      const flush = () => {
-        if (pending.length) {
-          children.push({ ...child, id: seenImage || children.length ? crypto.randomUUID() : child.id, content: pending });
-          pending = [];
-        }
-      };
-      for (const item of child.content) {
-        if (item.type !== "text" || !item.text.includes(IMAGE_MARKER)) {
-          pending.push(item);
-          continue;
-        }
-        let start = 0;
-        for (const match of item.text.matchAll(imagePattern)) {
-          if (match.index > start) pending.push({ ...item, text: item.text.slice(start, match.index) });
-          flush();
-          const image = imageBlock(Number(match[1]));
-          if (image) children.push({ ...image, id: seenImage || children.length ? image.id : child.id });
-          seenImage = true;
-          start = match.index + match[0].length;
-        }
-        if (start < item.text.length) pending.push({ ...item, text: item.text.slice(start) });
+      if (!item.text.includes(IMAGE_MARKER)) {
+        addText(item, item.text);
+        continue;
       }
-      flush();
-      if (!seenImage && !children.includes(child) && !child.content.length) children.push(child);
+      let start = 0;
+      for (const match of item.text.matchAll(imagePattern)) {
+        addText(item, item.text.slice(start, match.index));
+        trimLastBreak();
+        flush();
+        const image = imageBlock(Number(match[1]));
+        if (image) {
+          expanded.push({ ...image, id: isListItem || expanded.length ? image.id : block.id });
+          seenImage = true;
+        } else {
+          pending.push({ ...item, text: match[0] });
+        }
+        stripNextBreak = true;
+        start = match.index + match[0].length;
+      }
+      addText(item, item.text.slice(start));
     }
-    return { ...column, children };
+    if (!seenImage) return [{ ...block, children }];
+    flush();
+    if (isListItem) {
+      const first = expanded[0];
+      const leadingText = first?.type === "paragraph" ? first : null;
+      return [{
+        ...block,
+        content: leadingText ? leadingText.content : [],
+        children: [...expanded.slice(leadingText ? 1 : 0), ...children],
+      }];
+    }
+    if (children.length) {
+      const last = expanded.at(-1);
+      if (last?.type === "paragraph") last.children = children;
+      else expanded.push({ ...block, id: crypto.randomUUID(), content: [], children });
+    }
+    return expanded;
   };
-  for (const block of blocks) {
+  for (const block of blocks.flatMap(expandTextImages)) {
+    embedTableImages(block);
     if (block.type === "splitPane" || block.type === "columnList") {
-      withImages.push({ ...block, children: block.children.map(expandColumn) });
+      withImages.push(block);
       continue;
     }
-    if (block.type === "table") embedTableImages(block);
     const indexes: number[] = [];
     const videoIndexes: number[] = [];
     visit(block, object => {

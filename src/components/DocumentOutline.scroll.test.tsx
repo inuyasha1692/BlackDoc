@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as blockLinks from "../editor/blockLinks";
 import { DocumentOutline } from "./DocumentOutline";
 
 vi.mock("../editor/outline", () => ({
@@ -64,6 +65,28 @@ afterEach(() => {
 });
 
 describe("outline scroll ownership", () => {
+  it.each([
+    { targetId: "after", inner: false },
+    { targetId: "second", inner: true },
+  ])("only highlights $targetId as scrolling reaches it", ({ targetId, inner }) => {
+    const reveal = vi.spyOn(blockLinks, "revealBlock").mockReturnValue(true);
+    const owner = inner ? pane : window;
+    scroll(owner);
+    expectActive("first");
+
+    fireEvent.click(screen.getByRole("button", { name: targetId }));
+
+    expect(reveal).toHaveBeenCalledWith(targetId);
+    expectActive("first");
+    scroll(owner);
+    expectActive("first");
+
+    position("block=first", 0);
+    position(`block=${targetId}`, 120);
+    scroll(owner);
+    expectActive(targetId);
+  });
+
   it("keeps the nearest preceding inner heading through gaps and reverse scrolling", () => {
     scroll(pane);
     expectActive("first");
