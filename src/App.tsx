@@ -810,6 +810,47 @@ export default function App() {
   }, [desktopReady, documentName]);
   const isSaving =
     !desktopReady || busy || status === "saving" || status === "draft-saving";
+  const getSlashMenuItems = useCallback(
+    async (query: string) =>
+      filterSuggestionItems(
+        combineByGroup(getDefaultReactSlashMenuItems(editor), [
+          ...getMultiColumnSlashMenuItems(editor),
+          ...getDiagramSlashMenuItems(editor),
+          ...getMathSlashMenuItems(editor),
+          ...(!isInsideSplitPane(
+            editor.document,
+            editor.getTextCursorPosition().block.id,
+          )
+            ? [
+                {
+                  title: "双分区",
+                  aliases: ["split", "columns", "scrollytelling", "shuangfenqu"],
+                  group: "其他",
+                  icon: <Columns2 aria-hidden="true" size={18} />,
+                  onItemClick: () => {
+                    const inserted = insertOrUpdateBlockForSlashMenu(
+                      editor,
+                      createSplitPane(),
+                    );
+                    const first = inserted.children[0]?.children[0];
+                    if (first) editor.setTextCursorPosition(first, "start");
+                  },
+                },
+              ]
+            : []),
+          {
+            title: "画布",
+            aliases: ["canvas", "drawing", "huabu"],
+            group: "其他",
+            icon: <PenTool aria-hidden="true" size={18} />,
+            onItemClick: () =>
+              insertOrUpdateBlockForSlashMenu(editor, { type: "canvas" }),
+          },
+        ]),
+        query,
+      ),
+    [editor],
+  );
 
   return (
     <AppThemeContext.Provider value={theme}>
@@ -915,35 +956,11 @@ export default function App() {
           >
             <SuggestionMenuController
               triggerCharacter="/"
-              getItems={async (query) =>
-                filterSuggestionItems(
-                  combineByGroup(getDefaultReactSlashMenuItems(editor), [
-                    ...getMultiColumnSlashMenuItems(editor),
-                    ...getDiagramSlashMenuItems(editor),
-                    ...getMathSlashMenuItems(editor),
-                    ...(!isInsideSplitPane(editor.document, editor.getTextCursorPosition().block.id) ? [{
-                      title: "双分区",
-                      aliases: ["split", "columns", "scrollytelling", "shuangfenqu"],
-                      group: "其他",
-                      icon: <Columns2 aria-hidden="true" size={18} />,
-                      onItemClick: () => {
-                        const inserted = insertOrUpdateBlockForSlashMenu(editor, createSplitPane());
-                        const first = inserted.children[0]?.children[0];
-                        if (first) editor.setTextCursorPosition(first, "start");
-                      },
-                    }] : []),
-                    {
-                      title: "画布",
-                      aliases: ["canvas", "drawing", "huabu"],
-                      group: "其他",
-                      icon: <PenTool aria-hidden="true" size={18} />,
-                      onItemClick: () =>
-                        insertOrUpdateBlockForSlashMenu(editor, { type: "canvas" }),
-                    },
-                  ]),
-                  query,
-                )
-              }
+              getItems={getSlashMenuItems}
+            />
+            <SuggestionMenuController
+              triggerCharacter="、"
+              getItems={getSlashMenuItems}
             />
             <FormattingToolbarController
               formattingToolbar={BlackDocFormattingToolbar}

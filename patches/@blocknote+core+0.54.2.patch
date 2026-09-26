@@ -1,0 +1,124 @@
+diff --git a/node_modules/@blocknote/core/dist/blocks-Dol85hpH.js b/node_modules/@blocknote/core/dist/blocks-Dol85hpH.js
+index c1c5b0b..e1b7833 100644
+--- a/node_modules/@blocknote/core/dist/blocks-Dol85hpH.js
++++ b/node_modules/@blocknote/core/dist/blocks-Dol85hpH.js
+@@ -3119,7 +3119,8 @@ var Jr = m((e) => e.type.name === "blockContainer"), Yr = class {
+ 		this.editor.isEditable && o && (this.state = {
+ 			show: !0,
+ 			referencePos: o.getBoundingClientRect().toJSON(),
+-			query: this.pluginState.query
++			query: this.pluginState.query,
++			composing: e.composing
+ 		}, this.emitUpdate(this.pluginState.triggerCharacter));
+ 	}
+ 	destroy() {
+@@ -3187,8 +3188,9 @@ var Jr = m((e) => e.type.name === "blockContainer"), Yr = class {
+ 						};
+ 					}
+ 					if (n === void 0) return n;
+-					if (a.selection.from !== a.selection.to || o === null || e.getMeta("focus") || e.getMeta("blur") || e.getMeta("pointer") || n.triggerCharacter !== void 0 && a.selection.from < n.queryStartPos() || !a.selection.$from.sameParent(a.doc.resolve(n.queryStartPos()))) return;
+-					let s = { ...n };
++					let c = t.prosemirrorView.composing;
++					if (a.selection.from !== a.selection.to && !c || o === null || e.getMeta("focus") || e.getMeta("blur") || e.getMeta("pointer") || !c && n.triggerCharacter !== void 0 && a.selection.from < n.queryStartPos() || !c && !a.selection.$from.sameParent(a.doc.resolve(n.queryStartPos()))) return;
++					let s = { ...n, composing: c };
+ 					return s.query = a.doc.textBetween(n.queryStartPos(), a.selection.from), s;
+ 				}
+ 			},
+diff --git a/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts b/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts
+index 62d01c7..41a2106 100644
+--- a/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts
++++ b/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts
+@@ -15,6 +15,7 @@ const findBlock = findParentNode((node) => node.type.name === "blockContainer");
+ export type SuggestionMenuState = UiElementPosition & {
+   query: string;
+   ignoreQueryLength?: boolean;
++  composing?: boolean;
+ };
+ 
+ class SuggestionMenuView {
+@@ -97,13 +98,14 @@ class SuggestionMenuView {
+     );
+ 
+     if (this.editor.isEditable && decorationNode) {
+-      this.state = {
+-        show: true,
+-        referencePos: decorationNode
+-          .getBoundingClientRect()
+-          .toJSON() as DOMRect,
+-        query: this.pluginState!.query,
+-      };
++        this.state = {
++          show: true,
++          referencePos: decorationNode
++            .getBoundingClientRect()
++            .toJSON() as DOMRect,
++          query: this.pluginState!.query,
++          composing: view.composing,
++        };
+ 
+       this.emitUpdate(this.pluginState!.triggerCharacter!);
+     }
+@@ -146,6 +148,7 @@ type SuggestionPluginState =
+       query: string;
+       decorationId: string;
+       ignoreQueryLength?: boolean;
++      composing?: boolean;
+     }
+   | undefined;
+ 
+@@ -304,9 +307,12 @@ export const SuggestionMenu = createExtension(({ editor }) => {
+             }
+ 
+             // Checks if the menu should be hidden.
++            const composing = editor.prosemirrorView.composing;
++
+             if (
+               // Highlighting text should hide the menu.
+-              newState.selection.from !== newState.selection.to ||
++              (newState.selection.from !== newState.selection.to &&
++                !composing) ||
+               // Transactions with plugin metadata should hide the menu.
+               suggestionPluginTransactionMeta === null ||
+               // Certain mouse events should hide the menu.
+@@ -315,17 +321,18 @@ export const SuggestionMenu = createExtension(({ editor }) => {
+               transaction.getMeta("blur") ||
+               transaction.getMeta("pointer") ||
+               // Moving the caret before the character which triggered the menu should hide it.
+-              (prev.triggerCharacter !== undefined &&
++              (!composing && prev.triggerCharacter !== undefined &&
+                 newState.selection.from < prev.queryStartPos()) ||
+               // Moving the caret to a new block should hide the menu.
+-              !newState.selection.$from.sameParent(
++              (!composing && !newState.selection.$from.sameParent(
+                 newState.doc.resolve(prev.queryStartPos()),
+-              )
++              ))
+             ) {
+               return undefined;
+             }
+ 
+             const next = { ...prev };
++            next.composing = composing;
+ 
+             // Updates the current query.
+             next.query = newState.doc.textBetween(
+diff --git a/node_modules/@blocknote/core/types/src/extensions/SuggestionMenu/SuggestionMenu.d.ts b/node_modules/@blocknote/core/types/src/extensions/SuggestionMenu/SuggestionMenu.d.ts
+index 37cd728..f7e9a6f 100644
+--- a/node_modules/@blocknote/core/types/src/extensions/SuggestionMenu/SuggestionMenu.d.ts
++++ b/node_modules/@blocknote/core/types/src/extensions/SuggestionMenu/SuggestionMenu.d.ts
+@@ -3,6 +3,7 @@ import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js"
+ export type SuggestionMenuState = UiElementPosition & {
+     query: string;
+     ignoreQueryLength?: boolean;
++    composing?: boolean;
+ };
+ type SuggestionPluginState = {
+     triggerCharacter: string;
+@@ -11,6 +12,7 @@ type SuggestionPluginState = {
+     query: string;
+     decorationId: string;
+     ignoreQueryLength?: boolean;
++    composing?: boolean;
+ } | undefined;
+ export type SuggestionMenuOptions = {
+     /**

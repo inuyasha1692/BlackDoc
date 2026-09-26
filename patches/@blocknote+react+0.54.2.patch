@@ -1,0 +1,164 @@
+diff --git a/node_modules/@blocknote/react/dist/blocknote-react.js b/node_modules/@blocknote/react/dist/blocknote-react.js
+index 8e2ad69..30f8b45 100644
+--- a/node_modules/@blocknote/react/dist/blocknote-react.js
++++ b/node_modules/@blocknote/react/dist/blocknote-react.js
+@@ -2417,15 +2417,16 @@ function Lr(e) {
+ }
+ //#endregion
+ //#region src/components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.ts
+-function Rr(e, t, n, r = 3) {
++function Rr(e, t, n, r = 3, s = !1) {
+ 	let i = A(0);
+ 	D(() => {
+-		t !== void 0 && (e.length > 0 ? i.current = t.length : t.length - i.current > r && n());
++		t !== void 0 && !s && (e.length > 0 ? i.current = t.length : t.length - i.current > r && n());
+ 	}, [
+ 		n,
+ 		r,
+ 		e.length,
+-		t
++		t,
++		s
+ 	]);
+ }
+ //#endregion
+@@ -2656,14 +2657,14 @@ function Kr(e, t, n, r, i) {
+ //#endregion
+ //#region src/components/SuggestionMenu/SuggestionMenuWrapper.tsx
+ function qr(t) {
+-	let n = v().setContentEditableProps, r = e(), { getItems: i, suggestionMenuComponent: a, query: o, clearQuery: s, closeMenu: c, onItemClick: l } = t, u = T((e) => {
++	let n = v().setContentEditableProps, r = e(), { getItems: i, suggestionMenuComponent: a, query: o, clearQuery: s, closeMenu: c, onItemClick: l, composing: h } = t, u = T((e) => {
+ 		c(), s(), l?.(e);
+ 	}, [
+ 		l,
+ 		c,
+ 		s
+ 	]), { items: d, usedQuery: f, loadingState: p } = zr(o, i);
+-	Rr(d, f, c);
++	Rr(d, f, c, 3, h);
+ 	let { selectedIndex: m } = Kr(r, o, d, u);
+ 	return D(() => (n((e) => ({
+ 		...e,
+@@ -2791,6 +2792,7 @@ function Xr(t) {
+ 		...y,
+ 		children: a && /* @__PURE__ */ Y(qr, {
+ 			query: _.query,
++			composing: _.composing,
+ 			closeMenu: g.closeMenu,
+ 			clearQuery: g.clearQuery,
+ 			getItems: h,
+diff --git a/node_modules/@blocknote/react/src/components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.tsx b/node_modules/@blocknote/react/src/components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.tsx
+index 1fe6676..955c6d4 100644
+--- a/node_modules/@blocknote/react/src/components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.tsx
++++ b/node_modules/@blocknote/react/src/components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.tsx
+@@ -191,8 +191,9 @@ export function GridSuggestionMenuController<
+     >
+       {triggerCharacter && (
+         <GridSuggestionMenuWrapper
+-          query={state.query}
+-          closeMenu={suggestionMenu.closeMenu}
++        query={state.query}
++        composing={state.composing}
++        closeMenu={suggestionMenu.closeMenu}
+           clearQuery={suggestionMenu.clearQuery}
+           getItems={getItemsOrDefault}
+           columns={columns}
+diff --git a/node_modules/@blocknote/react/src/components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper.tsx b/node_modules/@blocknote/react/src/components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper.tsx
+index a75b519..cea332f 100644
+--- a/node_modules/@blocknote/react/src/components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper.tsx
++++ b/node_modules/@blocknote/react/src/components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper.tsx
+@@ -11,6 +11,7 @@ import { GridSuggestionMenuProps } from "./types.js";
+ 
+ export function GridSuggestionMenuWrapper<Item>(props: {
+   query: string;
++  composing?: boolean;
+   closeMenu: () => void;
+   clearQuery: () => void;
+   getItems: (query: string) => Promise<Item[]>;
+@@ -30,6 +31,7 @@ export function GridSuggestionMenuWrapper<Item>(props: {
+     getItems,
+     gridSuggestionMenuComponent,
+     query,
++    composing,
+     clearQuery,
+     closeMenu,
+     onItemClick,
+@@ -50,7 +52,7 @@ export function GridSuggestionMenuWrapper<Item>(props: {
+     getItems,
+   );
+ 
+-  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
++  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu, 3, composing);
+ 
+   const { selectedIndex } = useGridSuggestionMenuKeyboardNavigation(
+     editor,
+diff --git a/node_modules/@blocknote/react/src/components/SuggestionMenu/SuggestionMenuController.tsx b/node_modules/@blocknote/react/src/components/SuggestionMenu/SuggestionMenuController.tsx
+index 39dc36f..b0ec977 100644
+--- a/node_modules/@blocknote/react/src/components/SuggestionMenu/SuggestionMenuController.tsx
++++ b/node_modules/@blocknote/react/src/components/SuggestionMenu/SuggestionMenuController.tsx
+@@ -184,8 +184,9 @@ export function SuggestionMenuController<
+     >
+       {triggerCharacter && (
+         <SuggestionMenuWrapper
+-          query={state.query}
+-          closeMenu={suggestionMenu.closeMenu}
++        query={state.query}
++        composing={state.composing}
++        closeMenu={suggestionMenu.closeMenu}
+           clearQuery={suggestionMenu.clearQuery}
+           getItems={getItemsOrDefault}
+           suggestionMenuComponent={
+diff --git a/node_modules/@blocknote/react/src/components/SuggestionMenu/SuggestionMenuWrapper.tsx b/node_modules/@blocknote/react/src/components/SuggestionMenu/SuggestionMenuWrapper.tsx
+index 3060ee4..f6005f0 100644
+--- a/node_modules/@blocknote/react/src/components/SuggestionMenu/SuggestionMenuWrapper.tsx
++++ b/node_modules/@blocknote/react/src/components/SuggestionMenu/SuggestionMenuWrapper.tsx
+@@ -11,6 +11,7 @@ import { SuggestionMenuProps } from "./types.js";
+ 
+ export function SuggestionMenuWrapper<Item>(props: {
+   query: string;
++  composing?: boolean;
+   closeMenu: () => void;
+   clearQuery: () => void;
+   getItems: (query: string) => Promise<Item[]>;
+@@ -29,6 +30,7 @@ export function SuggestionMenuWrapper<Item>(props: {
+     getItems,
+     suggestionMenuComponent,
+     query,
++    composing,
+     clearQuery,
+     closeMenu,
+     onItemClick,
+@@ -48,7 +50,7 @@ export function SuggestionMenuWrapper<Item>(props: {
+     getItems,
+   );
+ 
+-  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
++  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu, 3, composing);
+ 
+   const { selectedIndex } = useSuggestionMenuKeyboardNavigation(
+     editor,
+diff --git a/node_modules/@blocknote/react/src/components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.ts b/node_modules/@blocknote/react/src/components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.ts
+index c389461..502d028 100644
+--- a/node_modules/@blocknote/react/src/components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.ts
++++ b/node_modules/@blocknote/react/src/components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.ts
+@@ -8,11 +8,12 @@ export function useCloseSuggestionMenuNoItems<Item>(
+   usedQuery: string | undefined,
+   closeMenu: () => void,
+   invalidQueries = 3,
++  disabled = false,
+ ) {
+   const lastUsefulQueryLength = useRef(0);
+ 
+   useEffect(() => {
+-    if (usedQuery === undefined) {
++    if (usedQuery === undefined || disabled) {
+       return;
+     }
+ 
+@@ -24,5 +25,5 @@ export function useCloseSuggestionMenuNoItems<Item>(
+     ) {
+       closeMenu();
+     }
+-  }, [closeMenu, invalidQueries, items.length, usedQuery]);
++  }, [closeMenu, disabled, invalidQueries, items.length, usedQuery]);
+ }
