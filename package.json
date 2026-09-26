@@ -12,7 +12,8 @@
     "webview:dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@blocknote/core": "0.54.2",
@@ -44,6 +45,7 @@
     "eslint-plugin-react-refresh": "0.5.7",
     "globals": "17.12.0",
     "jsdom": "29.1.1",
+    "patch-package": "^8.0.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.0",
     "vite": "8.3.0",

@@ -77,4 +77,9 @@ function excalidrawAssets(): Plugin {
 
 export default defineConfig({
   plugins: [react(), excalidrawAssets()],
+  server: {
+    watch: {
+      ignored: ["**/src-tauri/target/**"],
+    },
+  },
 });

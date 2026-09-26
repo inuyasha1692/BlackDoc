@@ -22,7 +22,7 @@ function skipUnrelatedNumberedListUpdates(plugin: Plugin): Plugin {
       init: (config, state) => stateField.init!.call(plugin, config, state),
       apply(transaction, previous, oldState, newState) {
         if (!transaction.docChanged) return previous;
-        if (!transactionTouchesNodeTypes(transaction, numberedListItemType, false)) {
+        if (!transactionTouchesNodeTypes(transaction, numberedListItemType)) {
           return {
             ...previous,
             decorations: previous.decorations.map(transaction.mapping, transaction.doc),
