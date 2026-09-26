@@ -18,8 +18,10 @@ import {
   multiColumnDropCursor,
 } from "@blocknote/xl-multi-column";
 import { BlockNoteView } from "@blocknote/mantine";
+import { flip, offset, shift, size } from "@floating-ui/react";
 import {
   FormattingToolbarController,
+  type DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   LinkToolbarController,
   SuggestionMenuController,
@@ -27,13 +29,16 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import { AlertTriangle, Columns2, PenTool, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActionDialog } from "./components/ActionDialog";
 import { AboutDialog, type UpdateAction } from "./components/AboutDialog";
 import { ShortcutsDialog } from "./components/ShortcutsDialog";
 import { BlackDocFormattingToolbar } from "./components/BlockLinkControls";
 import { BlackDocLinkToolbar } from "./components/BlackDocLinkToolbar";
-import { BlackDocSideMenuController } from "./components/BlockSideMenu";
+import {
+  BlackDocSideMenuController,
+  type PendingSlashBlockRef,
+} from "./components/BlockSideMenu";
 import { BlackDocTableCellButton } from "./components/TableCellColorMenu";
 import { DocumentOutline } from "./components/DocumentOutline";
 import { FindReplaceBar } from "./components/FindReplaceBar";
@@ -45,6 +50,7 @@ import { AppThemeContext } from "./theme";
 import { useAppTheme } from "./useAppTheme";
 
 type UpdateGuideStage = "more" | "about" | "check" | "done";
+type SlashMenuPlacement = "bottom-start" | "top-start";
 
 export const AUTO_SAVE_DELAY_MS = 60_000;
 
@@ -202,6 +208,46 @@ export default function App() {
       return true;
     },
   });
+  const pendingSlashBlockRef = useRef<PendingSlashBlockRef["current"]>(null);
+  const [slashMenuPlacement, setSlashMenuPlacement] =
+    useState<SlashMenuPlacement>("bottom-start");
+  const updateSlashMenuPlacement = useCallback(() => {
+    const view = editor.prosemirrorView;
+    if (!view) return;
+
+    const cursorTop = view.coordsAtPos(view.state.selection.head).top;
+    const viewportMiddle = document.documentElement.clientHeight / 2;
+    const nextPlacement = cursorTop >= viewportMiddle ? "top-start" : "bottom-start";
+    setSlashMenuPlacement(current => current === nextPlacement ? current : nextPlacement);
+  }, [editor]);
+  const slashMenuFloatingUIOptions = useMemo(() => ({
+    useFloatingOptions: {
+      placement: slashMenuPlacement,
+      middleware: [
+        offset(10),
+        flip({
+          fallbackPlacements: [slashMenuPlacement === "top-start" ? "bottom-start" : "top-start"],
+          padding: 10,
+        }),
+        shift({ padding: 10 }),
+        size({
+          apply({ elements, availableHeight }) {
+            elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+          },
+          padding: 10,
+        }),
+      ],
+    },
+  }), [slashMenuPlacement]);
+  useEffect(() => {
+    updateSlashMenuPlacement();
+    window.addEventListener("resize", updateSlashMenuPlacement);
+    document.addEventListener("scroll", updateSlashMenuPlacement, true);
+    return () => {
+      window.removeEventListener("resize", updateSlashMenuPlacement);
+      document.removeEventListener("scroll", updateSlashMenuPlacement, true);
+    };
+  }, [updateSlashMenuPlacement]);
 
   const [blocks, setBlocks] = useState<BlackDocBlock[]>(() =>
     cloneDocument(editor.document),
@@ -660,6 +706,16 @@ export default function App() {
     setStatus("unsaved");
     schedulePersistence();
   }, [desktopReady, editor, schedulePersistence, setBlocks, setStatus]);
+  const runWithoutChangeTracking = useCallback((change: () => void) => {
+    suppressChangesRef.current = true;
+    try {
+      change();
+    } finally {
+      queueMicrotask(() => {
+        suppressChangesRef.current = false;
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (bootstrappedRef.current) return;
@@ -851,6 +907,15 @@ export default function App() {
       ),
     [editor],
   );
+  const handleSlashMenuItemClick = useCallback(
+    (item: DefaultReactSuggestionItem) => {
+      item.onItemClick();
+      if (pendingSlashBlockRef.current) {
+        pendingSlashBlockRef.current.committed = true;
+      }
+    },
+    [editor],
+  );
 
   return (
     <AppThemeContext.Provider value={theme}>
@@ -948,6 +1013,7 @@ export default function App() {
             editable={desktopReady && !recoveryDraft && !opening}
             formattingToolbar={false}
             linkToolbar={false}
+            onSelectionChange={updateSlashMenuPlacement}
             onChange={handleEditorChange}
             sideMenu={false}
             slashMenu={false}
@@ -956,16 +1022,23 @@ export default function App() {
           >
             <SuggestionMenuController
               triggerCharacter="/"
+              floatingUIOptions={slashMenuFloatingUIOptions}
               getItems={getSlashMenuItems}
+              onItemClick={handleSlashMenuItemClick}
             />
             <SuggestionMenuController
               triggerCharacter="、"
+              floatingUIOptions={slashMenuFloatingUIOptions}
               getItems={getSlashMenuItems}
+              onItemClick={handleSlashMenuItemClick}
             />
             <FormattingToolbarController
               formattingToolbar={BlackDocFormattingToolbar}
             />
-            <BlackDocSideMenuController />
+            <BlackDocSideMenuController
+              pendingSlashBlockRef={pendingSlashBlockRef}
+              runWithoutChangeTracking={runWithoutChangeTracking}
+            />
             <TableHandlesController tableCellHandle={BlackDocTableCellButton} />
             <LinkToolbarController linkToolbar={BlackDocLinkToolbar} />
           </BlockNoteView>
