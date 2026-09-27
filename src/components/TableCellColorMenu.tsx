@@ -11,7 +11,7 @@ import {
 } from "@blocknote/react";
 import { colorTableCells, colorTargetCells, type CellColorProperty } from "../editor/tableCellColors";
 
-const colors = ["default", "gray", "brown", "red", "orange", "yellow", "green", "blue", "purple", "pink"] as const;
+export const TABLE_CELL_COLORS = ["default", "gray", "brown", "red", "orange", "yellow", "green", "blue", "purple", "pink"] as const;
 
 function SelectionColorMenu() {
   const Components = useComponentsContext()!;
@@ -39,7 +39,7 @@ function SelectionColorMenu() {
           {sections.filter(section => section.enabled).map(({ property, label }) => (
             <div key={property}>
               <Components.Generic.Menu.Label>{label}</Components.Generic.Menu.Label>
-              {colors.map(color => (
+              {TABLE_CELL_COLORS.map(color => (
                 <Components.Generic.Menu.Item
                   key={color}
                   data-test={`${property === "backgroundColor" ? "background" : "text"}-color-${color}`}

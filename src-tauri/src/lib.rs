@@ -34,6 +34,7 @@ struct SavedDocument {
 struct Session {
     id: String,
     path: Option<PathBuf>,
+    file_lock: Option<std::fs::File>,
     last_export: Option<PathBuf>,
     document: Option<Document>,
     draft: Option<Draft>,
@@ -95,6 +96,7 @@ impl Desktop {
         if self.owner(&path).is_some() {
             return Ok(None);
         }
+        let file_lock = storage::open_document_lock(&path)?;
         let (blocks, baseline) = storage::read_document(&path)?;
         let document = Document {
             path: path.to_string_lossy().into_owned(),
@@ -104,6 +106,7 @@ impl Desktop {
         // The caller holds the desktop lock through validation and binding.
         let session = self.sessions.get_mut(label).ok_or("Window closed")?;
         session.path = Some(path);
+        session.file_lock = Some(file_lock);
         session.document = Some(document.clone());
         session.baseline = Some(baseline);
         Ok(Some(document))
@@ -150,6 +153,7 @@ fn create_window(
     document: Option<Document>,
     draft: Option<Draft>,
     baseline: Option<Vec<u8>>,
+    file_lock: Option<std::fs::File>,
 ) -> Result<()> {
     let id = match &draft {
         Some(draft) => draft.id.clone(),
@@ -171,6 +175,7 @@ fn create_window(
         Session {
             id,
             path: document.as_ref().map(|doc| PathBuf::from(&doc.path)),
+            file_lock,
             last_export: None,
             document,
             draft,
@@ -207,13 +212,21 @@ fn open_document(app: &AppHandle, desktop: &mut Desktop, path: &Path) -> Result<
     if let Some(label) = desktop.owner(&path) {
         return focus(app, label);
     }
+    let file_lock = storage::open_document_lock(&path)?;
     let (blocks, baseline) = storage::read_document(&path)?;
     let document = Document {
         path: path.to_string_lossy().into_owned(),
         name: name(&path),
         blocks,
     };
-    create_window(app, desktop, Some(document), None, Some(baseline))
+    create_window(
+        app,
+        desktop,
+        Some(document),
+        None,
+        Some(baseline),
+        Some(file_lock),
+    )
 }
 
 fn launch_documents(
@@ -258,7 +271,7 @@ async fn desktop_bootstrap(window: WebviewWindow) -> Result<Bootstrap> {
 async fn desktop_new_window(window: WebviewWindow) -> Result<()> {
     with_desktop(window.app_handle().clone(), move |app, desktop| {
         desktop.session(window.label())?;
-        create_window(app, desktop, None, None, None)
+        create_window(app, desktop, None, None, None, None)
     })
     .await
 }
@@ -339,6 +352,7 @@ async fn desktop_detach_document(window: WebviewWindow) -> Result<()> {
             .get_mut(window.label())
             .ok_or("Window closed")?;
         session.path = None;
+        session.file_lock = None;
         session.document = None;
         session.baseline = None;
         Ok(())
@@ -388,25 +402,57 @@ async fn desktop_save_document(
         bound.ok_or("Missing session path")?
     };
     with_desktop(window.app_handle().clone(), move |_, desktop| {
-        let session = desktop.session(window.label())?;
-        storage::authorize_path(session.path.as_deref(), path.as_deref())?;
         let target = storage::canonical_target(&target)?;
+        let same_target = {
+            let session = desktop.session(window.label())?;
+            storage::authorize_path(session.path.as_deref(), path.as_deref())?;
+            let same_target = session
+                .path
+                .as_ref()
+                .is_some_and(|bound| storage::path_key(bound) == storage::path_key(&target));
+            if same_target {
+                storage::check_baseline(
+                    &target,
+                    session
+                        .baseline
+                        .as_deref()
+                        .ok_or("Missing document baseline")?,
+                )?;
+            }
+            same_target
+        };
         desktop.check_destination(window.label(), &target)?;
-        if session
-            .path
-            .as_ref()
-            .is_some_and(|bound| storage::path_key(bound) == storage::path_key(&target))
-        {
-            storage::check_baseline(
-                &target,
-                session
-                    .baseline
-                    .as_deref()
-                    .ok_or("Missing document baseline")?,
-            )?;
-        }
         let bytes = storage::json_bytes(&blocks)?;
-        storage::atomic_write(&target, &bytes)?;
+        if same_target {
+            let session = desktop
+                .sessions
+                .get_mut(window.label())
+                .ok_or("Window closed")?;
+            drop(session.file_lock.take());
+            let write_result = storage::atomic_write(&target, &bytes);
+            match storage::open_document_lock(&target) {
+                Ok(file_lock) => {
+                    session.file_lock = Some(file_lock);
+                    write_result?;
+                }
+                Err(lock_error) => {
+                    return Err(match write_result {
+                        Ok(()) => format!("文档已保存，但无法继续锁定文件名：{lock_error}"),
+                        Err(write_error) => {
+                            format!("{write_error} 此外，无法重新锁定文档：{lock_error}")
+                        }
+                    });
+                }
+            }
+        } else {
+            storage::atomic_write(&target, &bytes)?;
+            let file_lock = storage::open_document_lock(&target)?;
+            desktop
+                .sessions
+                .get_mut(window.label())
+                .ok_or("Window closed")?
+                .file_lock = Some(file_lock);
+        }
         let saved = SavedDocument {
             path: target.to_string_lossy().into_owned(),
             name: name(&target),
@@ -579,7 +625,7 @@ pub fn run() {
                     }
                     let errors = launch_documents(app, desktop, args, Path::new(&cwd));
                     if desktop.sessions.is_empty() {
-                        create_window(app, desktop, None, None, None)?;
+                        create_window(app, desktop, None, None, None, None)?;
                     }
                     if let Some(label) = desktop.sessions.keys().next() {
                         // Individual document opens already focus their own target.
@@ -655,7 +701,7 @@ pub fn run() {
                             errors.extend(warnings);
                             for draft in drafts {
                                 if let Err(err) =
-                                    create_window(app, desktop, None, Some(draft), None)
+                                    create_window(app, desktop, None, Some(draft), None, None)
                                 {
                                     errors.push(err);
                                 }
@@ -668,7 +714,7 @@ pub fn run() {
                         errors.extend(launch_documents(app, desktop, args, &cwd));
                     }
                     if desktop.sessions.is_empty() {
-                        create_window(app, desktop, None, None, None)?;
+                        create_window(app, desktop, None, None, None, None)?;
                     }
                     desktop.ready = true;
                     show_errors(app, errors);

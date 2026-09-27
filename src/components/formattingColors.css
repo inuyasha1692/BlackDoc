@@ -1,7 +1,11 @@
-.formatting-color-panel { width: 288px; max-width: calc(100vw - 24px); padding: 10px !important; }
+.formatting-color-panel { box-sizing: border-box; width: 288px !important; max-width: calc(100vw - 24px); padding: 10px !important; }
+.bn-mantine .bn-menu-dropdown.block-color-picker { box-sizing: border-box; width: 288px; max-width: calc(100vw - 24px); padding: 10px; color: var(--app-text); background-color: var(--app-surface); }
 .formatting-color-label { font-size: 12px; margin-bottom: 6px; }
 .formatting-color-panel section + section { margin-top: 12px; }
+.block-color-picker section + section { margin-top: 12px; }
 .formatting-color-swatches { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; }
+.cell-background-color-swatches,
+.block-background-color-swatches { grid-template-columns: repeat(10, minmax(0, 1fr)); }
 .formatting-color-swatches button { display: grid; place-items: center; width: 100%; aspect-ratio: 1; padding: 1px; border: 1px solid var(--app-border); border-radius: 3px; background: transparent; cursor: pointer; }
 .formatting-color-swatches button[aria-pressed="true"] { outline: 2px solid var(--app-accent); outline-offset: 0; }
 .formatting-color-swatches button:hover { border-color: var(--app-accent); }
@@ -9,3 +13,4 @@
 .formatting-color-swatches .color-clear { background: linear-gradient(135deg, transparent 47%, var(--app-accent) 48%, var(--app-accent) 52%, transparent 53%); }
 .formatting-color-reset { width: 100%; margin-top: 12px; padding: 4px; border: 1px solid var(--app-border); border-radius: 3px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; }
 .formatting-color-panel button:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
+.block-color-picker button:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
