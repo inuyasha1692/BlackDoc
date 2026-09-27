@@ -64,6 +64,25 @@ pub fn read_document(path: &Path) -> Result<(Value, Vec<u8>)> {
     Ok((value, bytes))
 }
 
+pub fn open_document_lock(path: &Path) -> Result<fs::File> {
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::OpenOptionsExt;
+
+        // Permit other readers and writers, while withholding delete sharing so
+        // Explorer cannot rename or remove a document bound to an open window.
+        fs::OpenOptions::new()
+            .read(true)
+            .share_mode(0x1 | 0x2)
+            .open(path)
+            .map_err(error)
+    }
+    #[cfg(not(windows))]
+    {
+        fs::File::open(path).map_err(error)
+    }
+}
+
 #[derive(Debug, Serialize)]
 pub struct ImportedMarkdown {
     pub name: String,

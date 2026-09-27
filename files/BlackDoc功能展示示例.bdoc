@@ -4,30 +4,11 @@
     "content": [
       {
         "styles": {},
-        "text": "BlackDoc 功能展示示例",
-        "type": "text"
-      }
-    ],
-    "id": "demo-document-title",
-    "props": {
-      "backgroundColor": "default",
-      "isToggleable": false,
-      "level": 1,
-      "textAlignment": "left",
-      "textColor": "default"
-    },
-    "type": "heading"
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
         "text": "这份示例文档集中展示 BlackDoc 的编辑、排版、块链接、画布、双分区、多栏、媒体及图表与数学公式等能力。",
         "type": "text"
       }
     ],
-    "id": "demo-introduction",
+    "id": "demo-document-title",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -81,14 +62,33 @@
     "content": [
       {
         "styles": {},
+        "text": "一级标题",
+        "type": "text"
+      }
+    ],
+    "id": "485eefe2-3289-46c7-822e-8234648ab655",
+    "props": {
+      "backgroundColor": "default",
+      "isToggleable": true,
+      "level": 1,
+      "textAlignment": "left",
+      "textColor": "default"
+    },
+    "type": "heading"
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
         "text": "二级标题",
         "type": "text"
       }
     ],
-    "id": "demo-outline-h2",
+    "id": "a2abed2b-c53c-438f-a0b0-d9db5b37d1ab",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -107,7 +107,7 @@
     "id": "8ff8da10-f01c-4dd8-89ad-b0df897740eb",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 3,
       "textAlignment": "left",
       "textColor": "default"
@@ -126,7 +126,7 @@
     "id": "demo-outline-h4",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 4,
       "textAlignment": "left",
       "textColor": "default"
@@ -145,7 +145,7 @@
     "id": "demo-outline-h5",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 5,
       "textAlignment": "left",
       "textColor": "default"
@@ -164,7 +164,7 @@
     "id": "demo-outline-h6",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 6,
       "textAlignment": "left",
       "textColor": "default"
@@ -176,7 +176,7 @@
     "content": [
       {
         "styles": {},
-        "text": "右侧大纲展示各级标题；滚动正文时同步标记当前位置。",
+        "text": "左侧大纲展示各级标题；滚动正文时同步标记当前位置。",
         "type": "text"
       }
     ],
@@ -200,7 +200,7 @@
     "id": "demo-rich-text-heading",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -330,6 +330,17 @@
   },
   {
     "children": [],
+    "content": [],
+    "id": "80287901-3a3c-4429-a00a-820a1848ac7e",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default"
+    },
+    "type": "paragraph"
+  },
+  {
+    "children": [],
     "content": [
       {
         "styles": {},
@@ -340,7 +351,7 @@
     "id": "demo-lists-heading",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -563,7 +574,7 @@
     "id": "demo-code-heading",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -817,7 +828,7 @@
     "id": "demo-anchor-target",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -865,7 +876,7 @@
     "id": "canvas-demo-heading",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -911,7 +922,7 @@
     "id": "demo-split-heading",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -951,7 +962,7 @@
             "id": "demo-split-left-title",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 3,
               "textAlignment": "left",
               "textColor": "default"
@@ -1165,7 +1176,7 @@
             "id": "demo-split-right-title",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 3,
               "textAlignment": "left",
               "textColor": "default"
@@ -1184,7 +1195,7 @@
             "id": "a3758db9-ae81-4365-98a4-a69d8ebcbb60",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 4,
               "textAlignment": "left",
               "textColor": "default"
@@ -1237,7 +1248,7 @@
             "id": "24d44785-f44c-4f6a-acce-be514a3b3005",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 4,
               "textAlignment": "left",
               "textColor": "default"
@@ -1307,7 +1318,7 @@
             "id": "demo-split-right-late",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 4,
               "textAlignment": "left",
               "textColor": "default"
@@ -1326,7 +1337,7 @@
             "id": "f550b7a0-19b2-425f-be9c-7c7bcb094b16",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 3,
               "textAlignment": "left",
               "textColor": "default"
@@ -1463,7 +1474,7 @@
     "id": "demo-split",
     "props": {
       "leftWidth": 39,
-      "rightHeight": 517
+      "rightHeight": 392
     },
     "type": "splitPane"
   },
@@ -1479,7 +1490,7 @@
     "id": "demo-official-multicolumn-heading",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -1519,7 +1530,7 @@
             "id": "demo-official-column-1-heading",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 3,
               "textAlignment": "left",
               "textColor": "default"
@@ -1564,7 +1575,7 @@
             "id": "demo-official-column-2-heading",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 3,
               "textAlignment": "left",
               "textColor": "default"
@@ -1609,7 +1620,7 @@
             "id": "demo-official-column-3-heading",
             "props": {
               "backgroundColor": "default",
-              "isToggleable": false,
+              "isToggleable": true,
               "level": 3,
               "textAlignment": "left",
               "textColor": "default"
@@ -1657,7 +1668,7 @@
     "id": "demo-media-heading",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"
@@ -1803,7 +1814,7 @@
     "id": "demo-diagram-math-heading",
     "props": {
       "backgroundColor": "default",
-      "isToggleable": false,
+      "isToggleable": true,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default"

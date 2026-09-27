@@ -30,6 +30,7 @@ import {
 } from "react";
 import { createBlockLink, parseBlockLink } from "../editor/blockLinks";
 import { FormattingColorButton } from "./FormattingColorButton";
+import { TableSelectionBackgroundColorButton } from "./TableSelectionBackgroundColorButton";
 
 const normalizeLink = (url: string): string => {
   const blockId = parseBlockLink(url);
@@ -219,11 +220,16 @@ export const BlackDocFormattingToolbar = (
   props: FormattingToolbarProps,
 ) => {
   const editor = useBlockNoteEditor();
-  const items = props.blockTypeSelectItems ?? [
+  const blockTypeItems = props.blockTypeSelectItems ?? [
     ...blockTypeSelectItems(editor.dictionary),
     ...getDiagramBlockTypeSelectItems(editor),
     ...getMathBlockTypeSelectItems(editor),
   ];
+  const items = blockTypeItems
+    .filter(item => item.type !== "heading" || item.props?.isToggleable !== true)
+    .map(item => item.type === "heading"
+      ? { ...item, props: { ...item.props, isToggleable: true } }
+      : item);
   return (
   <FormattingToolbar {...props}>
     {getFormattingToolbarItems(items).flatMap((item) => {
@@ -237,7 +243,10 @@ export const BlackDocFormattingToolbar = (
         return <BlackDocCreateLinkButton key="createLinkButton" />;
       }
       if (item.key === "colorStyleButton") {
-        return <FormattingColorButton key="colorStyleButton" />;
+        return [
+          <FormattingColorButton key="colorStyleButton" />,
+          <TableSelectionBackgroundColorButton key="tableCellBackgroundColorButton" />,
+        ];
       }
       return item;
     })}

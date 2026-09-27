@@ -1,7 +1,7 @@
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "./styles.css";
-import { combineByGroup } from "@blocknote/core";
+import { combineByGroup, formatKeyboardShortcut } from "@blocknote/core";
 import {
   FormattingToolbarExtension,
   filterSuggestionItems,
@@ -18,17 +18,23 @@ import {
   multiColumnDropCursor,
 } from "@blocknote/xl-multi-column";
 import { BlockNoteView } from "@blocknote/mantine";
-import { flip, offset, shift, size } from "@floating-ui/react";
+import { flip, offset, shift, size, type Middleware } from "@floating-ui/react";
 import {
   FormattingToolbarController,
   type DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   LinkToolbarController,
   SuggestionMenuController,
+  type SuggestionMenuProps,
   TableHandlesController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { AlertTriangle, Columns2, PenTool, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Columns2,
+  PenTool,
+  X,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActionDialog } from "./components/ActionDialog";
 import { AboutDialog, type UpdateAction } from "./components/AboutDialog";
@@ -50,11 +56,200 @@ import { AppThemeContext } from "./theme";
 import { useAppTheme } from "./useAppTheme";
 
 type UpdateGuideStage = "more" | "about" | "check" | "done";
-type SlashMenuPlacement = "bottom-start" | "top-start";
+type SlashMenuPlacement =
+  | "left"
+  | "right"
+  | "top"
+  | "bottom"
+  | "left-start"
+  | "left-end"
+  | "bottom-start"
+  | "top-start";
+type SlashMenuItem = DefaultReactSuggestionItem & {
+  iconOnly?: boolean;
+};
 
 export const AUTO_SAVE_DELAY_MS = 60_000;
+const DEFAULT_DOCUMENT_FILE_NAME = "未命名文档.bdoc";
+
+const SLASH_MENU_WIDTH = 240;
+const SLASH_MENU_GAP = 10;
+const VIEWPORT_PADDING = 10;
+const SLASH_MENU_TOP_PADDING = 56 + VIEWPORT_PADDING;
+const SLASH_MENU_VIEWPORT_PADDING = {
+  top: SLASH_MENU_TOP_PADDING,
+  right: VIEWPORT_PADDING,
+  bottom: VIEWPORT_PADDING,
+  left: VIEWPORT_PADDING,
+};
+
+const getPlusAnchorPlacement = (anchor: DOMRect): "left" | "right" | "top" | "bottom" => {
+  const viewportWidth = document.documentElement.clientWidth;
+  const leftSpace = anchor.left - SLASH_MENU_GAP - VIEWPORT_PADDING;
+  const rightSpace = viewportWidth - anchor.right - SLASH_MENU_GAP - VIEWPORT_PADDING;
+
+  if (leftSpace >= SLASH_MENU_WIDTH) return "left";
+  if (rightSpace >= SLASH_MENU_WIDTH) return "right";
+
+  const viewportHeight = document.documentElement.clientHeight;
+  const topSpace = anchor.top - SLASH_MENU_GAP - SLASH_MENU_TOP_PADDING;
+  const bottomSpace = viewportHeight - anchor.bottom - SLASH_MENU_GAP - VIEWPORT_PADDING;
+  return topSpace >= bottomSpace ? "top" : "bottom";
+};
+
+const getSlashMenuFallbackPlacement = (
+  placement: SlashMenuPlacement,
+): SlashMenuPlacement => {
+  const fallbacks: Record<SlashMenuPlacement, SlashMenuPlacement> = {
+    left: "right",
+    right: "left",
+    top: "bottom",
+    bottom: "top",
+    "left-start": "left-end",
+    "left-end": "left-start",
+    "bottom-start": "top-start",
+    "top-start": "bottom-start",
+  };
+  return fallbacks[placement];
+};
 
 const updateGuideKey = (version: string) => `blackdoc:update-guide:${version.replace(/^v/, "")}`;
+
+const headingShortcuts = new Map([
+  ["一级标题", "Mod-1"],
+  ["二级标题", "Mod-2"],
+  ["三级标题", "Mod-3"],
+  ["四级标题", "Mod-4"],
+  ["五级标题", "Mod-5"],
+  ["六级标题", "Mod-6"],
+]);
+
+const headingLevels = new Map([
+  ["一级标题", 1],
+  ["二级标题", 2],
+  ["三级标题", 3],
+  ["四级标题", 4],
+  ["五级标题", 5],
+  ["六级标题", 6],
+]);
+
+const iconOnlySlashTitles = new Set([
+  "段落",
+  "一级标题",
+  "二级标题",
+  "三级标题",
+  "四级标题",
+  "五级标题",
+  "六级标题",
+  "有序列表",
+  "无序列表",
+  "检查清单",
+  "代码块",
+  "引用",
+  "分隔线",
+  "双分区",
+]);
+
+const slashIconOrder = [
+  "段落",
+  "一级标题",
+  "二级标题",
+  "三级标题",
+  "四级标题",
+  "五级标题",
+  "六级标题",
+  "有序列表",
+  "无序列表",
+  "检查清单",
+  "代码块",
+  "引用",
+  "分隔线",
+  "双分区",
+];
+
+function CompactSlashMenu({
+  items,
+  loadingState,
+  selectedIndex,
+  onItemClick,
+}: SuggestionMenuProps<SlashMenuItem>) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const groups = useMemo(() => {
+    const grouped = new Map<string, { item: SlashMenuItem; index: number }[]>();
+    items.forEach((item, index) => {
+      const group = item.group ?? "其他";
+      const groupItems = grouped.get(group) ?? [];
+      groupItems.push({ item, index });
+      grouped.set(group, groupItems);
+    });
+    return [...grouped.entries()];
+  }, [items]);
+
+  useEffect(() => {
+    if (selectedIndex === undefined) return;
+    menuRef.current
+      ?.querySelector<HTMLElement>(`#bn-suggestion-menu-item-${selectedIndex}`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex]);
+
+  const renderItem = (
+    item: SlashMenuItem,
+    index: number,
+    iconOnly = false,
+  ) => {
+    const isSelected = selectedIndex === index;
+    const label = item.badge ? `${item.title}（${item.badge}）` : item.title;
+    return (
+      <button
+        aria-label={label}
+        aria-selected={isSelected || undefined}
+        className={iconOnly
+          ? `slash-menu-icon${isSelected ? " is-selected" : ""}`
+          : `slash-menu-row${isSelected ? " is-selected" : ""}`}
+        id={`bn-suggestion-menu-item-${index}`}
+        key={`${item.title}-${index}`}
+        onClick={() => onItemClick?.(item)}
+        onMouseDown={event => event.preventDefault()}
+        role="option"
+        title={label}
+        type="button"
+      >
+        {item.icon && <span className="slash-menu-item-icon">{item.icon}</span>}
+        {!iconOnly && <span className="slash-menu-item-title">{item.title}</span>}
+        {!iconOnly && item.badge && <kbd>{item.badge}</kbd>}
+      </button>
+    );
+  };
+
+  return (
+    <div
+      aria-label="块组件菜单"
+      className="bn-suggestion-menu blackdoc-slash-menu"
+      id="bn-suggestion-menu"
+      ref={menuRef}
+      role="listbox"
+    >
+      {groups.map(([group, groupItems]) => {
+        const iconItems = groupItems.filter(({ item }) => item.iconOnly);
+        const regularItems = groupItems.filter(({ item }) => !item.iconOnly);
+        return (
+          <section className="slash-menu-group" key={group}>
+            <div className="slash-menu-group-label">{group}</div>
+            {iconItems.length > 0 && (
+              <div className="slash-menu-icon-grid">
+                {iconItems.map(({ item, index }) => renderItem(item, index, true))}
+              </div>
+            )}
+            {regularItems.map(({ item, index }) => renderItem(item, index))}
+          </section>
+        );
+      })}
+      {items.length === 0 && loadingState === "loaded" && (
+        <div className="slash-menu-empty">没有匹配的组件</div>
+      )}
+    </div>
+  );
+}
 
 const readUpdateGuideStage = (version: string): UpdateGuideStage => {
   const saved = localStorage.getItem(updateGuideKey(version));
@@ -86,7 +281,7 @@ import {
   EMPTY_DOCUMENT,
   htmlFileName,
   isBlackDocument,
-  sourceFileName,
+  makeHeadingsToggleable,
 } from "./editor/document";
 import { PreserveHeadingLevelExtension } from "./editor/preserveHeadingLevel";
 import { HeadingNumberExtension } from "./editor/headingNumberExtension";
@@ -212,33 +407,69 @@ export default function App() {
   const [slashMenuPlacement, setSlashMenuPlacement] =
     useState<SlashMenuPlacement>("bottom-start");
   const updateSlashMenuPlacement = useCallback(() => {
+    const anchor = pendingSlashBlockRef.current?.anchorRect;
+    if (anchor) {
+      const nextPlacement = getPlusAnchorPlacement(anchor);
+      setSlashMenuPlacement(current => current === nextPlacement ? current : nextPlacement);
+      return;
+    }
+
     const view = editor.prosemirrorView;
     if (!view) return;
 
-    const cursorTop = view.coordsAtPos(view.state.selection.head).top;
+    const cursor = view.coordsAtPos(view.state.selection.head);
+    const cursorTop = cursor.top;
+    const leftSpace = cursor.left - SLASH_MENU_GAP - VIEWPORT_PADDING;
     const viewportMiddle = document.documentElement.clientHeight / 2;
-    const nextPlacement = cursorTop >= viewportMiddle ? "top-start" : "bottom-start";
+    const nextPlacement = leftSpace >= SLASH_MENU_WIDTH
+      ? "left-end"
+      : cursorTop >= viewportMiddle
+        ? "top-start"
+        : "bottom-start";
     setSlashMenuPlacement(current => current === nextPlacement ? current : nextPlacement);
   }, [editor]);
   const slashMenuFloatingUIOptions = useMemo(() => ({
+    elementProps: { style: { zIndex: 26 } },
     useFloatingOptions: {
       placement: slashMenuPlacement,
       middleware: [
+        {
+          name: "plusButtonAnchor",
+          fn({ rects, middlewareData }) {
+            const anchor = pendingSlashBlockRef.current?.anchorRect;
+            if (!anchor || middlewareData.plusButtonAnchor?.positioned) return {};
+
+            return {
+              data: { positioned: true },
+              reset: {
+                placement: getPlusAnchorPlacement(anchor),
+                rects: { ...rects, reference: anchor },
+              },
+            };
+          },
+        } satisfies Middleware,
         offset(10),
-        flip({
-          fallbackPlacements: [slashMenuPlacement === "top-start" ? "bottom-start" : "top-start"],
-          padding: 10,
-        }),
-        shift({ padding: 10 }),
+        ...(["left", "right", "top", "bottom"].includes(slashMenuPlacement)
+          ? [shift({ padding: SLASH_MENU_VIEWPORT_PADDING })]
+          : slashMenuPlacement.startsWith("left-")
+          ? [shift({ mainAxis: true, crossAxis: false, padding: SLASH_MENU_VIEWPORT_PADDING })]
+          : [
+              flip({
+                fallbackPlacements: [getSlashMenuFallbackPlacement(slashMenuPlacement)],
+                padding: SLASH_MENU_VIEWPORT_PADDING,
+              }),
+              shift({ padding: SLASH_MENU_VIEWPORT_PADDING }),
+            ]),
         size({
           apply({ elements, availableHeight }) {
             elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+            elements.floating.style.maxWidth = `calc(100vw - ${2 * VIEWPORT_PADDING}px)`;
           },
-          padding: 10,
+          padding: SLASH_MENU_VIEWPORT_PADDING,
         }),
       ],
     },
-  }), [slashMenuPlacement]);
+  }), [pendingSlashBlockRef, slashMenuPlacement]);
   useEffect(() => {
     updateSlashMenuPlacement();
     window.addEventListener("resize", updateSlashMenuPlacement);
@@ -375,7 +606,12 @@ export default function App() {
     try {
       if (desktopPathRef.current) {
         setStatus("saving");
-        await saveDesktopDocument(snapshot, desktopPathRef.current, sourceFileName(snapshot), false);
+        await saveDesktopDocument(
+          snapshot,
+          desktopPathRef.current,
+          fileName ?? DEFAULT_DOCUMENT_FILE_NAME,
+          false,
+        );
         if (changeVersionRef.current === version) {
           dirtyRef.current = false;
           unsafeChangesRef.current = false;
@@ -401,7 +637,7 @@ export default function App() {
         schedulePersistence();
       }
     }
-  }, [editor, schedulePersistence]);
+  }, [editor, fileName, schedulePersistence]);
 
   const downloadAvailableUpdate = useCallback(async () => {
     if (update.kind !== "available" || updateBusyRef.current) return;
@@ -466,11 +702,12 @@ export default function App() {
 
   const replaceDocument = useCallback(
     (nextBlocks: BlackDocBlock[]) => {
+      const normalizedBlocks = makeHeadingsToggleable(nextBlocks);
       window.dispatchEvent(new Event("blackdoc-close-canvas"));
       suppressChangesRef.current = true;
       editor.transact(tr => {
         tr.setMeta(SPLIT_DOCUMENT_REPLACE_META, true);
-        editor.replaceBlocks(editor.document, nextBlocks);
+        editor.replaceBlocks(editor.document, normalizedBlocks);
       });
       setBlocks(cloneDocument(editor.document));
       queueMicrotask(() => {
@@ -501,7 +738,10 @@ export default function App() {
 
       try {
         const saved = await saveDesktopDocument(
-          snapshot, desktopPathRef.current, sourceFileName(snapshot), saveAs,
+          snapshot,
+          desktopPathRef.current,
+          fileName ?? DEFAULT_DOCUMENT_FILE_NAME,
+          saveAs,
         );
         if (!saved) return false;
         desktopPathRef.current = saved.path;
@@ -530,7 +770,7 @@ export default function App() {
         setBusy(false);
       }
     },
-    [editor, schedulePersistence],
+    [editor, fileName, schedulePersistence],
   );
 
   const requestTransition = useCallback(
@@ -667,7 +907,10 @@ export default function App() {
     try {
       const snapshot = cloneDocument(editor.document);
       const result = await buildStandaloneHtml(editor, snapshot);
-      const exported = await exportDesktopHtml(result.html, htmlFileName(fileName, snapshot));
+      const exported = await exportDesktopHtml(
+        result.html,
+        htmlFileName(fileName ?? DEFAULT_DOCUMENT_FILE_NAME, snapshot),
+      );
       if (!exported) return;
 
       setNotice(
@@ -706,17 +949,6 @@ export default function App() {
     setStatus("unsaved");
     schedulePersistence();
   }, [desktopReady, editor, schedulePersistence, setBlocks, setStatus]);
-  const runWithoutChangeTracking = useCallback((change: () => void) => {
-    suppressChangesRef.current = true;
-    try {
-      change();
-    } finally {
-      queueMicrotask(() => {
-        suppressChangesRef.current = false;
-      });
-    }
-  }, []);
-
   useEffect(() => {
     if (bootstrappedRef.current) return;
     let disposed = false;
@@ -858,7 +1090,7 @@ export default function App() {
     });
   };
 
-  const documentName = fileName ?? sourceFileName(blocks);
+  const documentName = fileName ?? DEFAULT_DOCUMENT_FILE_NAME;
   useEffect(() => {
     if (desktopReady) {
       void getCurrentWindow().setTitle(`${documentName} - BlackDoc`);
@@ -867,54 +1099,103 @@ export default function App() {
   const isSaving =
     !desktopReady || busy || status === "saving" || status === "draft-saving";
   const getSlashMenuItems = useCallback(
-    async (query: string) =>
-      filterSuggestionItems(
-        combineByGroup(getDefaultReactSlashMenuItems(editor), [
-          ...getMultiColumnSlashMenuItems(editor),
-          ...getDiagramSlashMenuItems(editor),
-          ...getMathSlashMenuItems(editor),
-          ...(!isInsideSplitPane(
-            editor.document,
-            editor.getTextCursorPosition().block.id,
-          )
-            ? [
-                {
-                  title: "双分区",
-                  aliases: ["split", "columns", "scrollytelling", "shuangfenqu"],
-                  group: "其他",
-                  icon: <Columns2 aria-hidden="true" size={18} />,
-                  onItemClick: () => {
-                    const inserted = insertOrUpdateBlockForSlashMenu(
-                      editor,
-                      createSplitPane(),
-                    );
-                    const first = inserted.children[0]?.children[0];
-                    if (first) editor.setTextCursorPosition(first, "start");
-                  },
+    async (query: string) => {
+      const defaultItems = getDefaultReactSlashMenuItems(editor)
+        .filter(item =>
+          !item.title.startsWith("可折叠")
+        )
+        .map(item => {
+          const shortcut = headingShortcuts.get(item.title);
+          const level = headingLevels.get(item.title);
+          return {
+            ...item,
+            ...(shortcut ? { badge: formatKeyboardShortcut(shortcut) } : {}),
+            ...(level
+              ? {
+                  onItemClick: () =>
+                    insertOrUpdateBlockForSlashMenu(editor, {
+                      type: "heading",
+                      props: { level, isToggleable: true },
+                    }),
+                }
+              : {}),
+          };
+        });
+
+      const groupedItems = combineByGroup(defaultItems, [
+        ...getMultiColumnSlashMenuItems(editor),
+        ...getDiagramSlashMenuItems(editor),
+        ...getMathSlashMenuItems(editor),
+        ...(!isInsideSplitPane(
+          editor.document,
+          editor.getTextCursorPosition().block.id,
+        )
+          ? [
+              {
+                title: "双分区",
+                aliases: ["split", "columns", "scrollytelling", "shuangfenqu"],
+                group: "其他",
+                icon: <Columns2 aria-hidden="true" size={18} />,
+                onItemClick: () => {
+                  const inserted = insertOrUpdateBlockForSlashMenu(
+                    editor,
+                    createSplitPane(),
+                  );
+                  const first = inserted.children[0]?.children[0];
+                  if (first) editor.setTextCursorPosition(first, "start");
                 },
-              ]
-            : []),
-          {
-            title: "画布",
-            aliases: ["canvas", "drawing", "huabu"],
-            group: "其他",
-            icon: <PenTool aria-hidden="true" size={18} />,
-            onItemClick: () =>
-              insertOrUpdateBlockForSlashMenu(editor, { type: "canvas" }),
-          },
-        ]),
+              },
+            ]
+          : []),
+        {
+          title: "画布",
+          aliases: ["canvas", "drawing", "huabu"],
+          group: "其他",
+          icon: <PenTool aria-hidden="true" size={18} />,
+          onItemClick: () =>
+            insertOrUpdateBlockForSlashMenu(editor, { type: "canvas" }),
+        },
+      ]).map(item => {
+        const iconOnly = iconOnlySlashTitles.has(item.title);
+        return {
+          ...item,
+          subtext: undefined,
+          iconOnly,
+          group: iconOnly ? "基础" : item.group,
+        };
+      });
+
+      const itemsByGroup = new Map<string, SlashMenuItem[]>();
+      for (const item of groupedItems) {
+        const group = item.group ?? "其他";
+        const groupItems = itemsByGroup.get(group) ?? [];
+        groupItems.push(item);
+        itemsByGroup.set(group, groupItems);
+      }
+      const orderedItems = [...itemsByGroup.values()].flatMap(groupItems => [
+        ...groupItems
+          .filter(item => item.iconOnly)
+          .sort((left, right) => {
+            const leftRank = slashIconOrder.indexOf(left.title);
+            const rightRank = slashIconOrder.indexOf(right.title);
+            return (leftRank < 0 ? Number.MAX_SAFE_INTEGER : leftRank) -
+              (rightRank < 0 ? Number.MAX_SAFE_INTEGER : rightRank);
+          }),
+        ...groupItems.filter(item => !item.iconOnly),
+      ]);
+
+      return filterSuggestionItems(
+        orderedItems,
         query,
-      ),
+      );
+    },
     [editor],
   );
   const handleSlashMenuItemClick = useCallback(
     (item: DefaultReactSuggestionItem) => {
       item.onItemClick();
-      if (pendingSlashBlockRef.current) {
-        pendingSlashBlockRef.current.committed = true;
-      }
     },
-    [editor],
+    [],
   );
 
   return (
@@ -1022,14 +1303,18 @@ export default function App() {
           >
             <SuggestionMenuController
               triggerCharacter="/"
+              portalElement={document.body}
               floatingUIOptions={slashMenuFloatingUIOptions}
               getItems={getSlashMenuItems}
+              suggestionMenuComponent={CompactSlashMenu}
               onItemClick={handleSlashMenuItemClick}
             />
             <SuggestionMenuController
               triggerCharacter="、"
+              portalElement={document.body}
               floatingUIOptions={slashMenuFloatingUIOptions}
               getItems={getSlashMenuItems}
+              suggestionMenuComponent={CompactSlashMenu}
               onItemClick={handleSlashMenuItemClick}
             />
             <FormattingToolbarController
@@ -1037,7 +1322,7 @@ export default function App() {
             />
             <BlackDocSideMenuController
               pendingSlashBlockRef={pendingSlashBlockRef}
-              runWithoutChangeTracking={runWithoutChangeTracking}
+              updateSlashMenuPlacement={updateSlashMenuPlacement}
             />
             <TableHandlesController tableCellHandle={BlackDocTableCellButton} />
             <LinkToolbarController linkToolbar={BlackDocLinkToolbar} />

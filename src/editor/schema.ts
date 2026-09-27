@@ -60,9 +60,51 @@ function numberedListItemBlockSpec() {
   } as typeof spec;
 }
 
+function headingBlockSpec() {
+  const spec = defaultBlockSpecs.heading;
+  return {
+    ...spec,
+    config: {
+      ...spec.config,
+      propSchema: {
+        ...spec.config.propSchema,
+        isToggleable: { default: true, optional: true },
+      },
+    },
+    extensions: spec.extensions?.map(factory => {
+      return createExtension(({ editor }) => {
+        const extension = typeof factory === "function"
+          ? factory({ editor })
+          : factory;
+        if (extension.key !== "heading-shortcuts") return extension;
+
+        const keyboardShortcuts: NonNullable<typeof extension.keyboardShortcuts> = {};
+        for (const level of [1, 2, 3, 4, 5, 6]) {
+          keyboardShortcuts[`Mod-${level}`] = ({ editor }) => {
+            const cursorPosition = editor.getTextCursorPosition();
+            if (
+              editor.schema.blockSchema[cursorPosition.block.type].content !== "inline"
+            ) {
+              return false;
+            }
+
+            editor.updateBlock(cursorPosition.block, {
+              type: "heading",
+              props: { level, isToggleable: true },
+            });
+            return true;
+          };
+        }
+        return { ...extension, keyboardShortcuts };
+      })();
+    }),
+  } as unknown as typeof spec;
+}
+
 export const blackDocSchema = withMultiColumn(BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    heading: headingBlockSpec(),
     numberedListItem: numberedListItemBlockSpec(),
     canvas: CanvasBlock(),
     splitPane: SplitPaneBlock(),

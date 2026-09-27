@@ -547,15 +547,6 @@ button {
   width: 28px;
 }
 
-.document-name {
-  overflow: hidden;
-  max-width: 210px;
-  color: var(--app-muted);
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .save-status {
   flex: 0 0 auto;
   min-width: 62px;
@@ -596,6 +587,15 @@ button {
   background: var(--app-surface);
 }
 
+.document-name {
+  overflow: hidden;
+  max-width: 210px;
+  color: var(--app-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .bn-mantine .bn-extend-button svg[data-test="extendButton"] {
   cursor: pointer;
 }
@@ -612,6 +612,184 @@ button {
 
 .editor-region .bn-block-content[data-content-type="heading"] h1 {
   line-height: 1.2;
+}
+
+.bn-suggestion-menu.blackdoc-slash-menu {
+  display: flex;
+  box-sizing: border-box;
+  width: 240px;
+  min-width: 0;
+  max-width: calc(100vw - 20px);
+  flex-direction: column;
+  gap: 0;
+  padding: 4px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  color: var(--app-text);
+  background-color: var(--app-surface);
+  box-shadow: 0 8px 28px var(--app-shadow);
+}
+
+.slash-menu-group + .slash-menu-group {
+  border-top: 1px solid var(--bn-border-color, var(--app-border));
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.slash-menu-group-label {
+  padding: 5px 8px;
+  color: var(--bn-colors-hovered-text, var(--app-muted));
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.slash-menu-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 34px);
+  gap: 2px;
+  padding: 1px 6px 6px;
+}
+
+.slash-menu-icon,
+.slash-menu-row {
+  border: 0;
+  border-radius: 5px;
+  color: var(--bn-colors-menu-text, var(--app-text));
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.slash-menu-icon {
+  display: flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.slash-menu-row {
+  display: flex;
+  width: 100%;
+  min-height: 36px;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  text-align: left;
+}
+
+.slash-menu-item-icon {
+  display: flex;
+  flex: 0 0 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.slash-menu-item-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.slash-menu-row kbd {
+  color: var(--app-muted);
+  font: inherit;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.slash-menu-icon:hover,
+.slash-menu-row:hover,
+.slash-menu-icon.is-selected,
+.slash-menu-row.is-selected {
+  background: var(--bn-colors-hovered-background, var(--app-hover));
+}
+
+.slash-menu-icon.is-selected {
+  color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+.slash-menu-icon.is-current-block {
+  color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+.bn-side-menu .mantine-UnstyledButton-root.blackdoc-block-control-trigger {
+  display: flex;
+  width: auto;
+  min-width: 0;
+  height: 32px;
+  gap: 4px;
+  padding: 0 5px;
+  border: 1px solid var(--app-border);
+  border-radius: 7px;
+  color: var(--app-muted);
+  background: var(--app-surface);
+}
+
+.bn-side-menu .mantine-UnstyledButton-root.blackdoc-block-control-trigger:hover {
+  border-color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+.bn-side-menu .mantine-UnstyledButton-root.blackdoc-block-control-trigger svg {
+  width: 15px;
+  height: 15px;
+  color: currentColor;
+}
+
+.bn-side-menu .mantine-UnstyledButton-root.blackdoc-block-control-trigger > svg:last-child {
+  width: 12px;
+  height: 12px;
+}
+
+.blackdoc-block-type-badge {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+.bn-side-menu .mantine-UnstyledButton-root.blackdoc-block-control-trigger .blackdoc-block-type-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.blackdoc-block-control-separator {
+  width: 1px;
+  height: 16px;
+  background: var(--app-border);
+}
+
+.blackdoc-block-control-menu {
+  min-width: 236px;
+}
+
+.blackdoc-block-conversion-grid {
+  grid-template-columns: repeat(6, 34px);
+}
+
+.blackdoc-block-conversion-grid .slash-menu-icon:not(.is-current-block):hover {
+  color: var(--app-text);
+  background: var(--app-hover);
+}
+
+.blackdoc-block-type-heading {
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.slash-menu-empty {
+  padding: 10px;
+  color: var(--app-muted);
+  font-size: 13px;
 }
 
 .outline {

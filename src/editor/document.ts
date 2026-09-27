@@ -155,3 +155,16 @@ export const htmlFileName = (
 
 export const cloneDocument = (blocks: readonly BlackDocBlock[]): BlackDocBlock[] =>
   structuredClone(blocks) as BlackDocBlock[];
+
+export const makeHeadingsToggleable = (
+  blocks: readonly BlackDocBlock[],
+): BlackDocBlock[] => {
+  const visit = (items: readonly BlackDocBlock[]): BlackDocBlock[] =>
+    items.map(block => {
+      const children = visit(block.children);
+      return block.type === "heading"
+        ? { ...block, props: { ...block.props, isToggleable: true }, children }
+        : { ...block, children };
+    });
+  return visit(blocks);
+};
