@@ -2,6 +2,9 @@ import { createExtension } from "@blocknote/core";
 import type { Node } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
+import { transactionTouchesNodeTypes } from "./transactionTouchesNodeTypes";
+
+const tableCellTypes = new Set(["tableCell", "tableHeader", "cell", "header_cell", "tableImage"]);
 
 function imageCellDecorations(doc: Node): DecorationSet {
   const decorations: Decoration[] = [];
@@ -30,8 +33,12 @@ export const TableImageAlignmentExtension = createExtension({
     key,
     state: {
       init: (_, state) => imageCellDecorations(state.doc),
-      apply: (transaction, previous) => transaction.docChanged
-        ? imageCellDecorations(transaction.doc) : previous,
+      apply: (transaction, previous) => {
+        if (!transaction.docChanged) return previous;
+        return transactionTouchesNodeTypes(transaction, tableCellTypes)
+          ? imageCellDecorations(transaction.doc)
+          : previous.map(transaction.mapping, transaction.doc);
+      },
     },
     props: { decorations: state => key.getState(state) },
   })],
