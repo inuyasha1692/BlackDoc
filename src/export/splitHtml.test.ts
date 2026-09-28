@@ -58,6 +58,20 @@ afterEach(() => {
 });
 
 describe("standalone split layout", () => {
+  it("keeps split panes in their heading section with both columns intact", async () => {
+    const heading = { ...native("section"), props: { level: 2, isToggleable: true } };
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema, initialContent: [heading, split()] });
+    try {
+      const { html } = await buildStandaloneHtml(editor, editor.document);
+      const result = new DOMParser().parseFromString(html, "text/html");
+      const section = result.getElementById("block=section")!;
+      expect(section.querySelector(".heading-section-content .split-pane")).not.toBeNull();
+      expect(section.querySelector(".split-pane-left")?.textContent).toContain("left-body");
+      expect(section.querySelector(".split-pane-right-scroll")?.textContent).toContain("right-body");
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
   it("supports the real BlockNote full-HTML serializer and split schema", async () => {
     const editor = BlockNoteEditor.create({
       schema: blackDocSchema,

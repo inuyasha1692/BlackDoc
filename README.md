@@ -1,6 +1,6 @@
 # BlackDoc
 
-![BlackDoc 编辑器界面，文档大纲位于左侧](docs/images/editor-overview.png)
+![BlackDoc 编辑器中的“为什么用 BlackDoc”章节与左侧文档大纲](docs/images/editor-overview.png)
 
 BlackDoc 是一款基于 BlockNote 和 Tauri 的 Windows 桌面块编辑器。文档以可继续编辑的 `.bdoc` 文件保存在本地，也可以导出为便于分享的单文件 HTML。
 
