@@ -414,8 +414,7 @@ function wrapHeadingSections(root: HTMLElement) {
     for (const outer of Array.from(group.children)) {
       if (!(outer instanceof HTMLElement) || !outer.matches(".bn-block-outer")) continue;
       const block = outer.querySelector<HTMLElement>(":scope > .bn-block");
-      if (!block) continue;
-      const heading = block.querySelector<HTMLElement>(':scope > .bn-block-content[data-content-type="heading"]');
+      const heading = block?.querySelector<HTMLElement>(':scope > .bn-block-content[data-content-type="heading"]');
       const title = heading?.querySelector<HTMLElement>("h1,h2,h3,h4,h5,h6");
       const level = title ? Number(title.tagName.slice(1)) : 0;
       if (level) {
@@ -432,7 +431,7 @@ function wrapHeadingSections(root: HTMLElement) {
         children.classList.add("heading-section-content");
         children.append(outer);
       }
-      if (level) {
+      if (level && block) {
         block.querySelector(":scope > .bn-block-group")?.classList.add("heading-section-content");
         headings.push({ level, block });
       }
