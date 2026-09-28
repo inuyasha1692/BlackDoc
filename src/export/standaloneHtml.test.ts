@@ -138,7 +138,7 @@ describe("buildStandaloneHtml outline", () => {
     const { BlockNoteEditor } = await import("@blocknote/core");
     const { blackDocSchema } = await import("../editor/schema");
     const source = JSON.parse(readFileSync("files/BlackDoc功能展示示例.bdoc", "utf8")) as Block[];
-    const ids = ["demo-rich-text", "demo-link-entry", "demo-divider-top", "demo-bullet-list", "demo-numbered-list-one", "demo-numbered-list-two", "demo-check-list-done", "demo-toggle-heading", "demo-table", "demo-anchor-target", "demo-embedded-image", "demo-video", "demo-audio"];
+    const ids = ["demo-rich-text", "demo-link-entry", "demo-divider-bottom", "demo-bullet-list", "demo-numbered-list-one", "demo-numbered-list-two", "demo-check-list-done", "demo-toggle-heading", "demo-table", "demo-anchor-target", "demo-embedded-image", "demo-video", "demo-audio"];
     const blocks = source.filter(item => ids.includes(item.id));
     const editor = BlockNoteEditor.create({ schema: blackDocSchema, initialContent: blocks });
     try {
@@ -151,7 +151,7 @@ describe("buildStandaloneHtml outline", () => {
       expect(css).toContain('[data-content-type="numberedListItem"]::before');
       expect(css).toContain('[data-content-type="bulletListItem"]::before');
       expect(css).toContain('.bn-block-content[data-content-type="divider"] hr { flex: 1;');
-      expect(document.querySelector('#block\\=demo-divider-top hr')).not.toBeNull();
+      expect(document.querySelector('#block\\=demo-divider-bottom hr')).not.toBeNull();
       expect(css).toContain('content: "•"; font-size: 1.5em; height: 1.1333em;');
       expect(css).toContain('[data-content-type="checkListItem"] > div { display: flex; align-items: center;');
       expect(css).toContain('.bn-toggle-wrapper');

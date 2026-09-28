@@ -147,6 +147,7 @@ describe("standalone split layout", () => {
     const scroll = result.querySelector<HTMLElement>(".split-pane-right-scroll")!;
     const heading = result.getElementById("block=right-heading")!;
     pane.scrollIntoView = scrollIntoView;
+    heading.scrollIntoView = vi.fn();
     vi.spyOn(scroll, "getBoundingClientRect").mockReturnValue({ top: 50, bottom: 450 } as DOMRect);
     vi.spyOn(heading, "getBoundingClientRect").mockImplementation(() =>
       ({ top: 350 - scroll.scrollTop, bottom: 380 - scroll.scrollTop }) as DOMRect);
@@ -155,15 +156,19 @@ describe("standalone split layout", () => {
     const fakeWindow = { addEventListener: vi.fn((name: string, handler: EventListener) => windowEvents.set(name, handler)) };
     let pending: FrameRequestCallback | undefined;
     const requestFrame = vi.fn((callback: FrameRequestCallback) => { pending = callback; return 1; });
-    const location = { hash: "#block=right-heading" };
+    const location = { hash: "" };
     const history = { pushState: vi.fn() };
     const script = result.querySelector("script")!.textContent!;
     new Function("document", "window", "location", "history", "requestAnimationFrame", "innerHeight", "scrollY", script)(
       result, fakeWindow, location, history, requestFrame, 800, 0,
     );
+    const link = result.querySelector('a[href="#block=right-heading"]')!;
+    const click = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
+    link.dispatchEvent(click);
+    expect(click.defaultPrevented).toBe(true);
     expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" });
     expect(scroll.scrollTop).toBe(300);
-    const link = result.querySelector('a[href="#block=right-heading"]')!;
+    pending?.(0);
     expect(link.getAttribute("aria-current")).toBe("location");
     const calls = requestFrame.mock.calls.length;
     scroll.dispatchEvent(new Event("scroll"));
@@ -172,10 +177,8 @@ describe("standalone split layout", () => {
     pending?.(0);
     expect(link.hasAttribute("aria-current")).toBe(false);
     scroll.scrollTop = 0;
+    location.hash = "#block=right-heading";
     windowEvents.get("hashchange")?.(new Event("hashchange"));
-    expect(scroll.scrollTop).toBe(300);
-    const click = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
-    link.dispatchEvent(click);
-    expect(click.defaultPrevented).toBe(true);
+    expect(heading.scrollIntoView).toHaveBeenCalledWith({ block: "center" });
   });
 });

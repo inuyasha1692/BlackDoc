@@ -16,7 +16,6 @@ import {
   saveDesktopDocument,
   type DesktopFile,
 } from "./desktop";
-import { sourceFileName } from "./editor/document";
 import { importMarkdownBlocks } from "./editor/markdownImport";
 import { buildStandaloneHtml } from "./export/standaloneHtml";
 import { deleteDraft, writeDraft } from "./storage/draftStore";
@@ -128,7 +127,7 @@ function documentWithTitle(title: string): Block[] {
   return [{
     id: "title",
     type: "heading",
-    props: { level: 1 },
+    props: { level: 1, isToggleable: true },
     content: [{ type: "text", text: title, styles: {} }],
     children: [],
   }] as unknown as Block[];
@@ -294,7 +293,7 @@ describe("desktop App lifecycle", () => {
     expect(screen.getByRole("button", { name: "重启并安装" })).toBeInTheDocument();
     await clickButton("重启并安装");
     expect(prepareDesktopUpdate).toHaveBeenCalledOnce();
-    expect(saveDesktopDocument).toHaveBeenCalledWith(edited, file.path, sourceFileName(edited), false);
+    expect(saveDesktopDocument).toHaveBeenCalledWith(edited, file.path, file.name, false);
     expect(install).toHaveBeenCalledWith({ restartAfterInstall: true });
     expect(vi.mocked(saveDesktopDocument).mock.invocationCallOrder[0]).toBeLessThan(install.mock.invocationCallOrder[0]);
   });
@@ -354,7 +353,7 @@ describe("desktop App lifecycle", () => {
     expect(writeDraft).toHaveBeenCalledWith(example);
 
     await clickButton("保存");
-    expect(saveDesktopDocument).toHaveBeenCalledWith(example, null, "BlackDoc 功能展示示例.bdoc", false);
+    expect(saveDesktopDocument).toHaveBeenCalledWith(example, null, "未命名文档.bdoc", false);
   });
 
   it("asks before replacing a document with unsaved changes with the example", async () => {
@@ -394,7 +393,7 @@ describe("desktop App lifecycle", () => {
     expect(writeDraft).toHaveBeenCalledWith(imported);
 
     await clickButton("保存");
-    expect(saveDesktopDocument).toHaveBeenCalledWith(imported, null, "Imported.bdoc", false);
+    expect(saveDesktopDocument).toHaveBeenCalledWith(imported, null, "未命名文档.bdoc", false);
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
   });
 
@@ -490,7 +489,7 @@ describe("desktop App lifecycle", () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS - 1); });
     expect(saveDesktopDocument).not.toHaveBeenCalled();
     await act(async () => { await vi.advanceTimersByTimeAsync(1); });
-    expect(saveDesktopDocument).toHaveBeenLastCalledWith(edited, file.path, sourceFileName(edited), false);
+    expect(saveDesktopDocument).toHaveBeenLastCalledWith(edited, file.path, file.name, false);
   });
 
   it.each(["cancel", "error"])("preserves the initial document after picker %s", async result => {
@@ -619,7 +618,7 @@ describe("desktop App lifecycle", () => {
 
     await editDocument();
     await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });
-    expect(saveDesktopDocument).toHaveBeenCalledExactlyOnceWith(edited, file.path, sourceFileName(edited), false);
+    expect(saveDesktopDocument).toHaveBeenCalledExactlyOnceWith(edited, file.path, file.name, false);
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
   });
 
@@ -647,7 +646,7 @@ describe("desktop App lifecycle", () => {
 
     await clickButton("另存为");
 
-    expect(saveDesktopDocument).toHaveBeenLastCalledWith(edited, file.path, sourceFileName(edited), true);
+    expect(saveDesktopDocument).toHaveBeenLastCalledWith(edited, file.path, file.name, true);
     expectDocument(edited);
     expect(screen.getByTitle(file.name)).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent("未保存");
@@ -683,7 +682,7 @@ describe("desktop App lifecycle", () => {
 
     await clickButton("保存并继续");
 
-    expect(saveDesktopDocument).toHaveBeenCalledExactlyOnceWith(edited, null, sourceFileName(edited), false);
+    expect(saveDesktopDocument).toHaveBeenCalledExactlyOnceWith(edited, null, "未命名文档.bdoc", false);
     expect(screen.getByRole("dialog", { name: "关闭文档" })).toBeInTheDocument();
     expectDocument(edited);
     expect(deleteDraft).not.toHaveBeenCalled();
@@ -756,7 +755,7 @@ describe("desktop App lifecycle", () => {
     await requestClose();
     expect(screen.getByRole("dialog", { name: "关闭文档" })).toBeInTheDocument();
     await clickButton("保存并继续");
-    expect(saveDesktopDocument).toHaveBeenCalledExactlyOnceWith(recovered, null, sourceFileName(recovered), false);
+    expect(saveDesktopDocument).toHaveBeenCalledExactlyOnceWith(recovered, null, "未命名文档.bdoc", false);
     expect(closeDesktopWindow).toHaveBeenCalledOnce();
   });
 });
