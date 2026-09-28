@@ -739,6 +739,7 @@ mod tests {
         Session {
             id: uuid::Uuid::new_v4().to_string(),
             path: None,
+            file_lock: None,
             last_export: None,
             document: None,
             draft: None,
@@ -896,6 +897,7 @@ mod tests {
             Session {
                 id: uuid::Uuid::new_v4().to_string(),
                 path: Some(path.clone()),
+                file_lock: None,
                 last_export: None,
                 document: None,
                 draft: None,

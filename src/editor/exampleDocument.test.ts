@@ -56,7 +56,7 @@ describe("功能展示示例文档", () => {
   it("keeps the introduction and collapsible list example intact", () => {
     const introduction = exampleDocument.find((block: { id: string }) => block.id === "demo-document-intro");
     expect(introduction?.type).toBe("paragraph");
-    expect(introduction?.content[0].text).toContain("这份示例文档");
+    expect(introduction?.content[0].text).toContain("功能示例和简短操作指南");
     const list = exampleDocument.find((block: { id: string }) => block.id === "demo-toggle-list");
     expect(list?.children.map((block: { id: string }) => block.id)).toEqual(["demo-toggle-list-child"]);
     expect(exampleDocument.some((block: { type: string; content?: { text?: string }[] }) =>
