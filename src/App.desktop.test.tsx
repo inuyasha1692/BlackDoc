@@ -1,4 +1,6 @@
 import type { Block } from "@blocknote/core";
+import { invoke } from "@tauri-apps/api/core";
+import { applyAiDocument } from "./editor/aiDocument";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App, { AUTO_SAVE_DELAY_MS } from "./App";
@@ -49,6 +51,8 @@ vi.mock("@blocknote/core/extensions", async (importOriginal) => ({
 vi.mock("./updates", () => ({
   checkForUpdate: vi.fn(async () => ({ kind: "unavailable" })),
 }));
+vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
+vi.mock("./editor/aiDocument", () => ({ applyAiDocument: vi.fn() }));
 vi.mock("@tauri-apps/plugin-updater", () => ({ check: vi.fn() }));
 vi.mock("@blocknote/diagram-block", () => ({
   getDiagramSlashMenuItems: () => [],
@@ -197,6 +201,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   vi.useFakeTimers();
   localStorage.clear();
+  localStorage.setItem("blackdoc:first-launch-completed", "true");
   localStorage.setItem("blackdoc:outline-collapsed", "false");
   harness.closeListeners.clear();
   window.addEventListener("blackdoc-close-canvas", harness.closeCanvas);
@@ -233,6 +238,76 @@ afterEach(async () => {
 });
 
 describe("desktop App lifecycle", () => {
+  it("applies an AI request from the live connection, persists and acknowledges it", async () => {
+    let delivered = false;
+    vi.mocked(invoke).mockImplementation(async (command, args) => {
+      if (command === "desktop_ai_enable") return (args as { enabled: boolean }).enabled ? "C:/temp/connection" : null;
+      if (command === "desktop_ai_exchange") {
+        const snapshot = (args as { snapshot: { revision: string } }).snapshot;
+        if (!delivered) {
+          delivered = true;
+          return { id: "live-request", revision: snapshot.revision, blocks: edited };
+        }
+        return null;
+      }
+      throw new Error(`Unexpected command ${command}`);
+    });
+    vi.mocked(applyAiDocument).mockImplementation((_editor, request, revision) => {
+      expect((request as { revision: string }).revision).toBe(revision);
+      fireEvent.change(screen.getByRole("textbox", { name: "Document" }), {
+        target: { value: JSON.stringify(edited) },
+      });
+    });
+    await mountApp();
+    await clickButton("启用 AI 文档连接");
+    expectDocument(edited);
+    expect(screen.getByRole("button", { name: "AI 文档已连接，复制连接目录" })).toBeInTheDocument();
+    await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    expect(saveDesktopDocument).toHaveBeenCalledWith(edited, file.path, file.name, false);
+    expect(invoke).toHaveBeenCalledWith("desktop_ai_exchange", expect.objectContaining({
+      response: expect.objectContaining({ id: "live-request", ok: true }),
+    }));
+    await clickButton("关闭 AI 文档连接");
+    expect(screen.queryByRole("button", { name: "AI 文档已连接，复制连接目录" })).not.toBeInTheDocument();
+    const calls = vi.mocked(invoke).mock.calls.length;
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500); });
+    expect(vi.mocked(invoke).mock.calls).toHaveLength(calls);
+  });
+  it("opens the example once on first launch without saving over the bundled file", async () => {
+    localStorage.removeItem("blackdoc:first-launch-completed");
+    vi.mocked(bootstrapDesktop).mockResolvedValue({ document: null, draft: null });
+    await mountApp();
+    const example = JSON.parse(exampleDocumentSource) as Block[];
+    expectDocument(example);
+    expect(localStorage.getItem("blackdoc:first-launch-completed")).toBe("true");
+    await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });
+    expect(writeDraft).not.toHaveBeenCalled();
+    expect(saveDesktopDocument).not.toHaveBeenCalled();
+    await clickButton("保存");
+    expect(saveDesktopDocument).toHaveBeenCalledWith(example, null, "未命名文档.bdoc", false);
+    await act(async () => { cleanup(); });
+    harness.editor.document = documentWithTitle("");
+    await mountApp();
+    expect(harness.editor.document[0].id).not.toBe("demo-document-title");
+  });
+
+  it("prioritizes a document or recovery draft on first launch", async () => {
+    localStorage.removeItem("blackdoc:first-launch-completed");
+    await mountApp();
+    expectDocument(original);
+    await act(async () => { cleanup(); });
+    localStorage.removeItem("blackdoc:first-launch-completed");
+    vi.mocked(bootstrapDesktop).mockResolvedValue({
+      document: null,
+      draft: { id: "first-launch-draft", blocks: edited, updatedAt: "2026-09-28T00:00:00Z" },
+    });
+    await mountApp();
+    expect(screen.getByRole("dialog", { name: "发现未保存草稿" })).toBeInTheDocument();
+    expect(harness.editor.document[0].id).not.toBe("demo-document-title");
+    await clickButton("恢复草稿");
+    expectDocument(edited);
+  });
+
   it.each([file, null])("shows manual save progress until completion or cancellation (%s)", async (result) => {
     const saving = deferred<DesktopFile | null>();
     vi.mocked(saveDesktopDocument).mockReturnValue(saving.promise);

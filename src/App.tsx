@@ -1,6 +1,8 @@
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "./styles.css";
+import { invoke } from "@tauri-apps/api/core";
+import { applyAiDocument } from "./editor/aiDocument";
 import { combineByGroup, formatKeyboardShortcut } from "@blocknote/core";
 import {
   insertOrUpdateBlockForSlashMenu,
@@ -70,6 +72,7 @@ type SlashMenuItem = DefaultReactSuggestionItem & {
 };
 
 export const AUTO_SAVE_DELAY_MS = 60_000;
+const FIRST_LAUNCH_KEY = "blackdoc:first-launch-completed";
 const DEFAULT_DOCUMENT_FILE_NAME = "未命名文档.bdoc";
 const HiddenTableCellHandle = () => null;
 
@@ -563,6 +566,8 @@ export default function App() {
   });
 
   const desktopPathRef = useRef<string | null>(null);
+  const [aiDirectory, setAiDirectory] = useState<string | null>(null);
+  const aiRevisionRef = useRef({ content: "", revision: "" });
   const closingRef = useRef(false);
   const openingRef = useRef(false);
   const [opening, setOpening] = useState(false);
@@ -955,6 +960,42 @@ export default function App() {
     schedulePersistence();
   }, [desktopReady, editor, schedulePersistence, setBlocks, setStatus]);
   useEffect(() => {
+    if (!aiDirectory || !desktopReady) return;
+    let disposed = false;
+    let timer: ReturnType<typeof setTimeout>;
+    let response: unknown = null;
+    const revision = () => {
+      const content = JSON.stringify([desktopPathRef.current, editor.document]);
+      if (content !== aiRevisionRef.current.content) {
+        aiRevisionRef.current = { content, revision: crypto.randomUUID() };
+      }
+      return aiRevisionRef.current.revision;
+    };
+    const poll = async () => {
+      try {
+        const request = await invoke<{ id?: unknown } | null>("desktop_ai_exchange", {
+          snapshot: { revision: revision(), path: desktopPathRef.current, blocks: editor.document }, response,
+        });
+        response = null;
+        if (!disposed && request) {
+          try {
+            if (openingRef.current || closingRef.current) throw new Error("文档正在切换或关闭。");
+            applyAiDocument(editor, request, revision());
+            response = { id: request.id, ok: true, revision: revision() };
+            schedulePersistence(0);
+          } catch (error) {
+            response = { id: request.id, ok: false, error: String(error) };
+          }
+        }
+      } catch (error) {
+        if (!disposed) setNotice({ tone: "error", message: String(error) });
+      }
+      if (!disposed) timer = setTimeout(() => void poll(), 750);
+    };
+    void poll();
+    return () => { disposed = true; clearTimeout(timer); };
+  }, [aiDirectory, desktopReady, editor, schedulePersistence]);
+  useEffect(() => {
     if (bootstrappedRef.current) return;
     let disposed = false;
     void bootstrapDesktop().then((initial) => {
@@ -969,6 +1010,13 @@ export default function App() {
       if (initial.draft && isBlackDocument(initial.draft.blocks)) {
         setRecoveryDraft(initial.draft);
       }
+      if (!initial.document && !initial.draft && localStorage.getItem(FIRST_LAUNCH_KEY) !== "true") {
+        const example: unknown = JSON.parse(exampleDocumentSource);
+        if (!isBlackDocument(example)) throw new Error("功能示例文档无效。");
+        replaceDocument(example);
+        setStatus("unsaved");
+      }
+      localStorage.setItem(FIRST_LAUNCH_KEY, "true");
       bootstrappedRef.current = true;
       setDesktopReady(true);
     }).catch((error: unknown) => {
@@ -1235,6 +1283,19 @@ export default function App() {
         onSave={() => void saveCurrentDocument(false)}
         onSaveAs={() => void saveCurrentDocument(true)}
         onAbout={openAboutDialog}
+        aiEnabled={aiDirectory !== null}
+        onCopyAiDirectory={() => {
+          if (!aiDirectory) return;
+          void navigator.clipboard.writeText(aiDirectory).then(() => {
+            setNotice({ tone: "info", message: `已复制 AI 连接目录：${aiDirectory}` });
+          }).catch(() => setNotice({ tone: "info", message: `AI 连接目录：${aiDirectory}` }));
+        }}
+        onToggleAi={() => {
+          void invoke<string | null>("desktop_ai_enable", { enabled: !aiDirectory }).then(directory => {
+            setAiDirectory(directory);
+            if (directory) setNotice({ tone: "info", message: `AI 文档连接目录：${directory}` });
+          }).catch(error => setNotice({ tone: "error", message: String(error) }));
+        }}
         onMoreOpen={() => advanceUpdateGuide("more", "about")}
         onShortcuts={() => setShortcutsOpen(true)}
         updateAvailable={update.kind === "available"}

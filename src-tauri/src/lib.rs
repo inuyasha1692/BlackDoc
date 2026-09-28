@@ -1,4 +1,5 @@
 mod storage;
+mod ai_bridge;
 
 use serde::Serialize;
 use serde_json::Value;
@@ -615,6 +616,7 @@ async fn desktop_open_external(window: WebviewWindow, url: String) -> Result<()>
 pub fn run() {
     tauri::Builder::default()
         .manage(Backend::default())
+        .manage(ai_bridge::AiBridge::default())
         .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
@@ -654,6 +656,8 @@ pub fn run() {
                 .build(),
         )
         .invoke_handler(tauri::generate_handler![
+            ai_bridge::desktop_ai_enable,
+            ai_bridge::desktop_ai_exchange,
             desktop_bootstrap,
             desktop_new_window,
             desktop_open_window,
@@ -674,6 +678,11 @@ pub fn run() {
                 let _ = window.emit_to(window.label(), "desktop-close-requested", ());
             }
             tauri::WindowEvent::Destroyed => {
+                if let Ok(mut connections) = window.state::<ai_bridge::AiBridge>().0.lock() {
+                    if let Some(path) = connections.remove(window.label()) {
+                        let _ = std::fs::remove_dir_all(path);
+                    }
+                }
                 let app = window.app_handle().clone();
                 let label = window.label().to_string();
                 tauri::async_runtime::spawn(async move {
