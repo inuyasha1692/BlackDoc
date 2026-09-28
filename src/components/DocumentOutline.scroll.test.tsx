@@ -65,6 +65,16 @@ afterEach(() => {
 });
 
 describe("outline scroll ownership", () => {
+  it("ignores headings hidden by automatic section folding", () => {
+    document.getElementById("block=second")!.classList.add("heading-section-hidden");
+    position("block=second", 0);
+    scroll(window);
+    expectActive("first");
+    position("block=first", 0);
+    position("block=second", 120);
+    scroll(pane);
+    expectActive("first");
+  });
   it.each([
     { targetId: "after", inner: false },
     { targetId: "second", inner: true },

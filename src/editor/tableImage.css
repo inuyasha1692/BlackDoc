@@ -1,0 +1,32 @@
+.table-image-frame {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: middle;
+  line-height: 0;
+}
+.bn-editor :is(td, th).table-image-only-cell {
+  vertical-align: middle;
+}
+.table-image-frame > img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+}
+.table-image-resize-handle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid white;
+  border-radius: 4px;
+  background: black;
+  cursor: ew-resize;
+  touch-action: none;
+}
+.table-image-resize-handle.left { left: 4px; }
+.table-image-resize-handle.right { right: 4px; }

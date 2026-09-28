@@ -130,9 +130,17 @@ export function Toolbar({
       </div>
 
       <div className="toolbar-actions" role="toolbar" aria-label="文档操作">
+        <button aria-label="新建" disabled={busy} onClick={onNew} title="新建 (Ctrl+N)" type="button">
+          <FilePlus2 aria-hidden="true" size={17} />
+          <span>新建</span>
+        </button>
         <button disabled={busy} onClick={onOpen} title="打开文件 (Ctrl+O)" type="button">
           <FolderOpen aria-hidden="true" size={17} />
           <span>打开</span>
+        </button>
+        <button aria-label="导入 Markdown" disabled={busy} onClick={onImportMarkdown} title="导入 Markdown" type="button">
+          <FileUp aria-hidden="true" size={17} />
+          <span>导入 MD</span>
         </button>
         <button disabled={busy} onClick={onSave} title="保存 (Ctrl+S)" type="button">
           <Save aria-hidden="true" size={17} />
@@ -178,14 +186,6 @@ export function Toolbar({
             <div className="toolbar-menu-panel" id="toolbar-more-menu" aria-label="更多操作">
               <div className="toolbar-menu-section" role="group" aria-label="文档">
                 <span className="toolbar-menu-heading">文档</span>
-                <button disabled={busy} onClick={() => runMenuAction(onNew)} type="button">
-                  <FilePlus2 aria-hidden="true" size={16} />
-                  <span>新建文档</span>
-                </button>
-                <button disabled={busy} onClick={() => runMenuAction(onImportMarkdown)} type="button">
-                  <FileUp aria-hidden="true" size={16} />
-                  <span>导入 Markdown</span>
-                </button>
                 <button disabled={busy} onClick={() => runMenuAction(onSaveAs)} type="button">
                   <SaveAll aria-hidden="true" size={16} />
                   <span>另存为</span>

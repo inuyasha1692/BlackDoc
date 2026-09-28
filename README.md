@@ -6,7 +6,7 @@ BlackDoc 是一款基于 BlockNote 和 Tauri 的 Windows 桌面块编辑器。�
 
 ## 下载
 
-Windows x64 用户可从 [GitHub Releases](https://github.com/inuyasha1692/BlackDoc/releases/latest) 下载最新版安装包。安装后可在【更多操作】→【关于与更新】检查更新，并通过应用内下载、查看进度和重启完成安装。
+Windows x64 安装包以 [GitHub Releases](https://github.com/inuyasha1692/BlackDoc/releases) 页面实际发布的版本为准；首次发布前该页面没有可下载的安装包。安装后可在【更多操作】→【关于与更新】检查更新，并通过应用内下载、查看进度和重启完成安装。
 
 ## 主要特色
 
@@ -19,7 +19,7 @@ HTML 导出会尝试内嵌远程图片。若图片源站禁止跨域读取或网
 
 ## 还有这些能力
 
-BlackDoc 保留 BlockNote 的文本格式工具栏、`/` 插入菜单、表格、列表、媒体等编辑体验，并接入官方多栏、图表和数学公式扩展。左侧大纲、块链接、双分区、Excalidraw 画布、查找替换、自动暂存和主题切换由 BlackDoc 提供或定制。
+BlackDoc 保留 BlockNote 的文本格式工具栏、`/` 插入菜单、表格、列表、媒体等编辑体验，并接入官方多栏、图表和数学公式扩展。左侧大纲、块链接、双分区、Excalidraw 画布、查找替换、自动暂存和主题切换由 BlackDoc 提供或定制。还支持折叠标题下的内容、框选并拖动多个块，以及将复制或剪切的图片块粘贴到表格单元格。
 
 ## 许可证
 

@@ -1,6 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import { act, render } from "@testing-library/react";
+import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import { getOutlineItems } from "./outline";
 import { blackDocSchema } from "./schema";
@@ -37,6 +38,13 @@ describe("heading number decorations", () => {
       expect(["chapter", "left", "right", "first", "second", "third", "later"].map(number))
         .toEqual(["7", "7.1", "7.2", "7.2.1", "7.2.2", "7.2.3", "7.3"]);
       expect(content("right")?.style.getPropertyValue("--blackdoc-heading-number").trim()).toBe('"7.2 "');
+      const numberingSelector = readFileSync("src/styles.css", "utf8")
+        .match(/([^{}]+)\{\s*content:\s*var\(--blackdoc-heading-number/)?.[1].trim();
+      expect(numberingSelector).toBeDefined();
+      for (const id of ["chapter", "left", "right", "first", "second", "third", "later"]) {
+        const title = content(id)?.querySelector("h2,h3,h4,h5,h6");
+        expect(title?.matches(numberingSelector!.replaceAll("::before", "")), `visible numbering selector for ${id}`).toBe(true);
+      }
       for (const item of getOutlineItems(editor.document)) {
         expect(number(item.id)).toBe(item.number);
       }

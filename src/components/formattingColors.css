@@ -14,3 +14,6 @@
 .formatting-color-reset { width: 100%; margin-top: 12px; padding: 4px; border: 1px solid var(--app-border); border-radius: 3px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; }
 .formatting-color-panel button:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
 .block-color-picker button:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
+.bn-mantine .bn-menu-dropdown.table-handle-color-picker { box-sizing: border-box; width: 288px; max-width: calc(100vw - 24px); padding: 10px; color: var(--app-text); background: var(--app-surface); }
+.table-handle-color-picker section + section { margin-top: 12px; }
+.table-handle-color-picker button:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }

@@ -62,6 +62,15 @@ const paletteColor = (value: string, kind: "textColor" | "backgroundColor"): str
   return "pink";
 };
 
+// Estimate description length without depending on image loading or the current
+// editor viewport. Count wrapped lines as well as explicit Markdown/HTML breaks.
+const hasLongDescription = (cell: unknown): boolean => {
+  const text = plainText(cell).replace(/BLACKDOCIMPORT(?:ANCHOR|IMAGE|VIDEO)\d+END/g, "").trim();
+  const lines = text.split(/\r?\n/).reduce((total, line) =>
+    total + Math.max(1, Math.ceil(Array.from(line).length / 40)), 0);
+  return Array.from(text).length > 600 || lines > 15;
+};
+
 const imageDescriptionPanes = (blocks: BlackDocBlock[]): BlackDocBlock[] => blocks.flatMap(block => {
   if (block.type !== "table" || block.content.type !== "tableContent") return [block];
   const rows = block.content.rows;
@@ -81,14 +90,19 @@ const imageDescriptionPanes = (blocks: BlackDocBlock[]): BlackDocBlock[] => bloc
     isObject(cell) && Array.isArray(cell.content) ? cell.content : cell;
   if (columnCount === 2 && contentRows.every(row =>
     plainText(row.cells[0]).includes(IMAGE_MARKER))) {
-    return contentRows.map(row => ({
-      ...createSplitPane(), id: crypto.randomUUID(),
-      props: { leftWidth: 50, rightHeight: SPLIT_AUTO_HEIGHT },
-      children: row.cells.map((cell, index) => ({
-        id: crypto.randomUUID(), type: "splitColumn", props: { side: index === 0 ? "left" : "right" },
-        children: [{ id: crypto.randomUUID(), type: "paragraph", content: cellContent(cell), children: [] }],
-      })),
-    } as unknown as BlackDocBlock));
+    return contentRows.map(row => {
+      const longDescription = hasLongDescription(row.cells[1]);
+      return {
+        ...(longDescription ? createSplitPane() : {}),
+        id: crypto.randomUUID(), type: longDescription ? "splitPane" : "columnList",
+        props: longDescription ? { leftWidth: 50, rightHeight: SPLIT_AUTO_HEIGHT } : {},
+        children: row.cells.map((cell, index) => ({
+          id: crypto.randomUUID(), type: longDescription ? "splitColumn" : "column",
+          props: longDescription ? { side: index === 0 ? "left" : "right" } : { width: 1 },
+          children: [{ id: crypto.randomUUID(), type: "paragraph", content: cellContent(cell), children: [] }],
+        })),
+      } as unknown as BlackDocBlock;
+    });
   }
   const displayRows = firstRow === 1 ? rows : contentRows;
   return displayRows.map(row => ({

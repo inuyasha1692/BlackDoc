@@ -2,6 +2,15 @@ diff --git a/node_modules/@blocknote/core/dist/blocks-Dol85hpH.js b/node_modules
 index c1c5b0b..e1b7833 100644
 --- a/node_modules/@blocknote/core/dist/blocks-Dol85hpH.js
 +++ b/node_modules/@blocknote/core/dist/blocks-Dol85hpH.js
+@@ -2145,7 +2145,7 @@ var Jr = m((e) => e.type.name === "blockContainer"), Yr = class {
+ 			return;
+ 		}
+ 		let r, i = "touches" in n ? n.touches[0].clientX : n.clientX;
+-		r = e.props.textAlignment === "center" ? d.handleUsed === "left" ? d.initialWidth + (d.initialClientX - i) * 2 : d.initialWidth + (i - d.initialClientX) * 2 : d.handleUsed === "left" ? d.initialWidth + d.initialClientX - i : d.initialWidth + i - d.initialClientX, f = Math.min(Math.max(r, 64), t.domElement?.firstElementChild?.clientWidth || Number.MAX_VALUE), s.style.width = `${f}px`;
++		r = e.props.textAlignment === "center" ? d.handleUsed === "left" ? d.initialWidth + (d.initialClientX - i) * 2 : d.initialWidth + (i - d.initialClientX) * 2 : d.handleUsed === "left" ? d.initialWidth + d.initialClientX - i : d.initialWidth + i - d.initialClientX, f = Math.min(Math.max(r, s.closest(".split-pane-column") ? 24 : 64), t.domElement?.firstElementChild?.clientWidth || Number.MAX_VALUE), s.style.width = `${f}px`;
+ 	}, m = (n) => {
+ 		(!n.target || !s.contains(n.target) || !t.isEditable) && (c.style.display = "none", l.style.display = "none"), d && (d = void 0, s.contains(u) && s.removeChild(u), t.updateBlock(e, { props: { previewWidth: f } }));
+ 	}, h = () => {
 @@ -3119,7 +3119,8 @@ var Jr = m((e) => e.type.name === "blockContainer"), Yr = class {
  		this.editor.isEditable && o && (this.state = {
  			show: !0,
@@ -24,6 +33,18 @@ index c1c5b0b..e1b7833 100644
  					return s.query = a.doc.textBetween(n.queryStartPos(), a.selection.from), s;
  				}
  			},
+diff --git a/node_modules/@blocknote/core/src/blocks/File/helpers/render/createResizableFileBlockWrapper.ts b/node_modules/@blocknote/core/src/blocks/File/helpers/render/createResizableFileBlockWrapper.ts
+--- a/node_modules/@blocknote/core/src/blocks/File/helpers/render/createResizableFileBlockWrapper.ts
++++ b/node_modules/@blocknote/core/src/blocks/File/helpers/render/createResizableFileBlockWrapper.ts
+@@ -113,7 +113,7 @@ export const createResizableFileBlockWrapper = (
+    }
+
+    // Min element width in px.
+-    const minWidth = 64;
++    const minWidth = wrapper.closest(".split-pane-column") ? 24 : 64;
+
+    // Ensures the element is not wider than the editor and not narrower than a
+    // predetermined minimum width.
 diff --git a/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts b/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts
 index 62d01c7..41a2106 100644
 --- a/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts

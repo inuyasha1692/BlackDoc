@@ -34,22 +34,25 @@ describe("Toolbar primary actions and more menu", () => {
     const props = createProps();
     render(<Toolbar {...props} />);
 
+    expect(screen.getByRole("button", { name: "新建" })).toBeVisible();
     expect(screen.getByRole("button", { name: "打开" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "导入 Markdown" })).toBeVisible();
     expect(screen.getByRole("button", { name: "保存" })).toBeVisible();
     expect(screen.getByRole("button", { name: "导出 HTML" })).toBeVisible();
     expect(screen.getByRole("button", { name: "查找替换" })).toBeVisible();
-    expect(screen.queryByRole("button", { name: "新建文档" })).not.toBeInTheDocument();
 
     const trigger = screen.getByRole("button", { name: "更多操作" });
     expect(trigger).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(screen.getByRole("button", { name: "新建" }));
+    fireEvent.click(screen.getByRole("button", { name: "导入 Markdown" }));
+    expect(props.onNew).toHaveBeenCalledOnce();
+    expect(props.onImportMarkdown).toHaveBeenCalledOnce();
     openMoreMenu();
     expect(trigger).toHaveAttribute("aria-expanded", "true");
-
-    fireEvent.click(screen.getByRole("button", { name: "新建文档" }));
-
-    expect(props.onNew).toHaveBeenCalledOnce();
-    expect(trigger).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("button", { name: "导入 Markdown" })).not.toBeInTheDocument();
+    const documentMenu = within(screen.getByRole("group", { name: "文档" }));
+    expect(documentMenu.queryByRole("button", { name: "新建" })).toBeNull();
+    expect(documentMenu.queryByRole("button", { name: "导入 Markdown" })).toBeNull();
+    expect(documentMenu.getByRole("button", { name: "另存为" })).toBeVisible();
   });
 
   it("closes on outside interaction and Escape", () => {
@@ -67,12 +70,12 @@ describe("Toolbar primary actions and more menu", () => {
     expect(trigger).toHaveFocus();
   });
 
-  it("disables document-changing menu actions while busy", () => {
+  it("disables document-changing actions while busy", () => {
     render(<Toolbar {...createProps()} busy />);
+    expect(screen.getByRole("button", { name: "新建" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "导入 Markdown" })).toBeDisabled();
     openMoreMenu();
 
-    expect(screen.getByRole("button", { name: "新建文档" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "导入 Markdown" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "功能示例" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "另存为" })).toBeDisabled();
   });

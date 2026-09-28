@@ -22,6 +22,7 @@ import { buildStandaloneHtml } from "./export/standaloneHtml";
 import { deleteDraft, writeDraft } from "./storage/draftStore";
 import { checkForUpdate } from "./updates";
 import { check as checkSignedUpdate } from "@tauri-apps/plugin-updater";
+import { insertOrUpdateBlockForSlashMenu } from "@blocknote/core/extensions";
 
 const harness = vi.hoisted(() => ({
   editor: {
@@ -29,6 +30,8 @@ const harness = vi.hoisted(() => ({
     replaceBlocks: vi.fn(),
     transact: vi.fn(),
     focus: vi.fn(),
+    getExtension: vi.fn(() => null),
+    isEditable: true,
   },
   closeListeners: new Set<() => void>(),
   listen: vi.fn(),
@@ -39,6 +42,10 @@ const harness = vi.hoisted(() => ({
 
 vi.mock("@blocknote/core/locales", () => ({
   zh: { formatting_toolbar: { code: {} } },
+}));
+vi.mock("@blocknote/core/extensions", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@blocknote/core/extensions")>(),
+  insertOrUpdateBlockForSlashMenu: vi.fn(),
 }));
 vi.mock("./updates", () => ({
   checkForUpdate: vi.fn(async () => ({ kind: "unavailable" })),
@@ -69,6 +76,7 @@ vi.mock("@blocknote/mantine", () => ({
   BlockNoteView: ({ editable, onChange, theme }: { editable: boolean; theme: string; onChange: (editor: unknown, context: { getChanges: () => unknown[] }) => void }) => (
     <textarea
       aria-label="Document"
+      className="ProseMirror"
       data-editor-theme={theme}
       disabled={!editable}
       value={JSON.stringify(harness.editor.document)}
@@ -149,13 +157,11 @@ async function clickButton(name: string) {
 
   const menuName = name === "导入 MD"
     ? "导入 Markdown"
-    : name === "新建"
-      ? "新建文档"
-      : name === "深色模式"
-        ? screen.getByRole("textbox", { name: "Document" }).getAttribute("data-editor-theme") === "dark"
-          ? "切换到浅色模式"
-          : "切换到深色模式"
-        : name;
+    : name === "深色模式"
+      ? screen.getByRole("textbox", { name: "Document" }).getAttribute("data-editor-theme") === "dark"
+        ? "切换到浅色模式"
+        : "切换到深色模式"
+      : name;
   await act(async () => {
     fireEvent.click(screen.getByRole("button", { name: "更多操作" }));
   });
@@ -196,6 +202,7 @@ beforeEach(() => {
   harness.closeListeners.clear();
   window.addEventListener("blackdoc-close-canvas", harness.closeCanvas);
   harness.editor.document = documentWithTitle("");
+  harness.editor.isEditable = true;
   harness.editor.replaceBlocks.mockImplementation((_previous: Block[], blocks: Block[]) => {
     harness.editor.document = structuredClone(blocks);
   });
@@ -227,6 +234,44 @@ afterEach(async () => {
 });
 
 describe("desktop App lifecycle", () => {
+  it.each([file, null])("shows manual save progress until completion or cancellation (%s)", async (result) => {
+    const saving = deferred<DesktopFile | null>();
+    vi.mocked(saveDesktopDocument).mockReturnValue(saving.promise);
+    await mountApp();
+    expect(screen.queryByRole("status", { name: "保存进度" })).not.toBeInTheDocument();
+    await clickButton("保存");
+    expect(screen.getByRole("status", { name: "保存进度" })).toHaveTextContent("正在保存…");
+    await act(async () => { saving.resolve(result); });
+    expect(screen.queryByRole("status", { name: "保存进度" })).not.toBeInTheDocument();
+  });
+
+  it.each([true, false])("shows automatic save progress for file or draft (%s)", async (hasFile) => {
+    const saving = deferred<DesktopFile | null>();
+    const draft = deferred<void>();
+    if (!hasFile) vi.mocked(bootstrapDesktop).mockResolvedValue({ document: null, draft: null });
+    vi.mocked(saveDesktopDocument).mockReturnValue(saving.promise);
+    vi.mocked(writeDraft).mockReturnValue(draft.promise);
+    await mountApp();
+    await editDocument();
+    await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });
+    expect(screen.getByRole("status", { name: "保存进度" })).toHaveTextContent(hasFile ? "正在保存…" : "正在暂存草稿…");
+    await editDocument(documentWithTitle("Further edits"));
+    expect(screen.getByRole("status", { name: "保存进度" })).toBeInTheDocument();
+    await act(async () => { saving.resolve(file); draft.resolve(); });
+    expect(screen.queryByRole("status", { name: "保存进度" })).not.toBeInTheDocument();
+  });
+
+  it("removes save progress and reports a write failure", async () => {
+    const saving = deferred<DesktopFile | null>();
+    vi.mocked(saveDesktopDocument).mockReturnValue(saving.promise.then(() => { throw new Error("写入失败"); }));
+    await mountApp();
+    await clickButton("保存");
+    expect(screen.getByRole("status", { name: "保存进度" })).toBeInTheDocument();
+    await act(async () => { saving.resolve(null); });
+    expect(screen.queryByRole("status", { name: "保存进度" })).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("写入失败");
+  });
+
   it("downloads a signed update, saves edits, then launches the installer", async () => {
     const release = {
       kind: "available" as const,
@@ -474,6 +519,25 @@ describe("desktop App lifecycle", () => {
     await clickButton("打开");
     expect(openDesktopWindow).toHaveBeenCalledExactlyOnceWith(false);
     expectDocument(original);
+  });
+
+  it("inserts a table with Ctrl+T only in the editable editor", async () => {
+    await mountApp();
+    const editorInput = screen.getByRole("textbox", { name: "Document" });
+    fireEvent.keyDown(editorInput, { key: "t", ctrlKey: true });
+    expect(insertOrUpdateBlockForSlashMenu).toHaveBeenCalledExactlyOnceWith(harness.editor, {
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: [{ cells: ["", "", ""] }, { cells: ["", "", ""] }],
+      },
+    });
+
+    fireEvent.keyDown(window, { key: "t", ctrlKey: true });
+    fireEvent.keyDown(editorInput, { key: "t", ctrlKey: true, shiftKey: true });
+    harness.editor.isEditable = false;
+    fireEvent.keyDown(editorInput, { key: "t", ctrlKey: true });
+    expect(insertOrUpdateBlockForSlashMenu).toHaveBeenCalledTimes(1);
   });
 
   it("blocks editing, repeated open, save and close while reusing the window", async () => {

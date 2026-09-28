@@ -11,6 +11,7 @@ describe("ShortcutsDialog", () => {
     expect(screen.getByText("Ctrl / Cmd + Shift + S")).toBeInTheDocument();
     expect(screen.getByText("Ctrl / Cmd + F 或 H")).toBeInTheDocument();
     expect(screen.getByText("Ctrl / Cmd + E")).toBeInTheDocument();
+    expect(screen.getByText("Ctrl / Cmd + T")).toBeInTheDocument();
     expect(screen.getByText("聚焦尺寸控制柄时")).toBeInTheDocument();
   });
 

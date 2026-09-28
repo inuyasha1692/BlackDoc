@@ -31,6 +31,36 @@ function createEditor(block = pane(), optimizeTrailingNode = false) {
   return editor;
 }
 
+it("resizes images inside a split pane down to the table image minimum", () => {
+  const editor = BlockNoteEditor.create({
+    schema: blackDocSchema,
+    extensions: [SplitPaneExtension()],
+    initialContent: [
+      pane([{ id: "inside-image", type: "image", props: { url: "inside.png", previewWidth: 100 } }]),
+      { id: "outside-image", type: "image", props: { url: "outside.png", previewWidth: 100 } },
+    ],
+  });
+  editor.mount(document.createElement("div"));
+  editors.push(editor);
+
+  const resizeToZero = (id: string) => {
+    const wrapper = editor.prosemirrorView.dom.querySelector<HTMLElement>(
+      `[data-id="${id}"] .bn-file-block-content-wrapper`,
+    )!;
+    Object.defineProperty(wrapper, "clientWidth", { value: 100 });
+    wrapper.querySelector<HTMLElement>(".bn-resize-handle")!.dispatchEvent(
+      new MouseEvent("mousedown", { clientX: 100 }),
+    );
+    window.dispatchEvent(new MouseEvent("mousemove", { clientX: 200 }));
+    document.body.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+    const block = editor.getBlock(id);
+    return block?.type === "image" ? block.props.previewWidth : undefined;
+  };
+
+  expect(resizeToZero("inside-image")).toBe(24);
+  expect(resizeToZero("outside-image")).toBe(64);
+});
+
 function position(editor: BlackDocEditor, id: string) {
   let result = -1;
   editor._tiptapEditor.state.doc.descendants((node, pos) => {
