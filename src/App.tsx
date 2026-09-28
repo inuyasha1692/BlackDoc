@@ -3,8 +3,6 @@ import "@blocknote/mantine/style.css";
 import "./styles.css";
 import { combineByGroup, formatKeyboardShortcut } from "@blocknote/core";
 import {
-  FormattingToolbarExtension,
-  filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -40,18 +38,20 @@ import { ActionDialog } from "./components/ActionDialog";
 import { AboutDialog, type UpdateAction } from "./components/AboutDialog";
 import { ShortcutsDialog } from "./components/ShortcutsDialog";
 import { BlackDocFormattingToolbar } from "./components/BlockLinkControls";
+import { ImageViewerHost } from "./components/ImageViewer";
 import { BlackDocLinkToolbar } from "./components/BlackDocLinkToolbar";
 import {
   BlackDocSideMenuController,
   type PendingSlashBlockRef,
 } from "./components/BlockSideMenu";
-import { BlackDocTableCellButton } from "./components/TableCellColorMenu";
 import { DocumentOutline } from "./components/DocumentOutline";
 import { FindReplaceBar } from "./components/FindReplaceBar";
 import { Toolbar, type SaveStatus } from "./components/Toolbar";
 import packageInfo from "../package.json";
 import exampleDocumentSource from "../files/BlackDoc功能展示示例.bdoc?raw";
 import { checkForUpdate, type UpdateCheckResult } from "./updates";
+import { scrollMenuItemIntoView } from "./editor/suggestionMenuScroll";
+import { HeadingSectionsExtension, RESET_DOCUMENT_FOLDS_META } from "./editor/headingSections";
 import { AppThemeContext } from "./theme";
 import { useAppTheme } from "./useAppTheme";
 
@@ -71,6 +71,7 @@ type SlashMenuItem = DefaultReactSuggestionItem & {
 
 export const AUTO_SAVE_DELAY_MS = 60_000;
 const DEFAULT_DOCUMENT_FILE_NAME = "未命名文档.bdoc";
+const HiddenTableCellHandle = () => null;
 
 const SLASH_MENU_WIDTH = 240;
 const SLASH_MENU_GAP = 10;
@@ -117,6 +118,7 @@ const updateGuideKey = (version: string) => `blackdoc:update-guide:${version.rep
 
 const headingShortcuts = new Map([
   ["一级标题", "Mod-1"],
+  ["段落", "Mod-0"],
   ["二级标题", "Mod-2"],
   ["三级标题", "Mod-3"],
   ["四级标题", "Mod-4"],
@@ -187,9 +189,13 @@ function CompactSlashMenu({
 
   useEffect(() => {
     if (selectedIndex === undefined) return;
-    menuRef.current
-      ?.querySelector<HTMLElement>(`#bn-suggestion-menu-item-${selectedIndex}`)
-      ?.scrollIntoView({ block: "nearest" });
+    const menu = menuRef.current;
+    const selectedItem = menu?.querySelector<HTMLElement>(
+      `#bn-suggestion-menu-item-${selectedIndex}`,
+    );
+    if (menu && selectedItem) {
+      scrollMenuItemIntoView(menu, selectedItem);
+    }
   }, [selectedIndex]);
 
   const renderItem = (
@@ -286,14 +292,19 @@ import {
 import { PreserveHeadingLevelExtension } from "./editor/preserveHeadingLevel";
 import { HeadingNumberExtension } from "./editor/headingNumberExtension";
 import { importMarkdownBlocks } from "./editor/markdownImport";
+import { filterSlashMenuItems } from "./editor/slashMenuSearch";
+import { imageToolbarFloatingUIOptions, installImageToolbarHover } from "./editor/imageToolbarHover";
+import { installSplitDividerHover } from "./editor/splitDividerHover";
 import { changesAffectOutline } from "./editor/outline";
 import { FindAndReplaceExtension } from "./editor/findAndReplace";
 import { InheritColumnFormatExtension } from "./editor/inheritColumnFormat";
 import { TableEnterNavigationExtension } from "./editor/tableEnterNavigation";
+import { BlackDocTableHandle } from "./components/TableHandleMenu";
 import { pasteTableImage } from "./editor/tableImagePaste";
 import { blackDocSchema, type BlackDocBlock, type BlackDocEditor } from "./editor/schema";
 import { createSplitPane, isInsideSplitPane } from "./editor/splitPane";
 import { SplitPaneExtension, SPLIT_DOCUMENT_REPLACE_META } from "./editor/splitPaneExtension";
+import { BlockMarqueeExtension } from "./editor/blockMarquee";
 import { OptimizedTrailingNodeExtension } from "./editor/trailingNodeExtension";
 import { CanvasEditorHost } from "./canvas/CanvasPreview";
 import { buildStandaloneHtml } from "./export/standaloneHtml";
@@ -357,6 +368,8 @@ export default function App() {
       FindAndReplaceExtension(),
       InheritColumnFormatExtension(),
       TableEnterNavigationExtension(),
+      HeadingSectionsExtension(),
+      BlockMarqueeExtension(),
       SplitPaneExtension(),
     ],
     tables: { cellBackgroundColor: true, cellTextColor: true },
@@ -371,7 +384,7 @@ export default function App() {
         event.preventDefault();
         const blockId = parseBlockLink(href);
         if (blockId) {
-          if (!revealBlock(blockId)) {
+          if (!revealBlock(blockId, "center")) {
             window.dispatchEvent(new Event(BLOCK_LINK_MISSING_EVENT));
           }
           return true;
@@ -487,30 +500,16 @@ export default function App() {
 
   useEffect(() => {
     if (typeof editor.getExtension !== "function") return;
-
-    const formattingToolbar = editor.getExtension(FormattingToolbarExtension);
-    if (!formattingToolbar) return;
-
-    const editorDom = editor.prosemirrorView.dom;
-
-    const showSelectedImageToolbar = () => {
-      requestAnimationFrame(() => {
-        if (editorDom.querySelector(
-          '.ProseMirror-selectednode[data-content-type="image"]',
-        )) {
-          formattingToolbar.store.setState(true);
-        }
-      });
-    };
-
-    editorDom.addEventListener("pointerup", showSelectedImageToolbar);
-    return () => editorDom.removeEventListener("pointerup", showSelectedImageToolbar);
+    return installImageToolbarHover(editor);
   }, [editor]);
+
+  useEffect(() => installSplitDividerHover(editor), [editor]);
 
   const bootstrappedRef = useRef(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [busy, setBusy] = useState(false);
+  const [savingKind, setSavingKind] = useState<"document" | "draft" | null>(null);
   const [importingMarkdown, setImportingMarkdown] = useState(false);
   const [desktopReady, setDesktopReady] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -602,6 +601,7 @@ export default function App() {
     const snapshot = editor.document;
     const version = changeVersionRef.current;
     saveInFlightRef.current = true;
+    setSavingKind(desktopPathRef.current ? "document" : "draft");
 
     try {
       if (desktopPathRef.current) {
@@ -633,6 +633,7 @@ export default function App() {
       });
     } finally {
       saveInFlightRef.current = false;
+      setSavingKind(null);
       if (changeVersionRef.current !== version) {
         schedulePersistence();
       }
@@ -704,9 +705,11 @@ export default function App() {
     (nextBlocks: BlackDocBlock[]) => {
       const normalizedBlocks = makeHeadingsToggleable(nextBlocks);
       window.dispatchEvent(new Event("blackdoc-close-canvas"));
+      window.dispatchEvent(new Event("blackdoc-close-image"));
       suppressChangesRef.current = true;
       editor.transact(tr => {
         tr.setMeta(SPLIT_DOCUMENT_REPLACE_META, true);
+        tr.setMeta(RESET_DOCUMENT_FOLDS_META, true);
         editor.replaceBlocks(editor.document, normalizedBlocks);
       });
       setBlocks(cloneDocument(editor.document));
@@ -734,6 +737,7 @@ export default function App() {
       const snapshot = editor.document;
       const version = changeVersionRef.current;
       saveInFlightRef.current = true;
+      setSavingKind("document");
       setBusy(true);
 
       try {
@@ -767,6 +771,7 @@ export default function App() {
         return false;
       } finally {
         saveInFlightRef.current = false;
+        setSavingKind(null);
         setBusy(false);
       }
     },
@@ -1050,6 +1055,19 @@ export default function App() {
       }
 
       const key = event.key.toLowerCase();
+      if (key === "t" && !event.shiftKey && !event.altKey &&
+        event.target instanceof Element && event.target.closest(".ProseMirror") &&
+        desktopReady && !recoveryDraft && !openingRef.current && editor.isEditable) {
+        event.preventDefault();
+        insertOrUpdateBlockForSlashMenu(editor, {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: Array.from({ length: 2 }, () => ({ cells: ["", "", ""] })),
+          },
+        });
+        return;
+      }
       if (key === "f" || key === "h") {
         event.preventDefault();
         if (desktopReady && !recoveryDraft && !openingRef.current) {
@@ -1078,7 +1096,7 @@ export default function App() {
 
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
-  }, [desktopReady, recoveryDraft, requestNewDocument, requestOpenDocument, saveCurrentDocument]);
+  }, [desktopReady, editor, recoveryDraft, requestNewDocument, requestOpenDocument, saveCurrentDocument]);
 
   useEffect(() => () => clearSaveTimer(), [clearSaveTimer]);
 
@@ -1099,7 +1117,7 @@ export default function App() {
   const isSaving =
     !desktopReady || busy || status === "saving" || status === "draft-saving";
   const getSlashMenuItems = useCallback(
-    async (query: string) => {
+    async (query: string, blockId?: string) => {
       const defaultItems = getDefaultReactSlashMenuItems(editor)
         .filter(item =>
           !item.title.startsWith("可折叠")
@@ -1128,7 +1146,7 @@ export default function App() {
         ...getMathSlashMenuItems(editor),
         ...(!isInsideSplitPane(
           editor.document,
-          editor.getTextCursorPosition().block.id,
+          blockId ?? editor.getTextCursorPosition().block.id,
         )
           ? [
               {
@@ -1184,9 +1202,10 @@ export default function App() {
         ...groupItems.filter(item => !item.iconOnly),
       ]);
 
-      return filterSuggestionItems(
+      return filterSlashMenuItems(
         orderedItems,
         query,
+        editor.prosemirrorView.composing,
       );
     },
     [editor],
@@ -1273,6 +1292,13 @@ export default function App() {
         </div>
       )}
 
+      {savingKind && (
+        <div className="notice save-progress" role="status" aria-label="保存进度" aria-live="polite">
+          <span className="import-progress-spinner" aria-hidden="true" />
+          <span>{savingKind === "draft" ? "正在暂存草稿…" : "正在保存…"}</span>
+        </div>
+      )}
+
       {importingMarkdown && (
         <div className="notice import-progress" role="status" aria-live="polite">
           <span className="import-progress-spinner" aria-hidden="true" />
@@ -1319,18 +1345,22 @@ export default function App() {
             />
             <FormattingToolbarController
               formattingToolbar={BlackDocFormattingToolbar}
+              floatingUIOptions={imageToolbarFloatingUIOptions}
             />
             <BlackDocSideMenuController
+              getBlockCreationItems={getSlashMenuItems}
+              blockCreationMenu={CompactSlashMenu}
               pendingSlashBlockRef={pendingSlashBlockRef}
               updateSlashMenuPlacement={updateSlashMenuPlacement}
             />
-            <TableHandlesController tableCellHandle={BlackDocTableCellButton} />
+            <TableHandlesController tableCellHandle={HiddenTableCellHandle} tableHandle={BlackDocTableHandle} />
             <LinkToolbarController linkToolbar={BlackDocLinkToolbar} />
           </BlockNoteView>
         </main>
       </div>
 
       <CanvasEditorHost editor={editor} />
+      <ImageViewerHost />
       {aboutOpen && (
         <AboutDialog
           version={packageInfo.version}

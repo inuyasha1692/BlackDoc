@@ -53,6 +53,17 @@ describe("功能展示示例文档", () => {
     expect(getHeadingNumbers(exampleDocument as Block[]).get("demo-diagram-math-heading")).toBe("10");
   });
 
+  it("keeps the introduction and collapsible list example intact", () => {
+    const introduction = exampleDocument.find((block: { id: string }) => block.id === "demo-document-intro");
+    expect(introduction?.type).toBe("paragraph");
+    expect(introduction?.content[0].text).toContain("这份示例文档");
+    const list = exampleDocument.find((block: { id: string }) => block.id === "demo-toggle-list");
+    expect(list?.children.map((block: { id: string }) => block.id)).toEqual(["demo-toggle-list-child"]);
+    expect(exampleDocument.some((block: { type: string; content?: { text?: string }[] }) =>
+      block.type === "paragraph" && block.content?.length === 1 && block.content[0].text === "、")).toBe(false);
+    expect(exampleDocumentSource).not.toContain('"text": "、第二列"');
+  });
+
   it("orders the link, canvas, split-pane, and multi-column showcases fifth through eighth", () => {
     const sectionIds = [
       "demo-anchor-target",

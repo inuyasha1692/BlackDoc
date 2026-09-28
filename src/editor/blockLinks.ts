@@ -1,4 +1,5 @@
 import { RIGHT_SCROLL_SELECTOR } from "./splitPane";
+import { REVEAL_HEADING_SECTION } from "./headingSections";
 
 export const BLOCK_LINK_PREFIX = "#block=";
 export const BLOCK_LINK_COPIED_EVENT = "blackdoc:block-link-copied";
@@ -39,11 +40,13 @@ export const getBlockElement = (blockId: string): HTMLElement | null =>
 let activeHighlight: Animation | null = null;
 let activeScrollFrame: number | null = null;
 
-export const revealBlock = (blockId: string): boolean => {
+export const revealBlock = (blockId: string, alignment: "start" | "center" = "start"): boolean => {
   const target = getBlockElement(blockId);
   if (!target) {
     return false;
   }
+
+  target.dispatchEvent(new CustomEvent(REVEAL_HEADING_SECTION, { detail: blockId, bubbles: true }));
 
   for (let parent = target.parentElement; parent; parent = parent.parentElement) {
     if (parent instanceof HTMLDetailsElement) parent.open = true;
@@ -51,16 +54,36 @@ export const revealBlock = (blockId: string): boolean => {
   const scroll = target.closest<HTMLElement>(RIGHT_SCROLL_SELECTOR);
   const section = scroll?.closest<HTMLElement>(".split-pane");
   const innerStart = scroll?.scrollTop ?? 0;
-  const innerEnd = scroll
+  let innerEnd = scroll
     ? Math.max(0, innerStart + target.getBoundingClientRect().top -
       scroll.getBoundingClientRect().top - 12)
     : 0;
   const outerStart = window.scrollY;
   const outerTarget = (section ?? target).getBoundingClientRect();
-  const outerEnd = section &&
+  let outerEnd = section &&
     outerTarget.top >= 84 && outerTarget.top < window.innerHeight - 80
     ? outerStart
     : Math.max(0, outerStart + outerTarget.top - 84);
+
+  if (alignment === "center") {
+    const targetRect = target.getBoundingClientRect();
+    const targetCenter = targetRect.top + targetRect.height / 2;
+    if (scroll) {
+      const paneRect = scroll.getBoundingClientRect();
+      const paneCenter = paneRect.top + scroll.clientTop + scroll.clientHeight / 2;
+      innerEnd = Math.min(
+        Math.max(0, scroll.scrollHeight - scroll.clientHeight),
+        Math.max(0, innerStart + targetCenter - paneCenter),
+      );
+    }
+    // Account for the inner pane's final position, including its scroll limits.
+    const finalCenter = targetCenter - (innerEnd - innerStart);
+    const root = document.scrollingElement ?? document.documentElement;
+    outerEnd = Math.min(
+      Math.max(0, root.scrollHeight - window.innerHeight),
+      Math.max(0, outerStart + finalCenter - window.innerHeight / 2),
+    );
+  }
 
   if (activeScrollFrame !== null) cancelAnimationFrame(activeScrollFrame);
   activeHighlight?.cancel();

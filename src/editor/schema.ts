@@ -7,7 +7,9 @@ import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { CanvasBlock } from "../canvas/CanvasBlock";
 import { SplitColumnBlock, SplitPaneBlock } from "./SplitPaneBlock";
 import { TableImage } from "./TableImage";
+import { TableImageAlignmentExtension } from "./tableImageAlignment";
 import { transactionTouchesNodeTypes } from "./transactionTouchesNodeTypes";
+import { renderSectionHeading } from "./headingSections";
 
 const numberedListItemType = new Set(["numberedListItem"]);
 
@@ -64,6 +66,7 @@ function headingBlockSpec() {
   const spec = defaultBlockSpecs.heading;
   return {
     ...spec,
+    implementation: { ...spec.implementation, render: renderSectionHeading },
     config: {
       ...spec.config,
       propSchema: {
@@ -79,6 +82,12 @@ function headingBlockSpec() {
         if (extension.key !== "heading-shortcuts") return extension;
 
         const keyboardShortcuts: NonNullable<typeof extension.keyboardShortcuts> = {};
+        keyboardShortcuts["Mod-0"] = ({ editor }) => {
+          const { block } = editor.getTextCursorPosition();
+          if (editor.schema.blockSchema[block.type].content !== "inline") return false;
+          editor.updateBlock(block, { type: "paragraph" });
+          return true;
+        };
         for (const level of [1, 2, 3, 4, 5, 6]) {
           keyboardShortcuts[`Mod-${level}`] = ({ editor }) => {
             const cursorPosition = editor.getTextCursorPosition();
@@ -104,6 +113,10 @@ function headingBlockSpec() {
 export const blackDocSchema = withMultiColumn(BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    table: {
+      ...defaultBlockSpecs.table,
+      extensions: [...(defaultBlockSpecs.table.extensions ?? []), TableImageAlignmentExtension],
+    },
     heading: headingBlockSpec(),
     numberedListItem: numberedListItemBlockSpec(),
     canvas: CanvasBlock(),

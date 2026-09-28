@@ -16,8 +16,8 @@ body { margin: 0; color: #202124; background: #fff; line-height: 1.7; }
 .document-outline:hover { scrollbar-color: #aab3bc transparent; }
 .document-outline summary { cursor: pointer; padding: 0 0 10px; color: #858d96; font-size: 12px; font-weight: 600; }
 .document-outline nav { display: flex; flex-direction: column; gap: 2px; padding: 0; border-left: 1px solid #e3e6ea; }
-.document-outline a { display: block; margin-left: -1px; padding: 6px 10px 6px calc(10px + var(--depth) * 12px); border-left: 2px solid transparent; color: #656d76; text-decoration: none; overflow-wrap: anywhere; transition: color .15s ease, border-color .15s ease; }
-.document-outline a:hover { color: #202124; }
+.document-outline a { display: block; margin-left: -1px; padding: 6px 10px 6px calc(10px + var(--depth) * 12px); border-left: 2px solid transparent; color: #202124; text-decoration: none; overflow-wrap: anywhere; transition: background-color .15s ease, border-color .15s ease; }
+.document-outline a:hover { background: #edf7f1; }
 .document-outline a[aria-current="location"] { color: #16734b; border-left-color: #16734b; font-weight: 600; }
 .document-outline a:focus-visible, .document-outline summary:focus-visible { outline: 2px solid #0969da; outline-offset: -2px; }
 .bn-block-outer[id] { scroll-margin-top: 24px; }
@@ -28,6 +28,7 @@ body { margin: 0; color: #202124; background: #fff; line-height: 1.7; }
 .bn-block { display: flex; flex-direction: column; }
 .bn-block-content { display: flex; width: 100%; min-height: 1.5em; padding: 3px 0; }
 .bn-block-group .bn-block-group { margin-left: 24px; }
+.bn-block-group.heading-section-content { margin-left: 0; }
 .bn-block-content[data-text-alignment="center"] { justify-content: center; text-align: center; }
 .bn-block-content[data-text-alignment="right"] { justify-content: flex-end; text-align: right; }
 .bn-block-content[data-text-alignment="justify"] { text-align: justify; }
@@ -40,6 +41,8 @@ body { margin: 0; color: #202124; background: #fff; line-height: 1.7; }
 .bn-block-content[data-content-type="checkListItem"] input { width: 16px; height: 16px; margin: 0 8px 0 4px; }
 .bn-block-content[data-content-type="checkListItem"][data-checked="true"] .bn-inline-content { text-decoration: line-through; }
 .bn-toggle-wrapper { display: flex; align-items: center; }
+[data-content-type="heading"] > .bn-toggle-wrapper { position: relative; width: 100%; }
+[data-content-type="heading"] > .bn-toggle-wrapper > .bn-toggle-button { position: absolute; left: -26px; top: 50%; margin-top: -12px; width: 24px; height: 24px; }
 .bn-toggle-button { display: flex; padding: 3px; border: 0; background: transparent; color: inherit; cursor: pointer; }
 .bn-toggle-button svg { width: 18px; height: 18px; }
 .bn-toggle-wrapper[data-show-children="true"] .bn-toggle-button { transform: rotate(90deg); }
@@ -94,6 +97,7 @@ code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .9em; }
 .bn-inline-content code { padding: .08em .32em; border: 1px solid #e3e6ea; border-radius: 3px; background: #f0f2f4; color: #202124; }
 table { margin: 18px 0; border-collapse: collapse; }
 th, td { padding: 8px 10px; border: 1px solid #d0d7de; text-align: left; vertical-align: top; }
+:is(th, td).table-image-only-cell { vertical-align: middle; }
 .bn-block-content[data-content-type="table"] .tableWrapper { width: 100%; overflow-x: auto; overflow-y: hidden; padding: 9px 22px 22px 9px; }
 .bn-block-content[data-content-type="table"] table { width: auto; margin: 0; word-break: break-word; }
 .bn-block-content[data-content-type="table"] th, .bn-block-content[data-content-type="table"] td { padding: 5px 10px; }
@@ -194,7 +198,7 @@ const OUTLINE_SCRIPT = `
   const schedule = () => {
     if (!frame) frame = requestAnimationFrame(update);
   };
-  const reveal = hash => {
+  const reveal = (hash, alignment = "center") => {
     let id;
     try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
     const target = document.getElementById(id);
@@ -208,7 +212,9 @@ const OUTLINE_SCRIPT = `
     for (let parent = target.parentElement; parent; parent = parent.parentElement) {
       if (parent.matches(".split-pane")) panes.unshift(parent);
     }
-    if (panes.length) {
+    if (alignment === "center") {
+      target.scrollIntoView({ block: "center" });
+    } else if (panes.length) {
       panes[0].scrollIntoView({ block: "start" });
       // Position nested targets inside their own scrolling column without
       // moving the document past the split pane's top edge.
@@ -231,7 +237,7 @@ const OUTLINE_SCRIPT = `
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     if (location.hash !== link.hash) history.pushState(null, "", link.hash);
-    reveal(link.hash);
+    reveal(link.hash, link.closest(".document-outline") ? "start" : "center");
   });
   window.addEventListener("hashchange", () => reveal(location.hash));
   window.addEventListener("scroll", schedule, { passive: true });
@@ -339,6 +345,11 @@ const addBlockAnchors = (root: ParentNode, blocks: readonly Block[]): void => {
 
 const preserveTableWidths = (root: ParentNode): void => {
   for (const table of root.querySelectorAll<HTMLTableElement>('.bn-block-content[data-content-type="table"] table')) {
+    for (const cell of table.querySelectorAll("td, th")) {
+      const imageOnly = !!cell.querySelector("img") && !cell.textContent?.trim() &&
+        !cell.querySelector('[data-inline-content-type]:not([data-inline-content-type="tableImage"]), math');
+      cell.classList.toggle("table-image-only-cell", imageOnly);
+    }
     const columns = Array.from(table.querySelectorAll<HTMLTableColElement>(":scope > colgroup > col"));
     const widths = columns.map(column => column.style.width);
     if (widths.length && widths.every(width => /^\d+(?:\.\d+)?px$/.test(width))) {
@@ -397,6 +408,38 @@ export interface StandaloneHtmlResult {
   externalImages: string[];
 }
 
+function wrapHeadingSections(root: HTMLElement) {
+  for (const group of Array.from(root.querySelectorAll<HTMLElement>(".bn-block-group"))) {
+    const headings: { level: number; block: HTMLElement }[] = [];
+    for (const outer of Array.from(group.children)) {
+      if (!(outer instanceof HTMLElement) || !outer.matches(".bn-block-outer")) continue;
+      const block = outer.querySelector<HTMLElement>(":scope > .bn-block");
+      if (!block) continue;
+      const heading = block.querySelector<HTMLElement>(':scope > .bn-block-content[data-content-type="heading"]');
+      const title = heading?.querySelector<HTMLElement>("h1,h2,h3,h4,h5,h6");
+      const level = title ? Number(title.tagName.slice(1)) : 0;
+      if (level) {
+        while (headings.length && headings.at(-1)!.level >= level) headings.pop();
+      }
+      const parent = headings.at(-1)?.block;
+      if (parent) {
+        let children = parent.querySelector<HTMLElement>(":scope > .bn-block-group");
+        if (!children) {
+          children = document.createElement("div");
+          children.className = "bn-block-group";
+          parent.append(children);
+        }
+        children.classList.add("heading-section-content");
+        children.append(outer);
+      }
+      if (level) {
+        block.querySelector(":scope > .bn-block-group")?.classList.add("heading-section-content");
+        headings.push({ level, block });
+      }
+    }
+  }
+}
+
 export const buildStandaloneHtml = async (
   editor: BlockNoteEditor,
   blocks: readonly Block[],
@@ -422,6 +465,7 @@ export const buildStandaloneHtml = async (
   }
   exportSplitPanes(container, blocks);
   await exportScientificContent(container, blocks);
+  wrapHeadingSections(container);
   const canvases = new Map<string, { scene: string; previewWidth?: unknown; textAlignment?: unknown }>(flattenBlocks(blocks).flatMap(block =>
     block.type === "canvas" ? [[`block=${block.id}`, block.props] as const] : [],
   ));

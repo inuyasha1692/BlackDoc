@@ -82,6 +82,28 @@ const expectTarget = (document: Document, link: HTMLAnchorElement, id: string) =
 };
 
 describe("buildStandaloneHtml outline", () => {
+  it("automatically wraps flat headings and following content into level-based sections", async () => {
+    const { BlockNoteEditor } = await import("@blocknote/core");
+    const { blackDocSchema } = await import("../editor/schema");
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema, initialContent: [
+      block("h1", "总标题", 1), block("intro", "介绍"), block("h2", "章节", 2),
+      block("body", "正文"), block("h4", "跨级小节", 4), block("detail", "细节"),
+      block("peer", "另一章节", 2), block("next", "另一总标题", 1),
+    ] });
+    try {
+      const original = structuredClone(editor.document);
+      const result = await buildStandaloneHtml(editor, editor.document);
+      const page = new DOMParser().parseFromString(result.html, "text/html");
+      const section = (id: string) => page.getElementById(`block=${id}`)!;
+      expect(section("h1").contains(section("h2"))).toBe(true);
+      expect(section("h2").contains(section("h4"))).toBe(true);
+      expect(section("h4").contains(section("detail"))).toBe(true);
+      expect(section("h2").contains(section("peer"))).toBe(false);
+      expect(section("h1").contains(section("next"))).toBe(false);
+      expect(section("h2").querySelector(".bn-toggle-button")).not.toBeNull();
+      expect(editor.document).toEqual(original);
+    } finally { editor._tiptapEditor.destroy(); }
+  });
   it("uses the editor's minimum cell width for tables without explicit column widths", async () => {
     const { BlockNoteEditor } = await import("@blocknote/core");
     const { blackDocSchema } = await import("../editor/schema");

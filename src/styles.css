@@ -23,6 +23,7 @@
   --app-toolbar-bg: rgb(255 255 255 / 96%);
   --app-shadow: rgb(24 28 32 / 24%);
   --app-anchor-highlight: #fff3bf;
+  --app-block-menu-font-size: 16px;
   font-family: Inter, "Segoe UI", sans-serif;
   color: var(--app-text);
   background: var(--app-bg);
@@ -134,11 +135,11 @@
 .bn-editor [data-prev-level="5"] { --prev-level: 1.125em; }
 .bn-editor [data-prev-level="6"] { --prev-level: 1em; }
 
-.bn-editor [data-content-type="heading"] > :is(h2, h3, h4, h5, h6)::before {
+.bn-editor [data-content-type="heading"] :is(h2, h3, h4, h5, h6)::before {
   content: var(--blackdoc-heading-number, "");
 }
 
-.bn-editor [data-content-type="heading"] > :is(h2, h3, h4, h5, h6)::before,
+.bn-editor [data-content-type="heading"] :is(h2, h3, h4, h5, h6)::before,
 .heading-auto-number {
   color: var(--app-muted);
   font-weight: 500;
@@ -614,7 +615,46 @@ button {
   line-height: 1.2;
 }
 
+.bn-editor [data-content-type="heading"] > .bn-toggle-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.bn-editor [data-content-type="heading"] > .bn-toggle-wrapper > .bn-toggle-button {
+  position: absolute;
+  left: -26px;
+  top: 50%;
+  margin-top: -12px;
+  width: 24px;
+  height: 24px;
+}
+
+.bn-editor [data-content-type="heading"]:has(.ProseMirror-trailingBreak:only-child) {
+  position: relative;
+}
+
+.bn-editor [data-content-type="heading"]:has(.ProseMirror-trailingBreak:only-child)::after {
+  position: absolute;
+  top: 18px;
+  inset-inline: 0;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.bn-editor [data-content-type="heading"][data-text-alignment="center"]::after {
+  text-align: center;
+}
+
+.bn-editor [data-content-type="heading"][data-text-alignment="right"]::after {
+  text-align: end;
+}
+
+.bn-block-outer.heading-section-hidden {
+  display: none;
+}
+
 .bn-suggestion-menu.blackdoc-slash-menu {
+  font-size: var(--app-block-menu-font-size);
   display: flex;
   box-sizing: border-box;
   width: 240px;
@@ -715,6 +755,12 @@ button {
   background: var(--app-accent-soft);
 }
 
+/* Include the gap in the floating menu's bounds so nested blocks have the
+   same spacing and the pointer can cross from the block to its handle. */
+.bn-side-menu {
+  padding-inline-end: 8px;
+}
+
 .bn-side-menu .mantine-UnstyledButton-root.blackdoc-block-control-trigger {
   display: flex;
   width: auto;
@@ -737,11 +783,6 @@ button {
   width: 15px;
   height: 15px;
   color: currentColor;
-}
-
-.bn-side-menu .mantine-UnstyledButton-root.blackdoc-block-control-trigger > svg:last-child {
-  width: 12px;
-  height: 12px;
 }
 
 .blackdoc-block-type-badge {
@@ -767,8 +808,82 @@ button {
   background: var(--app-border);
 }
 
-.blackdoc-block-control-menu {
+.bn-editor .block-marquee-selected {
+  background: var(--app-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--app-accent);
+  border-radius: 4px;
+}
+
+.block-marquee-rectangle {
+  position: fixed;
+  z-index: 100;
+  border: 1px solid var(--app-accent);
+  background: color-mix(in srgb, var(--app-accent) 16%, transparent);
+  pointer-events: none;
+}
+
+.block-marquee-selecting,
+.block-marquee-selecting * { user-select: none !important; }
+
+.block-marquee-drop-cue {
+  position: fixed;
+  z-index: 100;
+  height: 2px;
+  background: var(--app-accent);
+  pointer-events: none;
+}
+
+.block-marquee-drag-preview {
+  position: fixed;
+  top: -10000px;
+  left: 0;
+  width: 500px;
+  max-height: 400px;
+  overflow: hidden;
+  background: var(--app-surface);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.bn-mantine .bn-menu-dropdown.blackdoc-block-control-menu {
+  display: flex;
+  flex-direction: column;
   min-width: 236px;
+}
+
+.blackdoc-block-conversion-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.blackdoc-block-control-menu .bn-menu-item {
+  font-size: var(--app-block-menu-font-size);
+  line-height: 1.5;
+  min-height: 36px;
+  height: auto;
+}
+
+.bn-mantine .blackdoc-table-handle-menu .mantine-Menu-item,
+.bn-mantine .table-handle-color-picker .mantine-Menu-item {
+  font-size: var(--app-block-menu-font-size);
+  line-height: 1.5;
+  min-height: 36px;
+  height: auto;
+}
+
+.bn-mantine .bn-menu-dropdown.blackdoc-add-below-menu {
+  padding: 0;
+  width: 240px;
+  overflow: hidden;
+}
+
+.blackdoc-add-below-menu .blackdoc-slash-menu {
+  width: 100%;
+  max-width: 100%;
+  max-height: var(--creation-menu-max-height, min(480px, calc(100vh - 32px)));
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .blackdoc-block-conversion-grid {
@@ -889,7 +1004,7 @@ button {
   border: 0;
   border-left: 2px solid transparent;
   margin-left: -1px;
-  color: var(--app-muted);
+  color: var(--app-text);
   background: transparent;
   cursor: pointer;
   font-size: 14px;
@@ -900,7 +1015,7 @@ button {
 }
 
 .outline-item:hover {
-  color: var(--app-text);
+  background: var(--app-accent-soft);
 }
 
 .outline-item[aria-current="location"] {
@@ -936,6 +1051,13 @@ button {
   box-shadow: 0 8px 24px var(--app-shadow);
   background: var(--app-surface);
   font-size: 13px;
+}
+
+.save-progress {
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  pointer-events: none;
 }
 
 .import-progress-spinner {

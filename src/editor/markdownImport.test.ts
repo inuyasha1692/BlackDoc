@@ -10,7 +10,7 @@ import { buildStandaloneHtml } from "../export/standaloneHtml";
 const image = "data:image/png;base64,iVBORw0KGgo=";
 
 describe("Markdown import", () => {
-  it("converts image and description rows to auto-height split panes and rewrites custom anchors", () => {
+  it("converts short image descriptions to two columns and rewrites custom anchors", () => {
     const editor = BlockNoteEditor.create({ schema: blackDocSchema });
     try {
       const result = importMarkdownBlocks(editor, [
@@ -23,8 +23,10 @@ describe("Markdown import", () => {
         "[跳转](#区域地图)",
       ].join("\n"));
 
-      const pane = result.blocks.find(block => block.type === "splitPane");
-      expect(pane?.props.rightHeight).toBe(0);
+      const pane = result.blocks.find(block => block.type === "columnList");
+      expect(pane?.children).toHaveLength(2);
+      expect(pane?.children.every(block => block.type === "column")).toBe(true);
+      expect(result.blocks.some(block => block.type === "splitPane")).toBe(false);
       expect(pane?.children[0].children.some(block =>
         block.type === "image" && block.props.url === image &&
         block.props.previewWidth === 480)).toBe(true);
@@ -32,6 +34,54 @@ describe("Markdown import", () => {
       expect(JSON.stringify(result.blocks)).toContain("#block=");
       expect(JSON.stringify(result.blocks)).not.toContain("BLACKDOCIMPORT");
       expect(result.warnings).toEqual([]);
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
+
+  it.each([
+    ["short", "简短说明", "columnList"],
+    ["at the text limit", "字".repeat(600), "columnList"],
+    ["long without breaks", "字".repeat(601), "splitPane"],
+    ["at the line limit", Array(15).fill("一行").join("<br>"), "columnList"],
+    ["many explicit breaks", Array(16).fill("一行").join("<br>"), "splitPane"],
+    ["wrapped and explicit lines", Array(8).fill("字".repeat(41)).join("<br>"), "splitPane"],
+  ])("chooses a layout for %s descriptions", (_name, description, expected) => {
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema });
+    try {
+      const result = importMarkdownBlocks(editor, [
+        "| 图片 | 说明 |", "| --- | --- |",
+        `| ![地图](${image}) | ${description} |`,
+      ].join("\n"));
+      const layout = result.blocks[0];
+      expect(result.blocks).toHaveLength(1);
+      expect(layout.type).toBe(expected);
+      expect(layout.children).toHaveLength(2);
+      expect(JSON.stringify(layout.children[0])).toContain(image);
+      expect(JSON.stringify(layout.children[1])).toContain(description.replaceAll("<br>", "\\n"));
+      if (layout.type === "splitPane") expect(layout.props.rightHeight).toBe(0);
+      expect(JSON.stringify(result.blocks)).not.toContain("BLACKDOCIMPORT");
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
+
+  it("selects layouts independently for short and long descriptions in one table", async () => {
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema });
+    try {
+      const result = importMarkdownBlocks(editor, [
+        "| 图片 | 说明 |", "| --- | --- |",
+        `| ![一](${image}) | 简短说明 |`,
+        `| ![二](${image}) | ${"详细说明".repeat(160)} |`,
+      ].join("\n"));
+      expect(result.blocks.map(block => block.type)).toEqual(["columnList", "splitPane"]);
+      editor.replaceBlocks(editor.document, result.blocks);
+      expect(isBlackDocument(JSON.parse(JSON.stringify(editor.document)))).toBe(true);
+      const { html } = await buildStandaloneHtml(editor, editor.document);
+      const exported = new DOMParser().parseFromString(html, "text/html");
+      expect(exported.querySelectorAll(".bn-block-column-list")).toHaveLength(1);
+      expect(exported.querySelectorAll('.split-pane')).toHaveLength(1);
+      expect(exported.querySelectorAll("img")).toHaveLength(2);
     } finally {
       editor._tiptapEditor.destroy();
     }
@@ -52,7 +102,7 @@ describe("Markdown import", () => {
     }
   });
 
-  it("creates one pane per image row, maps HTML colors, and keeps ordinary tables", () => {
+  it("creates two columns per short image row, maps HTML colors, and keeps ordinary tables", () => {
     const editor = BlockNoteEditor.create({ schema: blackDocSchema });
     try {
       const result = importMarkdownBlocks(editor, [
@@ -61,9 +111,9 @@ describe("Markdown import", () => {
         `| ![二](${image}) | <span style="color:#0000FF;background:#CCFFCC;">蓝字</span> |`,
         "", "| 日期 | 更新内容 |", "| --- | --- |", "| 今天 | 修改 |",
       ].join("\n"));
-      const panes = result.blocks.filter(block => block.type === "splitPane");
+      const panes = result.blocks.filter(block => block.type === "columnList");
       expect(panes).toHaveLength(2);
-      expect(panes.every(block => block.props.rightHeight === 0)).toBe(true);
+      expect(panes.every(block => block.children.length === 2)).toBe(true);
       expect(result.blocks.filter(block => block.type === "table")).toHaveLength(1);
       expect(JSON.stringify(panes[0])).toContain('"textColor":"red"');
       expect(JSON.stringify(panes[0])).toContain('"backgroundColor":"yellow"');
@@ -373,7 +423,7 @@ if (samplePath) {
         expect(result.blocks[0].type).toBe("heading");
         const serialized = JSON.stringify(result.blocks);
         expect(result.blocks.some(block => block.type === "table")).toBe(true);
-        expect(result.blocks.filter(block => block.type === "splitPane").length).toBeGreaterThan(10);
+        expect(result.blocks.filter(block => block.type === "splitPane" || block.type === "columnList").length).toBeGreaterThan(10);
         expect((serialized.match(/"type":"image"/g) ?? []).length +
           (serialized.match(/"type":"tableImage"/g) ?? []).length).toBe(118);
         const flatten = (blocks: typeof result.blocks): typeof result.blocks =>

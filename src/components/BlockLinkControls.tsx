@@ -30,6 +30,8 @@ import {
 } from "react";
 import { createBlockLink, parseBlockLink } from "../editor/blockLinks";
 import { FormattingColorButton } from "./FormattingColorButton";
+import { ImageViewButton } from "./ImageViewer";
+import { ImageIndentButton } from "./ImageIndentControls";
 import { TableSelectionBackgroundColorButton } from "./TableSelectionBackgroundColorButton";
 
 const normalizeLink = (url: string): string => {
@@ -233,6 +235,12 @@ export const BlackDocFormattingToolbar = (
   return (
   <FormattingToolbar {...props}>
     {getFormattingToolbarItems(items).flatMap((item) => {
+      if (item.key === "nestBlockButton" || item.key === "unnestBlockButton") {
+        return [item, <ImageIndentButton key={`${item.key}-image`} increase={item.key === "nestBlockButton"} />];
+      }
+      if (item.key === "filePreviewButton") {
+        return [item, <ImageViewButton key="imageViewButton" />];
+      }
       if (item.key === "strikeStyleButton") {
         return [
           item,

@@ -11,6 +11,8 @@ const shortcuts = [
   { action: "另存为", keys: "Ctrl / Cmd + Shift + S" },
   { action: "打开查找替换", keys: "Ctrl / Cmd + F 或 H" },
   { action: "切换行内代码", keys: "Ctrl / Cmd + E", context: "编辑器中" },
+  { action: "切换为正文", keys: "Ctrl / Cmd + 0", context: "编辑器中" },
+  { action: "插入表格", keys: "Ctrl / Cmd + T", context: "编辑器中" },
   { action: "下一个 / 上一个匹配", keys: "Enter / Shift + Enter", context: "查找框中" },
   { action: "关闭查找替换", keys: "Esc", context: "查找框中" },
   { action: "调整双分区尺寸", keys: "方向键微调，Home / End 到边界", context: "聚焦尺寸控制柄时" },

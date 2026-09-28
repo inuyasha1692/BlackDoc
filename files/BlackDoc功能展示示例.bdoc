@@ -3,12 +3,33 @@
     "children": [],
     "content": [
       {
+        "styles": {
+          "bold": true
+        },
+        "text": "BlackDoc 功能展示示例（一级标题，不自动编号）",
+        "type": "text"
+      }
+    ],
+    "id": "demo-document-title",
+    "props": {
+      "backgroundColor": "default",
+      "isToggleable": true,
+      "level": 1,
+      "textAlignment": "left",
+      "textColor": "default"
+    },
+    "type": "heading"
+  },
+  {
+    "children": [],
+    "content": [
+      {
         "styles": {},
         "text": "这份示例文档集中展示 BlackDoc 的编辑、排版、块链接、画布、双分区、多栏、媒体及图表与数学公式等能力。",
         "type": "text"
       }
     ],
-    "id": "demo-document-title",
+    "id": "demo-document-intro",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -50,31 +71,6 @@
       "textColor": "default"
     },
     "type": "paragraph"
-  },
-  {
-    "children": [],
-    "id": "demo-divider-top",
-    "props": {},
-    "type": "divider"
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "一级标题",
-        "type": "text"
-      }
-    ],
-    "id": "485eefe2-3289-46c7-822e-8234648ab655",
-    "props": {
-      "backgroundColor": "default",
-      "isToggleable": true,
-      "level": 1,
-      "textAlignment": "left",
-      "textColor": "default"
-    },
-    "type": "heading"
   },
   {
     "children": [],
@@ -376,17 +372,6 @@
           "textColor": "default"
         },
         "type": "bulletListItem"
-      },
-      {
-        "children": [],
-        "content": [],
-        "id": "b6c13961-fe82-4364-bc19-eb100d0fd3be",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default"
-        },
-        "type": "paragraph"
       }
     ],
     "content": [
@@ -1502,7 +1487,7 @@
     "content": [
       {
         "styles": {},
-        "text": "拖动列间边缘可调整宽度，也可将普通块拖入相邻列。布局会随文档保存，并保留在 HTML 导出中。",
+        "text": "拖动列间边缘可调整宽度，也可将普通块拖入相邻列。从正文侧边空白处拖出矩形，可框选下面不同列中的内容，再从任意选中块的左侧手柄整体拖动；复制、剪切和删除也作用于整组选区。移空的普通栏会删除，只剩一栏时展开为正文；双分区则保留左右结构。点击选区外或按 Esc 取消多选。布局会随文档保存，并保留在 HTML 导出中。",
         "type": "text"
       }
     ],

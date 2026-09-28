@@ -46,7 +46,7 @@ export function DocumentOutline({
           let nearestTop = -Infinity;
           for (const item of items) {
             const element = getBlockElement(item.id);
-            if (!element || element.closest(RIGHT_SCROLL_SELECTOR) !== innerScroll) {
+            if (!element || element.closest(".heading-section-hidden") || element.closest(RIGHT_SCROLL_SELECTOR) !== innerScroll) {
               continue;
             }
             first ??= item.id;
@@ -65,6 +65,7 @@ export function DocumentOutline({
         let current = items[0]?.id ?? null;
         for (const item of items) {
           const element = getBlockElement(item.id);
+          if (element?.closest(".heading-section-hidden")) continue;
           const scroll = element?.closest<HTMLElement>(RIGHT_SCROLL_SELECTOR);
           const rect = element?.getBoundingClientRect();
           const scrollRect = scroll?.getBoundingClientRect();
@@ -84,7 +85,7 @@ export function DocumentOutline({
         if (isAtDocumentEnd) {
           for (let index = items.length - 1; index >= 0; index -= 1) {
             const target = getBlockElement(items[index].id);
-            if (target && !target.closest(RIGHT_SCROLL_SELECTOR)) {
+            if (target && !target.closest(".heading-section-hidden") && !target.closest(RIGHT_SCROLL_SELECTOR)) {
               current = items[index].id;
               break;
             }
