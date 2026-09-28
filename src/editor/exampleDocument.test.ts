@@ -15,6 +15,18 @@ const flattenBlocks = (blocks: readonly Block[]): Block[] =>
   blocks.flatMap((block) => [block, ...flattenBlocks(block.children)]);
 
 describe("功能展示示例文档", () => {
+  it("introduces the six document editing benefits before the showcases", () => {
+    const headingIndex = exampleDocument.findIndex((block: { id: string }) => block.id === "demo-value-heading");
+    expect(headingIndex).toBe(3);
+    expect(exampleDocument[headingIndex].content[0].text).toBe("为什么用 BlackDoc");
+    const benefits = exampleDocument.slice(headingIndex + 2, headingIndex + 8);
+    expect(benefits.map((block: Block) => block.type)).toEqual(Array(6).fill("bulletListItem"));
+    expect(benefits.map((block: Block) => (block.content as { text: string }[])[0].text)).toEqual([
+      "文字与跳转：", "图片与标注：", "图文对照：", "标题编号：", "表格排版：", "单文件分享：",
+    ]);
+    expect(exampleDocument[headingIndex + 8].content[0].text).toContain("仍需联网加载这些图片");
+    expect(getHeadingNumbers(exampleDocument as Block[]).get("demo-value-heading")).toBe("1");
+  });
   it("replaces the initial empty document using the real editor loading transaction", () => {
     const editor = BlockNoteEditor.create({
       schema: blackDocSchema,
@@ -49,8 +61,8 @@ describe("功能展示示例文档", () => {
       .toBe("图片与音视频");
     expect(exampleDocument.find((block: { id: string }) => block.id === "demo-diagram-math-heading")?.content[0].text)
       .toBe("图表与数学公式");
-    expect(getHeadingNumbers(exampleDocument as Block[]).get("demo-media-heading")).toBe("9");
-    expect(getHeadingNumbers(exampleDocument as Block[]).get("demo-diagram-math-heading")).toBe("10");
+    expect(getHeadingNumbers(exampleDocument as Block[]).get("demo-media-heading")).toBe("10");
+    expect(getHeadingNumbers(exampleDocument as Block[]).get("demo-diagram-math-heading")).toBe("11");
   });
 
   it("keeps the introduction and collapsible list example intact", () => {
@@ -64,7 +76,7 @@ describe("功能展示示例文档", () => {
     expect(exampleDocumentSource).not.toContain('"text": "、第二列"');
   });
 
-  it("orders the link, canvas, split-pane, and multi-column showcases fifth through eighth", () => {
+  it("orders the link, canvas, split-pane, and multi-column showcases sixth through ninth", () => {
     const sectionIds = [
       "demo-anchor-target",
       "canvas-demo-heading",
@@ -82,7 +94,7 @@ describe("功能展示示例文档", () => {
       "多栏",
     ]);
     const numbers = getHeadingNumbers(exampleDocument as Block[]);
-    expect(sectionIds.map(id => numbers.get(id))).toEqual(["5", "6", "7", "8"]);
+    expect(sectionIds.map(id => numbers.get(id))).toEqual(["6", "7", "8", "9"]);
   });
 
   it("uses the BlackDoc wordmark in the embedded image showcase", () => {
