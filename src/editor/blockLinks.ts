@@ -10,10 +10,12 @@ export const createBlockLink = (blockId: string): string =>
   `${BLOCK_LINK_PREFIX}${encodeURIComponent(blockId)}`;
 
 export const parseBlockLink = (href: string): string | null => {
+  if (/\s/.test(href)) return null;
   let hash: string;
 
   try {
-    hash = new URL(href, "http://blackdoc.local").hash;
+    // A base URL would also accept copied Markdown/prose containing #block=.
+    hash = href.startsWith(BLOCK_LINK_PREFIX) ? href : new URL(href).hash;
   } catch {
     return null;
   }

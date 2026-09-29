@@ -281,10 +281,10 @@ import {
   BLOCK_LINK_COPIED_EVENT,
   BLOCK_LINK_COPY_FAILED_EVENT,
   BLOCK_LINK_MISSING_EVENT,
-  isBlockLink,
   parseBlockLink,
   revealBlock,
 } from "./editor/blockLinks";
+import { pasteBlockLink } from "./editor/blockLinkPaste";
 import {
   cloneDocument,
   EMPTY_DOCUMENT,
@@ -295,7 +295,7 @@ import {
 import { PreserveHeadingLevelExtension } from "./editor/preserveHeadingLevel";
 import { HeadingNumberExtension } from "./editor/headingNumberExtension";
 import { importMarkdownBlocks } from "./editor/markdownImport";
-import { filterSlashMenuItems } from "./editor/slashMenuSearch";
+import { filterSlashMenuItems, shouldOpenSlashMenu } from "./editor/slashMenuSearch";
 import { imageToolbarFloatingUIOptions, installImageToolbarHover } from "./editor/imageToolbarHover";
 import { installSplitDividerHover } from "./editor/splitDividerHover";
 import { changesAffectOutline } from "./editor/outline";
@@ -403,20 +403,7 @@ export default function App() {
       if (pasteTableImage(activeEditor, event.clipboardData, fileToDataUrl, error => {
         setNotice({ tone: "error", message: `表格图片粘贴失败：${String(error)}` });
       })) return true;
-      const pastedText = event.clipboardData?.getData("text/plain").trim() ?? "";
-      if (!isBlockLink(pastedText)) {
-        return defaultPasteHandler();
-      }
-
-      if (activeEditor.getSelectedText()) {
-        activeEditor.createLink(pastedText);
-      } else {
-        activeEditor.insertInlineContent(
-          [{ type: "link", content: pastedText, href: pastedText }],
-          { updateSelection: true },
-        );
-      }
-      return true;
+      return pasteBlockLink(activeEditor, event.clipboardData) || defaultPasteHandler();
     },
   });
   const pendingSlashBlockRef = useRef<PendingSlashBlockRef["current"]>(null);
@@ -1390,6 +1377,7 @@ export default function App() {
           >
             <SuggestionMenuController
               triggerCharacter="/"
+              shouldOpen={shouldOpenSlashMenu}
               portalElement={document.body}
               floatingUIOptions={slashMenuFloatingUIOptions}
               getItems={getSlashMenuItems}
@@ -1398,6 +1386,7 @@ export default function App() {
             />
             <SuggestionMenuController
               triggerCharacter="、"
+              shouldOpen={shouldOpenSlashMenu}
               portalElement={document.body}
               floatingUIOptions={slashMenuFloatingUIOptions}
               getItems={getSlashMenuItems}

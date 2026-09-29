@@ -31,6 +31,14 @@ describe("block links", () => {
     expect(parseBlockLink("#section-one")).toBeNull();
     expect(parseBlockLink("#block=%E0%A4%A")).toBeNull();
   });
+
+  it.each([
+    "[概念表](#block=abc-123)",
+    "**解锁说明** 详见 [概念表](#block=abc-123)\n并且地区按顺序解锁",
+    "https://example.com/document#block=abc-123 后面的说明",
+  ])("does not treat copied Markdown or prose as a standalone block link: %s", text => {
+    expect(isBlockLink(text)).toBe(false);
+  });
 });
 
 describe("revealBlock scrolling", () => {

@@ -1,7 +1,7 @@
 import { blockToNode, createExtension } from "@blocknote/core";
 import { joinBackward } from "@tiptap/pm/commands";
 import { isHistoryTransaction } from "@tiptap/pm/history";
-import type { Node as PMNode } from "@tiptap/pm/model";
+import { Fragment, Slice, type Node as PMNode } from "@tiptap/pm/model";
 import { Plugin, PluginKey, type Transaction } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import { transactionTouchesNodeTypes } from "./transactionTouchesNodeTypes";
@@ -15,6 +15,85 @@ type BlockEntry = {
   type: string;
   parentId: string | null;
 };
+
+type ClipboardNormalization = {
+  nodes: PMNode[];
+  leadingDepth: number;
+  trailingDepth: number;
+  changed: boolean;
+};
+
+function splitColumnChildren(node: PMNode): PMNode[] {
+  const group = node.lastChild;
+  return group?.type.name === "blockGroup" ? [...group.content.content] : [];
+}
+
+function isCompleteSplitPane(node: PMNode): boolean {
+  const group = node.lastChild;
+  return node.childCount === 2 && group?.type.name === "blockGroup" &&
+    group.childCount === 2 &&
+    group.child(0).firstChild?.type.name === "splitColumn" &&
+    group.child(0).firstChild?.attrs.side === "left" &&
+    group.child(1).firstChild?.type.name === "splitColumn" &&
+    group.child(1).firstChild?.attrs.side === "right";
+}
+
+function normalizeCopiedNode(node: PMNode): ClipboardNormalization {
+  if (node.type.name === "blockContainer") {
+    const contentType = node.firstChild?.type.name;
+    if (contentType === "splitPane" && isCompleteSplitPane(node)) {
+      return { nodes: [node], leadingDepth: 0, trailingDepth: 0, changed: false };
+    }
+    if (contentType === "splitPane") {
+      const children = splitColumnChildren(node);
+      const normalized = children.map(child => normalizeCopiedNode(child));
+      const nodes = normalized.flatMap(result => result.nodes);
+      return {
+        nodes,
+        leadingDepth: 3 + (normalized[0]?.leadingDepth ?? 0),
+        trailingDepth: 3 + (normalized.at(-1)?.trailingDepth ?? 0),
+        changed: true,
+      };
+    }
+    if (contentType === "splitColumn") {
+      const children = splitColumnChildren(node);
+      const normalized = children.map(child => normalizeCopiedNode(child));
+      const nodes = normalized.flatMap(result => result.nodes);
+      return {
+        nodes,
+        leadingDepth: 3 + (normalized[0]?.leadingDepth ?? 0),
+        trailingDepth: 3 + (normalized.at(-1)?.trailingDepth ?? 0),
+        changed: true,
+      };
+    }
+  }
+
+  if (!node.childCount) {
+    return { nodes: [node], leadingDepth: 0, trailingDepth: 0, changed: false };
+  }
+
+  const children = node.content.content.map(child => normalizeCopiedNode(child));
+  if (!children.some(child => child.changed)) {
+    return { nodes: [node], leadingDepth: 0, trailingDepth: 0, changed: false };
+  }
+  return {
+    nodes: [node.copy(Fragment.fromArray(children.flatMap(child => child.nodes)))],
+    leadingDepth: children[0]?.leadingDepth ?? 0,
+    trailingDepth: children.at(-1)?.trailingDepth ?? 0,
+    changed: true,
+  };
+}
+
+function normalizeCopiedSlice(slice: Slice): Slice {
+  const children = slice.content.content.map(child => normalizeCopiedNode(child));
+  if (!children.some(child => child.changed)) return slice;
+  const content = Fragment.fromArray(children.flatMap(child => child.nodes));
+  return new Slice(
+    content,
+    Math.max(0, slice.openStart - (children[0]?.leadingDepth ?? 0)),
+    Math.max(0, slice.openEnd - (children.at(-1)?.trailingDepth ?? 0)),
+  );
+}
 
 function inspect(doc: PMNode) {
   const blocks = new Map<string, BlockEntry>();
@@ -149,6 +228,9 @@ export const SplitPaneExtension = createExtension(() => {
           },
         },
         props: {
+          transformCopied(slice) {
+            return normalizeCopiedSlice(slice);
+          },
           decorations(state) {
             return decorationKey.getState(state) ?? DecorationSet.empty;
           },
