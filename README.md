@@ -12,9 +12,13 @@ Windows x64 安装包以 [GitHub Releases](https://github.com/inuyasha1692/Black
 
 写图文并茂的长文档时，Markdown 往往需要为排版和资源管理额外花时间。BlackDoc 提供直接操作的编辑方式：
 
-- **文字与跳转**：选中文字设置颜色；复制内容块链接并插入文内跳转，点击即可定位并高亮对应内容。
-- **图片与标注**：调整图片宽度和对齐方式；在正文中插入可编辑的 Excalidraw 画布，贴图、画箭头、圈注并添加文字。
-- **图文对照**：左侧固定配图或参考表，右侧长文独立滚动；两侧标题仍可从大纲定位。
+- **文字与跳转**：选中文字设置颜色；复制内容块链接并插入文内跳转，点击即可定位并高亮对应内容。<img width="424" height="168" alt="image" src="https://github.com/user-attachments/assets/811bf017-55a4-42d7-9169-8ab621aa3221" /><img width="709" height="282" alt="image" src="https://github.com/user-attachments/assets/7cec9858-0864-45a9-a287-93330cc57b2c" />
+
+
+- **图片与标注**：调整图片宽度和对齐方式；在正文中插入可编辑的 Excalidraw 画布，贴图、画箭头、圈注并添加文字。<img width="943" height="663" alt="image" src="https://github.com/user-attachments/assets/92913ad0-5efd-410b-ac7d-3c6db050d613" />
+
+- **图文对照**：左侧固定配图或参考表，右侧长文独立滚动；两侧标题仍可从大纲定位。<img width="652" height="383" alt="image" src="https://github.com/user-attachments/assets/6ec3ca9a-412a-49b2-8872-6bb6443b7845" />
+
 - **标题编号**：二级及以下标题自动编号，调整章节结构后无需逐项修改编号。
 - **表格排版**：拖动调整列宽，还能把复制的图片块粘贴到单元格中并调整图片宽度。
 - **单文件分享**：导出包含正文、布局、块链接、已内嵌图片和画布预览的 HTML，打开浏览器即可阅读，无需另附 `assets` 文件夹。画布可放大查看；继续编辑使用 `.bdoc` 源文件。
