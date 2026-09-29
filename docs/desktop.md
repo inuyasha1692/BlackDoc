@@ -13,11 +13,34 @@ React + BlockNote 负责编辑；`src/desktop.ts` 定义桌面命令接口；`sr
 - 日常：双击仓库根目录中的 `启动 BlackDoc 开发版.cmd`，或运行 `npm run desktop:dev`。
 - 前端检查：`npm run lint`、`npm test`、`npm run build`。
 - Rust 检查：`cargo test --manifest-path src-tauri/Cargo.toml`。
-- 安装包：在 PowerShell 中设置 `$env:TAURI_SIGNING_PRIVATE_KEY = Join-Path $env:USERPROFILE '.tauri\blackdoc.key'` 和 `$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = ''`，然后运行 `npm run desktop:build`。
-- 构建后运行 `npm run release:metadata`，将 NSIS 安装包和同目录生成的 `latest.json` 上传到版本号对应的 GitHub Release。`latest.json` 内含安装包签名；发布前须确认 URL 指向同一文件。
 - 只有验证安装、卸载、文件关联以及正式发行时需要安装新包。
 - 私钥只保存在当前用户目录中，不能上传仓库或发布页。请妥善备份；丢失后已安装客户端无法验证以后发布的更新。
 - 客户端发现新版本后可下载更新包并查看进度；下载完成后先关闭其他文档窗口，再点击“重启并安装”。当前窗口会先保存内容，Windows 安装器会在退出客户端后启动并完成更新。
+
+### Windows 安装包与更新签名
+
+`src-tauri/tauri.conf.json` 启用了 `bundle.createUpdaterArtifacts`，并内置更新公钥。更新包必须由与该公钥配对的私钥签名；不要重新生成密钥对，也不要把私钥或密码提交到仓库。当前开发机已有密钥文件 `%USERPROFILE%\.tauri\blackdoc.key`，公钥文件为同目录下的 `blackdoc.key.pub`。
+
+首次配置时，在 PowerShell 中把私钥**文件路径**保存为当前 Windows 用户环境变量：
+
+```powershell
+$keyPath = Join-Path $env:USERPROFILE '.tauri\blackdoc.key'
+if (-not (Test-Path -LiteralPath $keyPath)) { throw 'Tauri signing key not found.' }
+[Environment]::SetEnvironmentVariable('TAURI_SIGNING_PRIVATE_KEY', $keyPath, 'User')
+```
+
+修改用户环境变量后，新的终端会自动读取它。已打开的终端或 Codex 进程可能仍持有旧环境；在当前 PowerShell 中显式加载并构建：
+
+```powershell
+$env:TAURI_SIGNING_PRIVATE_KEY = [Environment]::GetEnvironmentVariable('TAURI_SIGNING_PRIVATE_KEY', 'User')
+$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = ''
+if (-not (Test-Path -LiteralPath $env:TAURI_SIGNING_PRIVATE_KEY)) { throw 'Tauri signing key path is unavailable.' }
+npm run desktop:build
+```
+
+当前密钥使用空密码；若换用设有密码的密钥，只在本机当前构建进程中设置正确的 `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`。Tauri 不会自动读取 `.env` 文件。不要把密钥内容或非空密码写进项目文档、源码、命令记录或发布产物。
+
+`npm run desktop:build` 必须以退出码 0 完成，且本次构建要同时生成版本对应的 NSIS 安装包和新 `.sig`。即使签名步骤失败，`.exe` 也可能已经落盘；这种情况下只能用于手动安装，不能发布为自动更新包。目标目录可能留有旧 `.sig`，不能因文件存在就认为它匹配新安装包。只有完整构建成功后，才运行 `npm run release:metadata` 生成 `latest.json`，并核对其中 URL 指向本次发布的安装包；随后将安装包和 `latest.json` 上传至版本号对应的 GitHub Release。
 
 ## 验收步骤
 
