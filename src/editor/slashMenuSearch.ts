@@ -1,4 +1,14 @@
 import { filterSuggestionItems } from "@blocknote/core/extensions";
+import type { SuggestionMenuOptions } from "@blocknote/core/extensions";
+
+export const shouldOpenSlashMenu: NonNullable<SuggestionMenuOptions["shouldOpen"]> = transaction => {
+  const { $from, empty } = transaction.selection;
+  if (!empty || !$from.parent.isTextblock) return false;
+
+  const atLineStart = $from.parentOffset === 0 || $from.nodeBefore?.type.name === "hardBreak";
+  const atLineEnd = !$from.nodeAfter || $from.nodeAfter.type.name === "hardBreak";
+  return atLineStart && atLineEnd;
+};
 
 export function filterSlashMenuItems<T extends { title: string; aliases?: readonly string[] }>(
   items: T[],

@@ -8,6 +8,46 @@ import { blackDocSchema } from "./schema";
 import { HeadingNumberExtension } from "./headingNumberExtension";
 
 describe("heading number decorations", () => {
+  it("updates decorations immediately when a heading level changes with its shortcut", () => {
+    vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener() {}, removeEventListener() {} }));
+    const heading = (id: string, level: number, content: string) => ({
+      id, type: "heading" as const, props: { level: level as 2 | 3 | 4 }, content,
+    });
+    const editor = BlockNoteEditor.create({
+      schema: blackDocSchema,
+      extensions: [HeadingNumberExtension()],
+      initialContent: [
+        heading("chapter", 2, "Chapter"),
+        heading("previous", 3, "Previous"),
+        heading("target", 3, "Target"),
+        heading("child", 4, "Child"),
+        heading("sibling", 3, "Sibling"),
+      ],
+    });
+    const view = render(<BlockNoteView editor={editor} />);
+    const number = (id: string) => view.container
+      .querySelector<HTMLElement>(`.bn-block-outer[data-id="${id}"] > .bn-block > .bn-block-content[data-content-type="heading"]`)
+      ?.getAttribute("data-heading-number");
+    try {
+      expect(["target", "child", "sibling"].map(number)).toEqual(["1.2", "1.2.1", "1.3"]);
+
+      act(() => {
+        editor.setTextCursorPosition("target");
+        editor._tiptapEditor.commands.keyboardShortcut("Mod-4");
+      });
+
+      expect(editor.getBlock("target")).toMatchObject({ type: "heading", props: { level: 4 } });
+      expect(["target", "child", "sibling"].map(id =>
+        getOutlineItems(editor.document).find(item => item.id === id)?.number,
+      )).toEqual(["1.1.1", "1.1.2", "1.2"]);
+      expect(["target", "child", "sibling"].map(number)).toEqual(["1.1.1", "1.1.2", "1.2"]);
+    } finally {
+      view.unmount();
+      editor._tiptapEditor.destroy();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("renders the same numbers as the outline across split columns and after edits", () => {
     vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener() {}, removeEventListener() {} }));
     const heading = (id: string, level: number, content: string) => ({

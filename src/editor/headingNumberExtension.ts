@@ -39,7 +39,7 @@ export const HeadingNumberExtension = createExtension(() => {
         apply(transaction, decorations) {
           if (!transaction.docChanged) return decorations;
           const mapped = decorations.map(transaction.mapping, transaction.doc);
-          return transactionTouchesNodeTypes(transaction, numberedHeadingTypes)
+          return transactionTouchesNodeTypes(transaction, numberedHeadingTypes, false)
             ? buildHeadingDecorations(transaction.doc)
             : mapped;
         },

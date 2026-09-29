@@ -1,8 +1,10 @@
-import { getNodeById, type BlockNoteEditor } from "@blocknote/core";
+import { getNodeById, type BlockNoteEditor, type BlockSchema, type InlineContentSchema, type StyleSchema } from "@blocknote/core";
 import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { NodeSelection, type SelectionBookmark } from "@tiptap/pm/state";
 import type { Transaction } from "@tiptap/pm/state";
 import { HIDE_IMAGE_HOVER_TOOLBAR_EVENT } from "./splitDividerHover";
+import { copyBlockToClipboard } from "./blockClipboard";
+import { getBlockMarquee } from "./blockMarquee";
 
 // The popover keeps its position reference alive while closing. Restoring the
 // editor cursor can move that reference, so close without an exit transition.
@@ -11,7 +13,9 @@ export const imageToolbarFloatingUIOptions = {
   useTransitionStatusProps: { duration: 0 },
 };
 
-export function installImageToolbarHover(editor: Pick<BlockNoteEditor, "prosemirrorView" | "_tiptapEditor" | "getExtension" | "isEditable">) {
+export function installImageToolbarHover<B extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema>(
+  editor: BlockNoteEditor<B, I, S>,
+) {
   const toolbar = editor.getExtension(FormattingToolbarExtension);
   if (!toolbar) return () => {};
   const dom = editor.prosemirrorView.dom;
@@ -76,17 +80,25 @@ export function installImageToolbarHover(editor: Pick<BlockNoteEditor, "prosemir
     } else if (!inToolbar(target)) restore();
   };
   const keyDown = (event: KeyboardEvent) => {
-    if (active && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c" &&
+    // The modifier's own keydown precedes C. Keep the temporary image selection
+    // until the actual shortcut arrives, otherwise Ctrl restores the text cursor.
+    if (["Control", "Meta", "Alt", "Shift"].includes(event.key)) return;
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c" &&
       event.target instanceof Node && dom.contains(event.target)) {
-      const id = active.closest(".bn-block-outer")?.getAttribute("data-id");
+      if (getBlockMarquee(editor)?.getSnapshot().length) return;
       const view = editor.prosemirrorView;
-      const node = id ? getNodeById(id, view.state.doc) : undefined;
-      if (node) {
+      const selection = view.state.selection;
+      const selectedImageId = selection instanceof NodeSelection
+        ? selection.node.type.name === "image" ? selection.$from.parent.attrs.id
+          : selection.node.firstChild?.type.name === "image" ? selection.node.attrs.id : undefined
+        : undefined;
+      const id = active?.closest(".bn-block-outer")?.getAttribute("data-id") ?? selectedImageId;
+      if (id) {
         cancelHide();
         active = null;
         saved = null;
         toolbar.store.setState(false);
-        view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, node.posBeforeNode)));
+        if (copyBlockToClipboard(editor, id)) event.preventDefault();
         return;
       }
     }

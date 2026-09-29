@@ -1,6 +1,5 @@
 import { SideMenuExtension, SuggestionMenu } from "@blocknote/core/extensions";
 import { Menu as MantineMenu } from "@mantine/core";
-import { NodeSelection } from "@tiptap/pm/state";
 import {
   SideMenu,
   SideMenuController,
@@ -39,6 +38,7 @@ import {
 import { blockControlMenuMiddlewares, sideMenuHeadingPosition } from "../editor/sideMenuPosition";
 import { creationMenuViewportPadding } from "../editor/creationMenuPosition";
 import { getBlockMarquee } from "../editor/blockMarquee";
+import { copyBlockToClipboard } from "../editor/blockClipboard";
 import {
   BLOCK_LINK_COPIED_EVENT,
   BLOCK_LINK_COPY_FAILED_EVENT,
@@ -150,28 +150,6 @@ const isConvertibleTextBlock = (editor: any, block: any): boolean => {
   return contentType === "inline" || contentType === "plain";
 };
 
-const selectBlockForClipboard = (editor: any, blockId: string): boolean => {
-  const view = editor.prosemirrorView;
-  let blockPosition: number | undefined;
-  view.state.doc.descendants((node: any, position: number) => {
-    if (node.attrs?.id === blockId) {
-      blockPosition = position;
-      return false;
-    }
-    return true;
-  });
-
-  if (blockPosition === undefined) return false;
-  const node = view.state.doc.nodeAt(blockPosition);
-  if (!node || !NodeSelection.isSelectable(node)) return false;
-
-  view.dispatch(
-    view.state.tr.setSelection(NodeSelection.create(view.state.doc, blockPosition)),
-  );
-  view.focus();
-  return document.execCommand("copy");
-};
-
 const blockTypeLabel = (block: any): string => {
   if (block.type === "heading") return `标题 H${block.props.level}`;
   const labels: Record<string, string> = {
@@ -261,7 +239,7 @@ const BlockTypeAndHandleButton = (creationMenuProps: BlockCreationMenuProps) => 
   const copyBlock = () => {
     if (marquee?.includes(block.id)) { marquee.copy(); return; }
     marquee?.select([]);
-    selectBlockForClipboard(editor, block.id);
+    copyBlockToClipboard(editor, block.id);
   };
   const cutBlock = () => {
     if (marquee?.includes(block.id)) {
@@ -269,7 +247,7 @@ const BlockTypeAndHandleButton = (creationMenuProps: BlockCreationMenuProps) => 
       return;
     }
     marquee?.select([]);
-    if (!selectBlockForClipboard(editor, block.id)) return;
+    if (!copyBlockToClipboard(editor, block.id)) return;
     try {
       editor.removeBlocks([block.id]);
     } catch {
