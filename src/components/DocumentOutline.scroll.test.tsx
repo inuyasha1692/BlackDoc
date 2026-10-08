@@ -3,10 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as blockLinks from "../editor/blockLinks";
 import { DocumentOutline } from "./DocumentOutline";
 
-vi.mock("../editor/outline", () => ({
-  getOutlineItems: () => ["outside", "first", "second", "other", "after"].map(id => ({
-    id, text: id, level: 1,
-  })),
+const outlineItems = ["outside", "first", "second", "other", "after"].map(id => ({
+  id, text: id, level: 1,
 }));
 
 let pending: FrameRequestCallback | undefined;
@@ -52,7 +50,7 @@ beforeEach(() => {
   vi.spyOn(window, "innerHeight", "get").mockReturnValue(800);
   vi.spyOn(window, "scrollY", "get").mockReturnValue(0);
   vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
-  render(<DocumentOutline blocks={[]} collapsed={false} onToggle={vi.fn()} />);
+  render(<DocumentOutline items={outlineItems} collapsed={false} onToggle={vi.fn()} />);
   flush();
 });
 

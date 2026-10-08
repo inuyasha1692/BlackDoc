@@ -298,7 +298,7 @@ import { importMarkdownBlocks } from "./editor/markdownImport";
 import { filterSlashMenuItems, shouldOpenSlashMenu } from "./editor/slashMenuSearch";
 import { imageToolbarFloatingUIOptions, installImageToolbarHover } from "./editor/imageToolbarHover";
 import { installSplitDividerHover } from "./editor/splitDividerHover";
-import { changesAffectOutline } from "./editor/outline";
+import { changesAffectOutline, getOutlineItems, type OutlineItem } from "./editor/outline";
 import { FindAndReplaceExtension } from "./editor/findAndReplace";
 import { InheritColumnFormatExtension } from "./editor/inheritColumnFormat";
 import { TableEnterNavigationExtension } from "./editor/tableEnterNavigation";
@@ -483,8 +483,8 @@ export default function App() {
     };
   }, [updateSlashMenuPlacement]);
 
-  const [blocks, setBlocks] = useState<BlackDocBlock[]>(() =>
-    cloneDocument(editor.document),
+  const [outlineItems, setOutlineItems] = useState<OutlineItem[]>(() =>
+    getOutlineItems(editor.document),
   );
   const editorInstanceRef = useRef(editor);
 
@@ -704,12 +704,12 @@ export default function App() {
         tr.setMeta(RESET_DOCUMENT_FOLDS_META, true);
         editor.replaceBlocks(editor.document, normalizedBlocks);
       });
-      setBlocks(cloneDocument(editor.document));
+      setOutlineItems(getOutlineItems(editor.document));
       queueMicrotask(() => {
         suppressChangesRef.current = false;
       });
     },
-    [editor, setBlocks],
+    [editor, setOutlineItems],
   );
 
   useEffect(() => {
@@ -937,15 +937,16 @@ export default function App() {
     const changes = getChanges();
     if (changes.length === 0) return;
 
-    if (changesAffectOutline(changes)) {
-      setBlocks(cloneDocument(editor.document));
+    const outlineAffected = changesAffectOutline(changes);
+    if (outlineAffected) {
+      setOutlineItems(getOutlineItems(editor.document));
     }
     changeVersionRef.current += 1;
     dirtyRef.current = true;
     unsafeChangesRef.current = true;
     setStatus("unsaved");
     schedulePersistence();
-  }, [desktopReady, editor, schedulePersistence, setBlocks, setStatus]);
+  }, [desktopReady, editor, schedulePersistence, setOutlineItems, setStatus]);
   useEffect(() => {
     if (!aiDirectory || !desktopReady) return;
     let disposed = false;
@@ -1358,7 +1359,7 @@ export default function App() {
         className={`workspace ${outlineCollapsed ? "outline-collapsed" : ""}`}
       >
         <DocumentOutline
-          blocks={blocks}
+          items={outlineItems}
           collapsed={outlineCollapsed}
           onToggle={toggleOutline}
         />
@@ -1449,7 +1450,6 @@ export default function App() {
               onClick: () => {
                 replaceDocument(recoveryDraft.blocks);
                 setRecoveryDraft(null);
-                setBlocks(cloneDocument(editor.document));
                 dirtyRef.current = true;
                 unsafeChangesRef.current = false;
                 changeVersionRef.current += 1;

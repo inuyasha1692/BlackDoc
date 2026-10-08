@@ -1,23 +1,21 @@
-import type { BlackDocBlock } from "../editor/schema";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { getBlockElement, revealBlock } from "../editor/blockLinks";
-import { getOutlineItems } from "../editor/outline";
+import type { OutlineItem } from "../editor/outline";
 import { RIGHT_SCROLL_SELECTOR } from "../editor/splitPane";
 
 interface DocumentOutlineProps {
-  blocks: readonly BlackDocBlock[];
+  items: readonly OutlineItem[];
   collapsed: boolean;
   onToggle: () => void;
 }
 
 export function DocumentOutline({
-  blocks,
+  items,
   collapsed,
   onToggle,
 }: DocumentOutlineProps) {
-  const items = useMemo(() => getOutlineItems(blocks), [blocks]);
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
   const [toggleHint, setToggleHint] = useState<{ left: number; top: number } | null>(null);
   const showToggleHint = (button: HTMLButtonElement) => {

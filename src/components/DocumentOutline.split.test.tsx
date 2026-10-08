@@ -9,7 +9,7 @@ afterEach(() => { cleanup(); document.body.innerHTML = ""; vi.restoreAllMocks();
 describe("outline inside a split pane", () => {
   it("keeps the toggle available in the outline header after collapse", () => {
     const onToggle = vi.fn();
-    const { rerender } = render(<DocumentOutline blocks={[]} collapsed={false} onToggle={onToggle} />);
+    const { rerender } = render(<DocumentOutline items={[]} collapsed={false} onToggle={onToggle} />);
     const outline = screen.getByRole("complementary", { name: "文档大纲" });
     const button = screen.getByRole("button", { name: "收起大纲" });
 
@@ -21,7 +21,7 @@ describe("outline inside a split pane", () => {
     fireEvent.mouseLeave(button);
     expect(screen.queryByRole("tooltip")).toBeNull();
 
-    rerender(<DocumentOutline blocks={[]} collapsed onToggle={onToggle} />);
+    rerender(<DocumentOutline items={[]} collapsed onToggle={onToggle} />);
 
     expect(outline).toBeVisible();
     expect(screen.getByRole("button", { name: "展开大纲" })).toBe(button);
@@ -61,7 +61,11 @@ describe("outline inside a split pane", () => {
     vi.spyOn(window, "scrollY", "get").mockReturnValue(200);
     vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(1000);
 
-    render(<DocumentOutline blocks={editor.document} collapsed={false} onToggle={vi.fn()} />);
+    render(<DocumentOutline items={[
+      { id: "left", level: 1, text: "Left heading" },
+      { id: "first", level: 1, text: "First right" },
+      { id: "last", level: 1, text: "Last right" },
+    ]} collapsed={false} onToggle={vi.fn()} />);
     fireEvent.scroll(scroll);
     await waitFor(() => expect(screen.getByRole("button", { name: "Last right" }))
       .toHaveAttribute("aria-current", "location"));
