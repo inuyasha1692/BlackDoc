@@ -144,6 +144,22 @@ details { margin: 6px 0; }
 // The exported document must work offline without the React application.
 const OUTLINE_SCRIPT = `
 (() => {
+  const sharedImageSources = new Map(
+    Array.from(document.querySelectorAll("img[data-bd-export-image-source]"), image => [
+      image.getAttribute("data-bd-export-image-source"),
+      image.getAttribute("src"),
+    ]),
+  );
+  document.querySelectorAll("img[data-bd-export-image-ref]").forEach(image => {
+    const source = sharedImageSources.get(image.getAttribute("data-bd-export-image-ref"));
+    if (source) image.setAttribute("src", source);
+  });
+  document.querySelectorAll("img[data-bd-export-image-source], img[data-bd-export-image-ref]")
+    .forEach(image => {
+      image.removeAttribute("data-bd-export-image-source");
+      image.removeAttribute("data-bd-export-image-ref");
+    });
+
   const outline = document.querySelector(".document-outline");
   const links = Array.from(outline?.querySelectorAll("nav a") ?? []);
   const entries = links.map(link => ({
@@ -321,6 +337,53 @@ const inlineRemoteImages = async (
   return externalImages;
 };
 
+// Standalone HTML renders media from src, so avoid repeating embedded payloads in data-url.
+const stripDuplicateMediaDataUrls = (root: ParentNode): void => {
+  const mediaSelector = "img[src], video[src], audio[src]";
+  const elements = Array.from(root.querySelectorAll<HTMLElement>("[data-url]"));
+
+  for (const element of elements) {
+    const dataUrl = element.getAttribute("data-url");
+    if (!dataUrl || !/^data:/i.test(dataUrl)) continue;
+
+    const media = element.matches(mediaSelector)
+      ? element
+      : element.querySelector<HTMLElement>(mediaSelector);
+    if (media?.getAttribute("src") === dataUrl) {
+      element.removeAttribute("data-url");
+    }
+  }
+};
+
+// Keep one data URL per repeated image in the HTML, then reuse it at page load.
+const deduplicateRepeatedImageDataUrls = (root: ParentNode): void => {
+  const minimumDataUrlLength = 128;
+  const sources = new Map<string, {
+    id: number;
+    image: HTMLImageElement;
+    repeated: boolean;
+  }>();
+  let nextId = 0;
+
+  for (const image of root.querySelectorAll<HTMLImageElement>("img[src]")) {
+    const source = image.getAttribute("src");
+    if (!source || source.length < minimumDataUrlLength || !/^data:image\//i.test(source)) continue;
+
+    const existing = sources.get(source);
+    if (!existing) {
+      sources.set(source, { id: nextId++, image, repeated: false });
+      continue;
+    }
+
+    if (!existing.repeated) {
+      existing.image.setAttribute("data-bd-export-image-source", String(existing.id));
+      existing.repeated = true;
+    }
+    image.removeAttribute("src");
+    image.setAttribute("data-bd-export-image-ref", String(existing.id));
+  }
+};
+
 const flattenBlocks = (blocks: readonly Block[]): Block[] =>
   blocks.flatMap((block) => [block, ...flattenBlocks(block.children)]);
 
@@ -495,6 +558,8 @@ export const buildStandaloneHtml = async (
     element.removeAttribute("data-scene");
   }
   const externalImages = await inlineRemoteImages(container);
+  stripDuplicateMediaDataUrls(container);
+  deduplicateRepeatedImageDataUrls(container);
   const anchorIds = new Set(
     Array.from(container.querySelectorAll<HTMLElement>(".bn-block-outer[id]"), element => element.id),
   );

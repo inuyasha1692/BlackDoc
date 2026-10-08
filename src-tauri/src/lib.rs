@@ -139,6 +139,28 @@ fn name(path: &Path) -> String {
         .into_owned()
 }
 
+fn set_html_title(html: &str, title: &str) -> Result<String> {
+    let title_start = html
+        .find("<title>")
+        .map(|index| index + "<title>".len())
+        .ok_or("Generated HTML is missing its title")?;
+    let title_end = html[title_start..]
+        .find("</title>")
+        .map(|index| title_start + index)
+        .ok_or("Generated HTML has an unterminated title")?;
+    let escaped_title = title
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;");
+
+    Ok(format!(
+        "{}{}{}",
+        &html[..title_start],
+        escaped_title,
+        &html[title_end..]
+    ))
+}
+
 fn focus(app: &AppHandle, label: &str) -> Result<()> {
     let window = app
         .get_webview_window(label)
@@ -544,6 +566,8 @@ async fn desktop_export_html(
         if desktop.owner(&target).is_some() {
             return Err("Cannot export over an open document".into());
         }
+        let exported_name = name(&target);
+        let html = set_html_title(&html, &exported_name)?;
         storage::atomic_write(&target, html.as_bytes())?;
         desktop
             .sessions
@@ -552,7 +576,7 @@ async fn desktop_export_html(
             .last_export = Some(target.clone());
         Ok(Some(SavedDocument {
             path: target.to_string_lossy().into_owned(),
-            name: name(&target),
+            name: exported_name,
         }))
     })
     .await
