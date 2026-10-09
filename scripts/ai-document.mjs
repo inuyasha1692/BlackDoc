@@ -14,10 +14,10 @@ if (directory === "list") {
   for (const entry of entries) {
     const path = join(root, entry);
     try {
-      const snapshotPath = join(path, "snapshot.json");
+      const snapshotPath = join(path, "connection.json");
       const snapshot = JSON.parse(await readFile(snapshotPath, "utf8"));
       const metadata = await stat(snapshotPath);
-      connections.push({ directory: path, path: snapshot.path, revision: snapshot.revision,
+      connections.push({ directory: path, path: snapshot.path, protocol: snapshot.protocol,
         updatedAt: metadata.mtime.toISOString() });
     } catch (error) { if (error.code !== "ENOENT") throw error; }
   }
@@ -27,19 +27,25 @@ if (directory === "list") {
 if (!directory || !["read", "apply"].includes(command)) {
   throw new Error('Usage: node scripts/ai-document.mjs list | <connection-directory> read|apply [request.json]');
 }
+const connection = JSON.parse(await readFile(join(directory, "connection.json"), "utf8"));
+if (connection.protocol !== 2 || typeof connection.token !== "string") throw new Error("Unsupported AI connection protocol");
+let request;
 if (command === "read") {
-  console.log(await readFile(join(directory, "snapshot.json"), "utf8"));
+  request = { operation: "read" };
 } else {
-  if (!input) throw new Error("Provide a JSON file containing revision and blocks.");
   let source;
   if (input === "-") {
     source = "";
     for await (const chunk of process.stdin) source += chunk.toString();
   } else {
+    if (!input) throw new Error("Provide a JSON file containing revision and blocks.");
     source = await readFile(input, "utf8");
   }
-  const request = JSON.parse(source);
-  request.id = randomUUID();
+  request = { ...JSON.parse(source), operation: "apply" };
+}
+request.token = connection.token;
+request.id = randomUUID();
+{
   const lock = join(directory, "client.lock");
   const { open, unlink } = await import("node:fs/promises");
   const handle = await open(lock, "wx");
@@ -59,7 +65,7 @@ if (command === "read") {
       await new Promise(resolve => setTimeout(resolve, 200));
     }
     if (!result) throw new Error("Timed out; inspect the live document before retrying.");
-    console.log(JSON.stringify(result));
+    console.log(JSON.stringify(command === "read" && result.ok ? result.snapshot : result));
     if (!result.ok) process.exitCode = 1;
   } finally {
     await handle.close();

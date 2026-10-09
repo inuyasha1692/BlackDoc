@@ -248,10 +248,24 @@ afterEach(async () => {
 });
 
 describe("desktop App lifecycle", () => {
+  it("registers the default connection without publishing document content while idle", async () => {
+    vi.mocked(invoke).mockImplementation(async (command) => {
+      if (command === "desktop_ai_pending") return false;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    await mountApp();
+    await act(async () => { await vi.advanceTimersByTimeAsync(1600); });
+    expect(invoke).toHaveBeenCalledWith("desktop_ai_pending", expect.objectContaining({ path: file.path }));
+    expect(vi.mocked(invoke).mock.calls.some(([command]) => command === "desktop_ai_exchange")).toBe(false);
+    await clickButton("更多操作");
+    expect(screen.queryByRole("button", { name: "启用 AI 文档连接" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "关闭 AI 文档连接" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "复制 AI 连接目录" })).not.toBeInTheDocument();
+  });
   it("applies an AI request from the live connection, persists and acknowledges it", async () => {
     let delivered = false;
     vi.mocked(invoke).mockImplementation(async (command, args) => {
-      if (command === "desktop_ai_enable") return (args as { enabled: boolean }).enabled ? "C:/temp/connection" : null;
+      if (command === "desktop_ai_pending") return true;
       if (command === "desktop_ai_exchange") {
         const snapshot = (args as { snapshot: { revision: string } }).snapshot;
         if (!delivered) {
@@ -269,19 +283,14 @@ describe("desktop App lifecycle", () => {
       });
     });
     await mountApp();
-    await clickButton("启用 AI 文档连接");
     expectDocument(edited);
-    expect(screen.getByRole("button", { name: "AI 文档已连接，复制连接目录" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "关闭 AI 文档连接" })).not.toBeInTheDocument();
     await act(async () => { await vi.advanceTimersByTimeAsync(800); });
     expect(saveDesktopDocument).toHaveBeenCalledWith(edited, file.path, file.name, false);
     expect(invoke).toHaveBeenCalledWith("desktop_ai_exchange", expect.objectContaining({
       response: expect.objectContaining({ id: "live-request", ok: true }),
     }));
-    await clickButton("关闭 AI 文档连接");
-    expect(screen.queryByRole("button", { name: "AI 文档已连接，复制连接目录" })).not.toBeInTheDocument();
-    const calls = vi.mocked(invoke).mock.calls.length;
-    await act(async () => { await vi.advanceTimersByTimeAsync(1500); });
-    expect(vi.mocked(invoke).mock.calls).toHaveLength(calls);
+
   });
   it("opens the example once on first launch without saving over the bundled file", async () => {
     localStorage.removeItem("blackdoc:first-launch-completed");

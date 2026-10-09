@@ -555,7 +555,7 @@ export default function App() {
   });
 
   const desktopPathRef = useRef<string | null>(null);
-  const [aiDirectory, setAiDirectory] = useState<string | null>(null);
+  const aiDocumentGenerationRef = useRef(0);
   const aiRevisionRef = useRef({ content: "", revision: "" });
   const closingRef = useRef(false);
   const openingRef = useRef(false);
@@ -815,6 +815,7 @@ export default function App() {
         if (!isBlackDocument(opened.blocks)) throw new Error("文件不是有效的 BlackDoc 文档。");
         clearSaveTimer();
         replaceDocument(opened.blocks);
+        aiDocumentGenerationRef.current += 1;
         desktopPathRef.current = opened.path;
         setFileName(opened.name);
         dirtyRef.current = false;
@@ -844,6 +845,7 @@ export default function App() {
       await detachDesktopDocument();
       clearSaveTimer();
       replaceDocument(converted.blocks);
+      aiDocumentGenerationRef.current += 1;
       desktopPathRef.current = null;
       setFileName(null);
       dirtyRef.current = true;
@@ -886,6 +888,7 @@ export default function App() {
       await detachDesktopDocument();
       clearSaveTimer();
       replaceDocument(example);
+      aiDocumentGenerationRef.current += 1;
       desktopPathRef.current = null;
       setFileName(null);
       dirtyRef.current = true;
@@ -963,7 +966,7 @@ export default function App() {
     schedulePersistence();
   }, [desktopReady, editor, schedulePersistence, setOutlineItems, setStatus]);
   useEffect(() => {
-    if (!aiDirectory || !desktopReady) return;
+    if (!desktopReady) return;
     let disposed = false;
     let timer: ReturnType<typeof setTimeout>;
     let response: unknown = null;
@@ -976,11 +979,16 @@ export default function App() {
     };
     const poll = async () => {
       try {
-        const request = await invoke<{ id?: unknown } | null>("desktop_ai_exchange", {
+        const pending = await invoke<boolean>("desktop_ai_pending", { path: desktopPathRef.current, documentKey: String(aiDocumentGenerationRef.current) });
+        if (!pending) {
+          if (!disposed) timer = setTimeout(() => void poll(), 750);
+          return;
+        }
+        const request = await invoke<{ id?: unknown; operation?: string } | null>("desktop_ai_exchange", {
           snapshot: { revision: revision(), path: desktopPathRef.current, blocks: editor.document }, response,
         });
         response = null;
-        if (!disposed && request) {
+        if (!disposed && request && request.operation !== "read") {
           try {
             if (openingRef.current || closingRef.current) throw new Error("文档正在切换或关闭。");
             applyAiDocument(editor, request, revision());
@@ -997,7 +1005,7 @@ export default function App() {
     };
     void poll();
     return () => { disposed = true; clearTimeout(timer); };
-  }, [aiDirectory, desktopReady, editor, schedulePersistence]);
+  }, [desktopReady, editor, schedulePersistence]);
   useEffect(() => {
     if (bootstrappedRef.current) return;
     let disposed = false;
@@ -1286,19 +1294,6 @@ export default function App() {
         onSave={() => void saveCurrentDocument(false)}
         onSaveAs={() => void saveCurrentDocument(true)}
         onAbout={openAboutDialog}
-        aiEnabled={aiDirectory !== null}
-        onCopyAiDirectory={() => {
-          if (!aiDirectory) return;
-          void navigator.clipboard.writeText(aiDirectory).then(() => {
-            setNotice({ tone: "info", message: `已复制 AI 连接目录：${aiDirectory}` });
-          }).catch(() => setNotice({ tone: "info", message: `AI 连接目录：${aiDirectory}` }));
-        }}
-        onToggleAi={() => {
-          void invoke<string | null>("desktop_ai_enable", { enabled: !aiDirectory }).then(directory => {
-            setAiDirectory(directory);
-            if (directory) setNotice({ tone: "info", message: `AI 文档连接目录：${directory}` });
-          }).catch(error => setNotice({ tone: "error", message: String(error) }));
-        }}
         onMoreOpen={() => advanceUpdateGuide("more", "about")}
         onShortcuts={() => setShortcutsOpen(true)}
         updateAvailable={update.kind === "available"}

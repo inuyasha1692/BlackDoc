@@ -11,8 +11,6 @@ import {
   SaveAll,
   Moon,
   Search,
-  Bot,
-  Copy,
   Sun,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -38,9 +36,6 @@ const STATUS_LABELS: Record<SaveStatus, string> = {
 };
 
 interface ToolbarProps {
-  aiEnabled?: boolean;
-  onCopyAiDirectory?: () => void;
-  onToggleAi?: () => void;
   theme: AppTheme;
   onToggleTheme: () => void;
   onFind: () => void;
@@ -63,9 +58,6 @@ interface ToolbarProps {
 }
 
 export function Toolbar({
-  aiEnabled = false,
-  onCopyAiDirectory,
-  onToggleAi,
   theme,
   onToggleTheme,
   onFind,
@@ -161,9 +153,6 @@ export function Toolbar({
       </div>
 
       <div className="toolbar-utilities" role="toolbar" aria-label="编辑器工具">
-        {aiEnabled && <button aria-label="AI 文档已连接，复制连接目录" title="AI 文档已连接，复制连接目录" className="icon-button" onClick={onCopyAiDirectory} type="button">
-          <Bot aria-hidden="true" size={18} />
-        </button>}
         <button
           aria-label="查找替换"
           aria-pressed={findOpen}
@@ -204,12 +193,6 @@ export function Toolbar({
               </div>
               <div className="toolbar-menu-section" role="group" aria-label="帮助与设置">
                 <span className="toolbar-menu-heading">帮助与设置</span>
-                {onToggleAi && <button disabled={busy} aria-pressed={aiEnabled} onClick={() => runMenuAction(onToggleAi)} type="button">
-                  <Bot aria-hidden="true" size={16} /><span>{aiEnabled ? "关闭 AI 文档连接" : "启用 AI 文档连接"}</span>
-                </button>}
-                {aiEnabled && onCopyAiDirectory && <button onClick={() => runMenuAction(onCopyAiDirectory)} type="button">
-                  <Copy aria-hidden="true" size={16} /><span>复制 AI 连接目录</span>
-                </button>}
                 <button disabled={busy} onClick={() => runMenuAction(onOpenExample)} type="button">
                   <BookOpen aria-hidden="true" size={16} />
                   <span>功能示例</span>

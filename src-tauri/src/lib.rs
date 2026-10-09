@@ -717,7 +717,7 @@ pub fn run() {
                 .build(),
         )
         .invoke_handler(tauri::generate_handler![
-            ai_bridge::desktop_ai_enable,
+            ai_bridge::desktop_ai_pending,
             ai_bridge::desktop_ai_exchange,
             desktop_bootstrap,
             desktop_new_window,
@@ -742,7 +742,7 @@ pub fn run() {
             tauri::WindowEvent::Destroyed => {
                 if let Ok(mut connections) = window.state::<ai_bridge::AiBridge>().0.lock() {
                     if let Some(path) = connections.remove(window.label()) {
-                        let _ = std::fs::remove_dir_all(path);
+                        drop(path);
                     }
                 }
                 let app = window.app_handle().clone();
@@ -758,6 +758,7 @@ pub fn run() {
             _ => {}
         })
         .setup(|app| {
+            ai_bridge::cleanup_stale();
             let directory = app.path().app_data_dir()?.join("drafts");
             std::fs::create_dir_all(&directory)?;
             let args = std::env::args().collect::<Vec<_>>();
