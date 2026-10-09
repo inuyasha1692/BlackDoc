@@ -180,21 +180,26 @@ export function CanvasPreview({
   return (
     <div ref={container} className="canvas-block" contentEditable={false}>
       <div ref={frame} className="canvas-preview-frame" style={{ width: width ? `${width}px` : "100%", marginLeft: alignment === "left" ? 0 : "auto", marginRight: alignment === "right" ? 0 : "auto" }}>
-      {editable && onAlign && <div className="canvas-alignment" role="group" aria-label="画板对齐">
-        {([
-          ["left", "画板靠左", AlignLeft], ["center", "画板居中", AlignCenter], ["right", "画板靠右", AlignRight],
-        ] as const).map(([value, label, Icon]) => <button key={value} type="button" title={label} aria-label={label} aria-pressed={alignment === value}
-          onMouseDown={event => event.preventDefault()}
-          onClick={event => { event.stopPropagation(); onAlign(value); }}><Icon size={16} aria-hidden="true" /></button>)}
-      </div>}
       <button className="canvas-preview" type="button" aria-label="编辑画布" onClick={() =>
         window.dispatchEvent(new CustomEvent(OPEN_CANVAS_EVENT, { detail: id }))
       }>
         {image && !error
           ? <img src={image} alt="画布" draggable={false} />
           : <PenTool size={32} aria-hidden="true" />}
-        <span className="canvas-edit-label"><Pencil size={15} aria-hidden="true" />编辑画布</span>
       </button>
+      <div className="canvas-toolbar">
+        {editable && onAlign && <div className="canvas-alignment" role="group" aria-label="画板对齐">
+          {([
+            ["left", "画板靠左", AlignLeft], ["center", "画板居中", AlignCenter], ["right", "画板靠右", AlignRight],
+          ] as const).map(([value, label, Icon]) => <button key={value} type="button" title={label} aria-label={label} aria-pressed={alignment === value}
+            onMouseDown={event => event.preventDefault()}
+            onClick={event => { event.stopPropagation(); onAlign(value); }}><Icon size={16} aria-hidden="true" /></button>)}
+        </div>}
+        <button className="canvas-edit-button" type="button" onMouseDown={event => event.preventDefault()}
+          onClick={() => window.dispatchEvent(new CustomEvent(OPEN_CANVAS_EVENT, { detail: id }))}>
+          <Pencil size={15} aria-hidden="true" />编辑画布
+        </button>
+      </div>
       {editable && (["left", "right"] as const).map(side => (
         <button
           key={side}

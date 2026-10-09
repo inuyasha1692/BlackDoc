@@ -2,6 +2,7 @@ import type { BlackDocBlock as Block, BlackDocEditor as BlockNoteEditor } from "
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import { buildStandaloneHtml } from "./standaloneHtml";
+import { HeadingSectionsExtension, setHeadingSectionExpanded } from "../editor/headingSections";
 
 const block = (
   id: string,
@@ -82,6 +83,56 @@ const expectTarget = (document: Document, link: HTMLAnchorElement, id: string) =
 };
 
 describe("buildStandaloneHtml outline", () => {
+  it("exports current folds and synchronizes outline and headings without crossing split columns", async () => {
+    const { BlockNoteEditor } = await import("@blocknote/core");
+    const { blackDocSchema } = await import("../editor/schema");
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema, extensions: [HeadingSectionsExtension()], initialContent: [
+      block("root", "root", 1), block("child", "child", 2), block("detail", "detail", 3), block("body", "body"), block("next", "next", 1),
+      { id: "pane", type: "splitPane", children: [
+        { id: "left", type: "splitColumn", props: { side: "left" }, children: [block("left-title", "left-title", 2), block("left-detail", "left-detail", 3)] },
+        { id: "right", type: "splitColumn", props: { side: "right" }, children: [block("right-title", "right-title", 3)] },
+      ] },
+    ] });
+    editor.mount(document.createElement("div"));
+    try {
+      setHeadingSectionExpanded(editor.prosemirrorView, "child", false);
+      const original = structuredClone(editor.document);
+      // React-based split blocks use the headless renderer outside BlockNoteView.
+      editor.unmount();
+      const { html } = await buildStandaloneHtml(editor, editor.document);
+      // @ts-expect-error jsdom has no bundled type declarations.
+      const { JSDOM } = await import("jsdom");
+      const page = new JSDOM(html, { runScripts: "dangerously", url: "http://localhost/", beforeParse(window: Window & typeof globalThis) {
+        window.requestAnimationFrame = () => 1;
+        window.HTMLElement.prototype.scrollIntoView = () => {};
+      } });
+      try {
+        const doc = page.window.document as Document;
+        const row = (id: string) => doc.querySelector<HTMLAnchorElement>(`.document-outline a[href="#block=${id}"]`)!.closest<HTMLElement>(".outline-row")!;
+        const outlineToggle = (id: string) => row(id).querySelector<HTMLButtonElement>(".outline-fold")!;
+        const bodyToggle = (id: string) => doc.getElementById(`block=${id}`)!.querySelector<HTMLButtonElement>(".bn-toggle-button")!;
+        expect(outlineToggle("child").getAttribute("aria-expanded")).toBe("false");
+        expect(row("detail").hidden).toBe(true);
+        outlineToggle("root").click();
+        expect(bodyToggle("root").getAttribute("aria-expanded")).toBe("false");
+        expect(row("child").hidden).toBe(true);
+        outlineToggle("root").click();
+        expect(row("child").hidden).toBe(false);
+        expect(row("detail").hidden).toBe(true);
+        bodyToggle("child").click();
+        expect(outlineToggle("child").getAttribute("aria-expanded")).toBe("true");
+        expect(row("detail").hidden).toBe(false);
+        outlineToggle("child").click();
+        row("detail").querySelector<HTMLAnchorElement>("a")!.click();
+        expect(outlineToggle("child").getAttribute("aria-expanded")).toBe("true");
+        expect(row("detail").hidden).toBe(false);
+        outlineToggle("left-title").click();
+        expect(row("left-detail").hidden).toBe(true);
+        expect(row("right-title").hidden).toBe(false);
+        expect(editor.document).toEqual(original);
+      } finally { page.window.close(); }
+    } finally { editor._tiptapEditor.destroy(); localStorage.clear(); }
+  });
   it("automatically wraps flat headings and following content into level-based sections", async () => {
     const { BlockNoteEditor } = await import("@blocknote/core");
     const { blackDocSchema } = await import("../editor/schema");

@@ -1,6 +1,6 @@
 [package]
 name = "blackdoc"
-version = "0.1.7"
+version = "0.1.8"
 description = "BlackDoc desktop editor"
 edition = "2021"
 license = "GPL-3.0-only"

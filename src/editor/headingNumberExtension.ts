@@ -20,9 +20,12 @@ function buildHeadingDecorations(doc: Parameters<typeof DecorationSet.create>[0]
     counters[level] += 1;
     counters.fill(0, level + 1);
     const number = counters.slice(2, level + 1).join(".");
+    const digitCount = number.replace(/\./g, "").length;
+    const separatorCount = number.length - digitCount;
+    const numberIndent = `calc(${digitCount}ch + ${(separatorCount + 1) * 0.25}em)`;
     decorations.push(Decoration.node(pos + 1, pos + 1 + heading.nodeSize, {
       "data-heading-number": number,
-      style: `--blackdoc-heading-number: "${number} ";`,
+      style: `--blackdoc-heading-number: "${number} "; --blackdoc-heading-number-indent: ${numberIndent};`,
     }));
   });
   return DecorationSet.create(doc, decorations);
@@ -38,8 +41,14 @@ export const HeadingNumberExtension = createExtension(() => {
         init: (_config, state) => buildHeadingDecorations(state.doc),
         apply(transaction, decorations) {
           if (!transaction.docChanged) return decorations;
-          const mapped = decorations.map(transaction.mapping, transaction.doc);
-          return transactionTouchesNodeTypes(transaction, numberedHeadingTypes, false)
+          let headingDecorationRemoved = false;
+          const mapped = decorations.map(transaction.mapping, transaction.doc, {
+            onRemove: () => {
+              headingDecorationRemoved = true;
+            },
+          });
+          return headingDecorationRemoved ||
+            transactionTouchesNodeTypes(transaction, numberedHeadingTypes, false)
             ? buildHeadingDecorations(transaction.doc)
             : mapped;
         },

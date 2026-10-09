@@ -7,15 +7,16 @@ import App, { AUTO_SAVE_DELAY_MS } from "./App";
 import exampleDocumentSource from "../files/BlackDoc功能展示示例.bdoc?raw";
 import {
   bootstrapDesktop,
+  chooseDesktopHtmlExportPath,
   closeDesktopWindow,
   detachDesktopDocument,
-  exportDesktopHtml,
   importDesktopMarkdown,
   newDesktopWindow,
   openDesktopWindow,
   openDesktopExport,
   prepareDesktopUpdate,
   saveDesktopDocument,
+  writeDesktopHtmlExport,
   type DesktopFile,
 } from "./desktop";
 import { importMarkdownBlocks } from "./editor/markdownImport";
@@ -35,6 +36,7 @@ const harness = vi.hoisted(() => ({
     isEditable: true,
   },
   closeListeners: new Set<() => void>(),
+  openListeners: new Set<() => void>(),
   listen: vi.fn(),
   setTitle: vi.fn(),
   destroy: vi.fn(),
@@ -113,7 +115,8 @@ vi.mock("./desktop", () => ({
   importDesktopMarkdown: vi.fn(),
   detachDesktopDocument: vi.fn(),
   saveDesktopDocument: vi.fn(),
-  exportDesktopHtml: vi.fn(),
+  chooseDesktopHtmlExportPath: vi.fn(),
+  writeDesktopHtmlExport: vi.fn(),
   openDesktopExport: vi.fn(),
   openExternalLink: vi.fn(),
   prepareDesktopUpdate: vi.fn(),
@@ -204,6 +207,7 @@ beforeEach(() => {
   localStorage.setItem("blackdoc:first-launch-completed", "true");
   localStorage.setItem("blackdoc:outline-collapsed", "false");
   harness.closeListeners.clear();
+  harness.openListeners.clear();
   window.addEventListener("blackdoc-close-canvas", harness.closeCanvas);
   harness.editor.document = documentWithTitle("");
   harness.editor.isEditable = true;
@@ -212,6 +216,10 @@ beforeEach(() => {
   });
   harness.editor.transact.mockImplementation(callback => callback({ setMeta: vi.fn() }));
   harness.listen.mockImplementation(async (event: string, listener: () => void) => {
+    if (event === "desktop-open-started") {
+      harness.openListeners.add(listener);
+      return () => { harness.openListeners.delete(listener); };
+    }
     expect(event).toBe("desktop-close-requested");
     harness.closeListeners.add(listener);
     return () => { harness.closeListeners.delete(listener); };
@@ -219,6 +227,8 @@ beforeEach(() => {
   harness.setTitle.mockResolvedValue(undefined);
   vi.mocked(bootstrapDesktop).mockResolvedValue({ document: { ...file, blocks: original }, draft: null });
   vi.mocked(saveDesktopDocument).mockResolvedValue(file);
+  vi.mocked(chooseDesktopHtmlExportPath).mockResolvedValue(false);
+  vi.mocked(writeDesktopHtmlExport).mockResolvedValue({ path: "", name: "" });
   vi.mocked(newDesktopWindow).mockResolvedValue(undefined);
   vi.mocked(openDesktopWindow).mockResolvedValue(null);
   vi.mocked(importDesktopMarkdown).mockResolvedValue(null);
@@ -376,11 +386,13 @@ describe("desktop App lifecycle", () => {
   it("shows the exported HTML path and opens it with the system default app", async () => {
     const path = "C:/documents/Original.html";
     vi.mocked(buildStandaloneHtml).mockResolvedValue({ html: "<html></html>", externalImages: [] });
-    vi.mocked(exportDesktopHtml).mockResolvedValue({ path, name: "Original.html" });
+    vi.mocked(chooseDesktopHtmlExportPath).mockResolvedValue(true);
+    vi.mocked(writeDesktopHtmlExport).mockResolvedValue({ path, name: "Original.html" });
     vi.mocked(openDesktopExport).mockResolvedValue(undefined);
     await mountApp();
 
     await clickButton("导出 HTML");
+    await act(async () => { await vi.advanceTimersByTimeAsync(50); });
 
     const link = screen.getByRole("button", { name: path });
     expect(screen.getByRole("alert")).toHaveTextContent("HTML 已导出。");
@@ -391,7 +403,7 @@ describe("desktop App lifecycle", () => {
 
   it("does not show an HTML link when export is cancelled", async () => {
     vi.mocked(buildStandaloneHtml).mockResolvedValue({ html: "<html></html>", externalImages: [] });
-    vi.mocked(exportDesktopHtml).mockResolvedValue(null);
+    vi.mocked(chooseDesktopHtmlExportPath).mockResolvedValue(false);
     await mountApp();
 
     await clickButton("导出 HTML");
@@ -402,10 +414,12 @@ describe("desktop App lifecycle", () => {
   it("reports a failure when the exported HTML cannot be opened", async () => {
     const path = "C:/documents/Original.html";
     vi.mocked(buildStandaloneHtml).mockResolvedValue({ html: "<html></html>", externalImages: [] });
-    vi.mocked(exportDesktopHtml).mockResolvedValue({ path, name: "Original.html" });
+    vi.mocked(chooseDesktopHtmlExportPath).mockResolvedValue(true);
+    vi.mocked(writeDesktopHtmlExport).mockResolvedValue({ path, name: "Original.html" });
     vi.mocked(openDesktopExport).mockRejectedValue(new Error("文件已被移走"));
     await mountApp();
     await clickButton("导出 HTML");
+    await act(async () => { await vi.advanceTimersByTimeAsync(50); });
 
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: path })); });
 
@@ -619,6 +633,9 @@ describe("desktop App lifecycle", () => {
     const pending = deferred<Awaited<ReturnType<typeof openDesktopWindow>>>();
     vi.mocked(openDesktopWindow).mockReturnValueOnce(pending.promise);
     await clickButton("打开");
+    expect(screen.queryByText("正在打开文档，请稍候…")).not.toBeInTheDocument();
+    await act(async () => { for (const listener of harness.openListeners) listener(); });
+    expect(screen.getByText("正在打开文档，请稍候…")).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "Document" })).toBeDisabled();
     fireEvent.keyDown(window, { key: "o", ctrlKey: true });
     fireEvent.keyDown(window, { key: "s", ctrlKey: true });
@@ -629,6 +646,8 @@ describe("desktop App lifecycle", () => {
     await act(async () => { pending.resolve({ ...file, blocks: original }); });
     expectDocument(original);
     expect(screen.getByRole("textbox", { name: "Document" })).toBeEnabled();
+    expect(screen.queryByText("正在打开文档，请稍候…")).not.toBeInTheDocument();
+    expect(harness.openListeners.size).toBe(0);
   });
 
   it.each([false, true])("closes the canvas before handling native close (dirty: %s)", async (dirty) => {

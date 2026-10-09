@@ -267,8 +267,8 @@ const readUpdateGuideStage = (version: string): UpdateGuideStage => {
 import {
   bootstrapDesktop,
   closeDesktopWindow,
+  chooseDesktopHtmlExportPath,
   detachDesktopDocument,
-  exportDesktopHtml,
   openDesktopExport,
   importDesktopMarkdown,
   newDesktopWindow,
@@ -276,6 +276,7 @@ import {
   openExternalLink,
   prepareDesktopUpdate,
   saveDesktopDocument,
+  writeDesktopHtmlExport,
 } from "./desktop";
 import {
   BLOCK_LINK_COPIED_EVENT,
@@ -501,6 +502,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [savingKind, setSavingKind] = useState<"document" | "draft" | null>(null);
   const [importingMarkdown, setImportingMarkdown] = useState(false);
+  const [exportingHtml, setExportingHtml] = useState(false);
   const [desktopReady, setDesktopReady] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -558,6 +560,7 @@ export default function App() {
   const closingRef = useRef(false);
   const openingRef = useRef(false);
   const [opening, setOpening] = useState(false);
+  const [showOpeningProgress, setShowOpeningProgress] = useState(false);
   const dirtyRef = useRef(false);
   const unsafeChangesRef = useRef(false);
   const changeVersionRef = useRef(0);
@@ -802,7 +805,11 @@ export default function App() {
     setOpening(true);
     setBusy(true);
     void (async () => {
+      let unlisten: (() => void) | undefined;
       try {
+        unlisten = await getCurrentWindow().listen("desktop-open-started", () => {
+          setShowOpeningProgress(true);
+        });
         const opened = await openDesktopWindow(reuseCurrent);
         if (!opened) return;
         if (!isBlackDocument(opened.blocks)) throw new Error("文件不是有效的 BlackDoc 文档。");
@@ -818,8 +825,10 @@ export default function App() {
       } catch (error) {
         setNotice({ tone: "error", message: error instanceof Error ? error.message : String(error) });
       } finally {
+        unlisten?.();
         openingRef.current = false;
         setOpening(false);
+        setShowOpeningProgress(false);
         setBusy(false);
       }
     })();
@@ -869,6 +878,7 @@ export default function App() {
     if (openingRef.current || saveInFlightRef.current || !desktopReady || recoveryDraft) return;
     openingRef.current = true;
     setOpening(true);
+    setShowOpeningProgress(true);
     setBusy(true);
     try {
       const example: unknown = JSON.parse(exampleDocumentSource);
@@ -891,6 +901,7 @@ export default function App() {
     } finally {
       openingRef.current = false;
       setOpening(false);
+      setShowOpeningProgress(false);
       setBusy(false);
     }
   }, [clearSaveTimer, desktopReady, editor, recoveryDraft, replaceDocument, schedulePersistence]);
@@ -902,13 +913,16 @@ export default function App() {
   const exportCurrentDocument = useCallback(async () => {
     setBusy(true);
     try {
+      const suggestedName = htmlFileName(fileName ?? DEFAULT_DOCUMENT_FILE_NAME, editor.document);
+      const pathSelected = await chooseDesktopHtmlExportPath(suggestedName);
+      if (!pathSelected) return;
+
+      setExportingHtml(true);
+      // Allow the progress notice to paint before synchronous HTML serialization starts.
+      await new Promise<void>(resolve => window.setTimeout(resolve, 50));
       const snapshot = cloneDocument(editor.document);
       const result = await buildStandaloneHtml(editor, snapshot);
-      const exported = await exportDesktopHtml(
-        result.html,
-        htmlFileName(fileName ?? DEFAULT_DOCUMENT_FILE_NAME, snapshot),
-      );
-      if (!exported) return;
+      const exported = await writeDesktopHtmlExport(result.html);
 
       setNotice(
         result.externalImages.length > 0
@@ -925,6 +939,7 @@ export default function App() {
         message: error instanceof Error ? error.message : "HTML 导出失败。",
       });
     } finally {
+      setExportingHtml(false);
       setBusy(false);
     }
   }, [editor, fileName]);
@@ -1348,6 +1363,13 @@ export default function App() {
         </div>
       )}
 
+      {showOpeningProgress && (
+        <div className="notice import-progress" role="status" aria-live="polite">
+          <span className="import-progress-spinner" aria-hidden="true" />
+          <span>正在打开文档，请稍候…</span>
+        </div>
+      )}
+
       {importingMarkdown && (
         <div className="notice import-progress" role="status" aria-live="polite">
           <span className="import-progress-spinner" aria-hidden="true" />
@@ -1355,10 +1377,18 @@ export default function App() {
         </div>
       )}
 
+      {exportingHtml && (
+        <div className="notice import-progress" role="status" aria-live="polite">
+          <span className="import-progress-spinner" aria-hidden="true" />
+          <span>正在导出 HTML，请稍候…</span>
+        </div>
+      )}
+
       <div
         className={`workspace ${outlineCollapsed ? "outline-collapsed" : ""}`}
       >
         <DocumentOutline
+          editor={editor}
           items={outlineItems}
           collapsed={outlineCollapsed}
           onToggle={toggleOutline}

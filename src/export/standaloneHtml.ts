@@ -2,27 +2,35 @@ import type { BlackDocBlock as Block, BlackDocEditor as BlockNoteEditor } from "
 import { getDocumentTitle } from "../editor/document";
 import { getHeadingNumbers } from "../editor/headingNumbers";
 import { getOutlineItems } from "../editor/outline";
+import { isHeadingSectionExpanded } from "../editor/headingSections";
 import { canvasSvg } from "../canvas/export";
 import { exportScientificContent, serializeScientificContent } from "./scientificHtml";
 
 const EXPORT_STYLES = `
 :root { color-scheme: light; font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
 * { box-sizing: border-box; }
-body { margin: 0; color: #202124; background: #fff; line-height: 1.7; }
+body { margin: 0; color: #202124; background: #fff; line-height: 1.5; }
 .document-layout { width: min(100%, 1680px); margin: 0 auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); }
 .document-layout main { width: 100%; min-width: 0; padding: 36px 24px 80px; }
 .bn-editor { padding-inline: 54px; }
-.document-outline { position: sticky; top: 24px; align-self: start; margin-top: 48px; max-height: calc(100vh - 48px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #d7dde2 transparent; font-size: 13px; }
+.document-outline { position: sticky; top: 24px; align-self: start; margin-top: 48px; max-height: calc(100vh - 48px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #d7dde2 transparent; font-size: 15px; }
 .document-outline:hover { scrollbar-color: #aab3bc transparent; }
-.document-outline summary { cursor: pointer; padding: 0 0 10px; color: #858d96; font-size: 12px; font-weight: 600; }
+.document-outline summary { cursor: pointer; padding: 0 0 10px; color: #858d96; font-size: 14px; font-weight: 600; }
 .document-outline nav { display: flex; flex-direction: column; gap: 2px; padding: 0; border-left: 1px solid #e3e6ea; }
-.document-outline a { display: block; margin-left: -1px; padding: 6px 10px 6px calc(10px + var(--depth) * 12px); border-left: 2px solid transparent; color: #202124; text-decoration: none; overflow-wrap: anywhere; transition: background-color .15s ease, border-color .15s ease; }
+.document-outline .outline-row { display: flex; align-items: center; padding-left: calc(var(--depth) * 12px); }
+.document-outline .outline-row[hidden] { display: none; }
+.document-outline .outline-fold, .document-outline .outline-fold-spacer { flex: 0 0 20px; width: 20px; }
+.document-outline .outline-fold { align-self: stretch; padding: 0; border: 0; background: transparent; color: #858d96; cursor: pointer; }
+.document-outline .outline-fold span { display: inline-block; font-size: 11px; }
+.document-outline .outline-fold[aria-expanded="true"] span { transform: rotate(90deg); }
+.document-outline .outline-fold:hover { color: #16734b; background: #edf7f1; }
+.document-outline a { flex: 1; min-width: 0; display: block; margin-left: -1px; padding: 6px 10px 6px 4px; border-left: 2px solid transparent; color: #202124; text-decoration: none; overflow-wrap: anywhere; transition: background-color .15s ease, border-color .15s ease; }
 .document-outline a:hover { background: #edf7f1; }
 .document-outline a[aria-current="location"] { color: #16734b; border-left-color: #16734b; font-weight: 600; }
-.document-outline a:focus-visible, .document-outline summary:focus-visible { outline: 2px solid #0969da; outline-offset: -2px; }
+.document-outline a:focus-visible, .document-outline summary:focus-visible, .document-outline .outline-fold:focus-visible { outline: 2px solid #0969da; outline-offset: -2px; }
 .bn-block-outer[id] { scroll-margin-top: 24px; }
 .bn-block-group { display: flex; flex-direction: column; gap: 2px; }
-.bn-block-outer { position: relative; }
+.bn-block-outer { position: relative; line-height: 1.5; }
 .bn-block-outer.block-link-highlight { scroll-margin-top: 24px; animation: block-link-export-highlight 1.8s ease-out; }
 .bn-editor a[href] { color: #0b6e99; }
 .bn-block { display: flex; flex-direction: column; }
@@ -83,13 +91,13 @@ math[display="block"] { display: block math; overflow-x: auto; padding: 12px 0; 
 math[display="inline"] { display: inline math; }
 .math-export-error { white-space: pre-wrap; overflow-wrap: anywhere; }
 .diagram-export { max-width: 100%; height: auto; }
-h1.bn-inline-content { margin: 0 0 22px; font-size: 2rem; line-height: 1.2; }
-h2.bn-inline-content { margin: 32px 0 10px; font-size: 1.75rem; line-height: 1.3; }
-h3.bn-inline-content { margin: 26px 0 8px; font-size: 1.5rem; line-height: 1.35; }
-h4.bn-inline-content { margin: 22px 0 6px; font-size: 1.25rem; line-height: 1.4; }
-h5.bn-inline-content { margin: 22px 0 6px; font-size: 1.125rem; line-height: 1.4; }
-h6.bn-inline-content { margin: 22px 0 6px; font-size: 1rem; line-height: 1.4; }
-p.bn-inline-content { margin: 5px 0; }
+h1.bn-inline-content { margin: 0; font-size: 2rem; line-height: 1.2; }
+h2.bn-inline-content { margin: 0; font-size: 1.75rem; line-height: 1.5; }
+h3.bn-inline-content { margin: 0; font-size: 1.5rem; line-height: 1.5; }
+h4.bn-inline-content { margin: 0; font-size: 1.25rem; line-height: 1.5; }
+h5.bn-inline-content { margin: 0; font-size: 1.125rem; line-height: 1.5; }
+h6.bn-inline-content { margin: 0; font-size: 1rem; line-height: 1.5; }
+p.bn-inline-content { margin: 0; }
 a { color: #0969da; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 blockquote { margin: 16px 0; padding: 3px 18px; border-left: 3px solid #8b949e; color: #57606a; }
 pre { overflow: auto; padding: 16px; border: 1px solid #d8dee4; border-radius: 6px; background: #f6f8fa; }
@@ -164,14 +172,43 @@ const OUTLINE_SCRIPT = `
   const links = Array.from(outline?.querySelectorAll("nav a") ?? []);
   const entries = links.map(link => ({
     link,
+    row: link.closest(".outline-row"),
     target: document.getElementById(decodeURIComponent(link.hash.slice(1)))
   })).filter(entry => entry.target);
+  const headingToggle = target => target.querySelector(":scope > .bn-block > .bn-block-content[data-content-type='heading'] > .bn-toggle-wrapper");
+  const syncOutlineFolds = () => {
+    for (const entry of entries) {
+      const wrapper = headingToggle(entry.target);
+      const button = entry.row?.querySelector(".outline-fold");
+      if (button && wrapper) {
+        const expanded = wrapper.getAttribute("data-show-children") !== "false";
+        button.setAttribute("aria-expanded", String(expanded));
+        button.setAttribute("aria-label", (expanded ? "折叠标题：" : "展开标题：") + entry.link.textContent);
+      }
+      let hidden = false;
+      for (let parent = entry.target.parentElement; parent; parent = parent.parentElement) {
+        if (!parent.matches(".bn-block-outer")) continue;
+        if (headingToggle(parent)?.getAttribute("data-show-children") === "false") {
+          hidden = true;
+          break;
+        }
+      }
+      if (entry.row) entry.row.hidden = hidden;
+    }
+  };
   let frame = 0;
   const setToggle = (wrapper, expanded) => {
     wrapper.setAttribute("data-show-children", String(expanded));
     wrapper.querySelector(".bn-toggle-button")?.setAttribute("aria-expanded", String(expanded));
+    syncOutlineFolds();
     schedule();
   };
+  for (const entry of entries) {
+    entry.row?.querySelector(".outline-fold")?.addEventListener("click", () => {
+      const wrapper = headingToggle(entry.target);
+      if (wrapper) setToggle(wrapper, wrapper.getAttribute("data-show-children") === "false");
+    });
+  }
   document.querySelectorAll(".bn-toggle-wrapper").forEach(wrapper => {
     const button = wrapper.querySelector(".bn-toggle-button");
     if (!button) return;
@@ -261,6 +298,7 @@ const OUTLINE_SCRIPT = `
   window.addEventListener("resize", schedule);
   document.addEventListener("toggle", schedule, true);
   document.addEventListener("load", schedule, true);
+  syncOutlineFolds();
   if (location.hash) reveal(location.hash);
   update();
 })();
@@ -528,6 +566,13 @@ export const buildStandaloneHtml = async (
   exportSplitPanes(container, blocks);
   await exportScientificContent(container, blocks);
   wrapHeadingSections(container);
+  for (const wrapper of container.querySelectorAll<HTMLElement>('[data-content-type="heading"] > .bn-toggle-wrapper')) {
+    const anchor = wrapper.closest(".bn-block-outer")?.id;
+    if (!anchor?.startsWith("block=")) continue;
+    const expanded = isHeadingSectionExpanded(anchor.slice(6));
+    wrapper.setAttribute("data-show-children", String(expanded));
+    wrapper.querySelector(".bn-toggle-button")?.setAttribute("aria-expanded", String(expanded));
+  }
   const canvases = new Map<string, { scene: string; previewWidth?: unknown; textAlignment?: unknown }>(flattenBlocks(blocks).flatMap(block =>
     block.type === "canvas" ? [[`block=${block.id}`, block.props] as const] : [],
   ));
@@ -568,9 +613,14 @@ export const buildStandaloneHtml = async (
     ? `<aside class="document-outline" aria-label="文档大纲">
     <details open>
       <summary>大纲</summary>
-      <nav aria-label="标题导航">${outlineItems.map(item =>
-        `<a href="#block=${escapeHtml(encodeURIComponent(item.id))}" style="--depth:${Math.min(5, Math.max(0, item.level - 1))}">${item.number ? `${escapeHtml(item.number)} ` : ""}${escapeHtml(item.text)}</a>`,
-      ).join("\n")}</nav>
+      <nav aria-label="标题导航">${outlineItems.map(item => {
+        const label = `${item.number ? `${escapeHtml(item.number)} ` : ""}${escapeHtml(item.text)}`;
+        const toggleable = blockElements.get(`block=${item.id}`)?.querySelector(':scope > .bn-block > .bn-block-content[data-content-type="heading"] > .bn-toggle-wrapper');
+        const control = toggleable
+          ? `<button class="outline-fold" type="button" aria-label="${isHeadingSectionExpanded(item.id) ? "折叠" : "展开"}标题：${label}" aria-expanded="${isHeadingSectionExpanded(item.id)}"><span aria-hidden="true">▶</span></button>`
+          : '<span class="outline-fold-spacer" aria-hidden="true"></span>';
+        return `<div class="outline-row" style="--depth:${Math.min(5, Math.max(0, item.level - 1))}">${control}<a href="#block=${escapeHtml(encodeURIComponent(item.id))}">${label}</a></div>`;
+      }).join("\n")}</nav>
     </details>
   </aside>`
     : "";

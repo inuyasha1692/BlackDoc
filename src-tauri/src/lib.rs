@@ -1,5 +1,5 @@
-mod storage;
 mod ai_bridge;
+mod storage;
 
 use serde::Serialize;
 use serde_json::Value;
@@ -37,6 +37,7 @@ struct Session {
     path: Option<PathBuf>,
     file_lock: Option<std::fs::File>,
     last_export: Option<PathBuf>,
+    pending_html_export: Option<PathBuf>,
     document: Option<Document>,
     draft: Option<Draft>,
     baseline: Option<Vec<u8>>,
@@ -200,6 +201,7 @@ fn create_window(
             path: document.as_ref().map(|doc| PathBuf::from(&doc.path)),
             file_lock,
             last_export: None,
+            pending_html_export: None,
             document,
             draft,
             baseline,
@@ -329,6 +331,7 @@ async fn desktop_open_window(
         return Ok(None);
     };
     let path = selected.into_path().map_err(error)?;
+    window.emit("desktop-open-started", ()).map_err(error)?;
     with_desktop(window.app_handle().clone(), move |app, desktop| {
         if let Some(document) = desktop.try_reuse_document(window.label(), &path, reuse_current)? {
             let _ = window.set_title(&format!("{} - BlackDoc", document.name));
@@ -537,12 +540,22 @@ async fn desktop_delete_draft(window: WebviewWindow) -> Result<()> {
 }
 
 #[tauri::command]
-async fn desktop_export_html(
+async fn desktop_choose_html_export_path(
     window: WebviewWindow,
-    html: String,
     suggested_name: String,
-) -> Result<Option<SavedDocument>> {
-    check_session(&window).await?;
+) -> Result<bool> {
+    let label = window.label().to_string();
+    let session_label = label.clone();
+    with_desktop(window.app_handle().clone(), move |_, desktop| {
+        let session = desktop
+            .sessions
+            .get_mut(&session_label)
+            .ok_or("Unknown or closed document window")?;
+        session.pending_html_export = None;
+        Ok(())
+    })
+    .await?;
+
     let parent = window.clone();
     let selected = tauri::async_runtime::spawn_blocking(move || {
         parent
@@ -557,12 +570,36 @@ async fn desktop_export_html(
     .await
     .map_err(error)?;
     let Some(selected) = selected else {
-        return Ok(None);
+        return Ok(false);
     };
-    let path = selected.into_path().map_err(error)?;
+    let target = storage::save_target(selected.into_path().map_err(error)?, true)?;
     with_desktop(window.app_handle().clone(), move |_, desktop| {
-        desktop.session(window.label())?;
-        let target = storage::save_target(path, true)?;
+        desktop.session(&label)?;
+        if desktop.owner(&target).is_some() {
+            return Err("Cannot export over an open document".into());
+        }
+        desktop
+            .sessions
+            .get_mut(&label)
+            .ok_or("Window closed")?
+            .pending_html_export = Some(target);
+        Ok(true)
+    })
+    .await
+}
+
+#[tauri::command]
+async fn desktop_write_html_export(window: WebviewWindow, html: String) -> Result<SavedDocument> {
+    let label = window.label().to_string();
+    with_desktop(window.app_handle().clone(), move |_, desktop| {
+        let selected_path = desktop
+            .sessions
+            .get_mut(&label)
+            .ok_or("Unknown or closed document window")?
+            .pending_html_export
+            .take()
+            .ok_or("Choose an HTML export path first")?;
+        let target = storage::save_target(selected_path, true)?;
         if desktop.owner(&target).is_some() {
             return Err("Cannot export over an open document".into());
         }
@@ -571,13 +608,13 @@ async fn desktop_export_html(
         storage::atomic_write(&target, html.as_bytes())?;
         desktop
             .sessions
-            .get_mut(window.label())
+            .get_mut(&label)
             .ok_or("Window closed")?
             .last_export = Some(target.clone());
-        Ok(Some(SavedDocument {
+        Ok(SavedDocument {
             path: target.to_string_lossy().into_owned(),
             name: exported_name,
-        }))
+        })
     })
     .await
 }
@@ -690,7 +727,8 @@ pub fn run() {
             desktop_save_document,
             desktop_write_draft,
             desktop_delete_draft,
-            desktop_export_html,
+            desktop_choose_html_export_path,
+            desktop_write_html_export,
             desktop_open_export,
             desktop_close_window,
             desktop_prepare_update,
@@ -774,6 +812,7 @@ mod tests {
             path: None,
             file_lock: None,
             last_export: None,
+            pending_html_export: None,
             document: None,
             draft: None,
             baseline: None,
@@ -932,6 +971,7 @@ mod tests {
                 path: Some(path.clone()),
                 file_lock: None,
                 last_export: None,
+                pending_html_export: None,
                 document: None,
                 draft: None,
                 baseline: None,

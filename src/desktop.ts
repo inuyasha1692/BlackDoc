@@ -45,8 +45,11 @@ export const saveDesktopDocument = (
   blocks, path, suggestedName, saveAs,
 });
 
-export const exportDesktopHtml = (html: string, suggestedName: string) =>
-  invoke<DesktopFile | null>("desktop_export_html", { html, suggestedName });
+export const chooseDesktopHtmlExportPath = (suggestedName: string) =>
+  invoke<boolean>("desktop_choose_html_export_path", { suggestedName });
+
+export const writeDesktopHtmlExport = (html: string) =>
+  invoke<DesktopFile>("desktop_write_html_export", { html });
 
 export const openDesktopExport = () => invoke<void>("desktop_open_export");
 

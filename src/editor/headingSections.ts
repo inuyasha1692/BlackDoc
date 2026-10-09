@@ -6,8 +6,10 @@ import { transactionTouchesNodeTypes } from "./transactionTouchesNodeTypes";
 
 export const REVEAL_HEADING_SECTION = "blackdoc:reveal-heading-section";
 export const RESET_DOCUMENT_FOLDS_META = "blackdoc-reset-document-folds";
+export const HEADING_FOLDS_CHANGED = "blackdoc:heading-folds-changed";
 const structureTypes = new Set(["heading", "blockContainer", "column"]);
-const expanded = (id: string) => localStorage.getItem(`toggle-${id}`) !== "false";
+export const isHeadingSectionExpanded = (id: string) => localStorage.getItem(`toggle-${id}`) !== "false";
+const expanded = isHeadingSectionExpanded;
 
 function expandDocumentFolds(doc: PMNode) {
   doc.descendants(node => {
@@ -65,6 +67,7 @@ export function renderSectionHeading(block: { id: string; props: { level: number
 
 function sections(doc: PMNode) {
   const owners = new Map<string, string[]>();
+  const toggleableHeadings = new Set<string>();
   const decorations: Decoration[] = [];
   function visit(parent: PMNode, pos: number, inherited: string[]) {
     const headings: { id: string; level: number }[] = [];
@@ -75,6 +78,7 @@ function sections(doc: PMNode) {
         const heading = node.firstChild?.type.name === "heading" ? node.firstChild : null;
         const id = node.attrs.id as string;
         if (heading) {
+          if (heading.attrs.isToggleable !== false) toggleableHeadings.add(id);
           const level = Number(heading.attrs.level);
           while (headings.length && headings.at(-1)!.level >= level) headings.pop();
           scope = [...inherited, ...headings.map(item => item.id)];
@@ -90,11 +94,36 @@ function sections(doc: PMNode) {
     });
   }
   visit(doc, 0, []);
-  return { owners, decorations: DecorationSet.create(doc, decorations) };
+  return { owners, toggleableHeadings, decorations: DecorationSet.create(doc, decorations) };
+}
+
+const key = new PluginKey<ReturnType<typeof sections> & { revision: number }>("heading-sections");
+
+export function getHeadingFoldState(view: EditorView) {
+  const state = key.getState(view.state);
+  return {
+    owners: state?.owners ?? new Map<string, string[]>(),
+    expanded: new Map(Array.from(state?.toggleableHeadings ?? [], id => [id, expanded(id)] as const)),
+  };
+}
+
+export function setHeadingSectionExpanded(view: EditorView, id: string, open: boolean) {
+  if (!key.getState(view.state)?.toggleableHeadings.has(id)) return;
+  localStorage.setItem(`toggle-${id}`, String(open));
+  const tr = view.state.tr.setMeta(key, true);
+  const selected = selectedBlockId(view.state.selection);
+  if (!open && selected && key.getState(view.state)?.owners.get(selected)?.includes(id)) {
+    view.state.doc.descendants((node, pos) => {
+      if (node.type.name === "blockContainer" && node.attrs.id === id) {
+        tr.setSelection(TextSelection.create(tr.doc, pos + node.firstChild!.nodeSize));
+        return false;
+      }
+    });
+  }
+  view.dispatch(tr);
 }
 
 export const HeadingSectionsExtension = createExtension(() => {
-  const key = new PluginKey<ReturnType<typeof sections> & { revision: number }>("heading-sections");
   function syncButtons(view: EditorView) {
     for (const wrapper of view.dom.querySelectorAll<HTMLElement>(':is([data-content-type="heading"], [data-content-type="toggleListItem"]) .bn-toggle-wrapper')) {
       const id = wrapper.closest("[data-id]")?.getAttribute("data-id");
@@ -105,6 +134,7 @@ export const HeadingSectionsExtension = createExtension(() => {
       button?.setAttribute("aria-expanded", String(expanded(id)));
       button?.setAttribute("aria-label", expanded(id) ? "折叠标题" : "展开标题");
     }
+    view.dom.dispatchEvent(new CustomEvent(HEADING_FOLDS_CHANGED, { bubbles: true }));
   }
   function toggleHeading(view: EditorView, event: MouseEvent) {
     const button = event.target instanceof Element ? event.target.closest(".bn-toggle-button") : null;
@@ -114,18 +144,7 @@ export const HeadingSectionsExtension = createExtension(() => {
     if (!id) return false;
     event.preventDefault();
     event.stopImmediatePropagation();
-    localStorage.setItem(`toggle-${id}`, String(!expanded(id)));
-    const tr = view.state.tr.setMeta(key, true);
-    const selected = selectedBlockId(view.state.selection);
-    if (!expanded(id) && selected && key.getState(view.state)?.owners.get(selected)?.includes(id)) {
-      view.state.doc.descendants((node, pos) => {
-        if (node.type.name === "blockContainer" && node.attrs.id === id) {
-          tr.setSelection(TextSelection.create(tr.doc, pos + node.firstChild!.nodeSize));
-          return false;
-        }
-      });
-    }
-    view.dispatch(tr);
+    setHeadingSectionExpanded(view, id, !expanded(id));
     return true;
   }
   return {
