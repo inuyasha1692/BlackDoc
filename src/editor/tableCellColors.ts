@@ -2,6 +2,8 @@ import { getNodeById } from "@blocknote/core";
 import type { EditorState, Transaction } from "@tiptap/pm/state";
 import { CellSelection } from "prosemirror-tables";
 
+export const TABLE_CELL_COLORS = ["default", "gray", "brown", "red", "orange", "yellow", "green", "blue", "purple", "pink"] as const;
+
 export type CellColorProperty = "backgroundColor" | "textColor";
 
 export function colorTargetCells(

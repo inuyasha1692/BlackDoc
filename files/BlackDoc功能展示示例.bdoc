@@ -1639,7 +1639,7 @@
     "id": "demo-split",
     "props": {
       "leftWidth": 39,
-      "rightHeight": 392
+      "rightHeight": 450
     },
     "type": "splitPane"
   },

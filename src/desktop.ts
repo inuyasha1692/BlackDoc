@@ -53,6 +53,11 @@ export const writeDesktopHtmlExport = (html: string) =>
 
 export const openDesktopExport = () => invoke<void>("desktop_open_export");
 
+export const chooseDesktopMarkdownExportPath = (suggestedName: string) =>
+  invoke<boolean>("desktop_choose_markdown_export_path", { suggestedName });
+export const writeDesktopMarkdownExport = (markdown: string, assets: import("./export/markdown").MarkdownAsset[]) =>
+  invoke<DesktopFile>("desktop_write_markdown_export", { markdown, assets });
+
 export const openExternalLink = async (url: string): Promise<void> => {
   if (!/^(https?:|mailto:)/i.test(url)) return;
   await invoke("desktop_open_external", { url });

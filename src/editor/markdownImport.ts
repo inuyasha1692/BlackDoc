@@ -1,6 +1,6 @@
 import { marked } from "marked";
 import type { BlackDocBlock, BlackDocEditor } from "./schema";
-import { createSplitPane, SPLIT_AUTO_HEIGHT } from "./splitPane";
+
 
 export interface MarkdownImportResult {
   blocks: BlackDocBlock[];
@@ -12,7 +12,7 @@ const MARKER = "BLACKDOCIMPORTANCHOR";
 const IMAGE_MARKER = "BLACKDOCIMPORTIMAGE";
 const VIDEO_MARKER = "BLACKDOCIMPORTVIDEO";
 const SOURCE_IMAGE = /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)|<img\b[^>]*>/gi;
-const EMBEDDED_VIDEO = /\[([^\]]+)\]\((data:video\/mp4;base64,[^)]+)\)/gi;
+const EMBEDDED_VIDEO = /\[([^\]]+)\]\((data:(?:video\/mp4|audio\/(?:mpeg|wav|ogg));base64,[^)]+)\)/gi;
 type JsonObject = Record<string, unknown>;
 
 const isObject = (value: unknown): value is JsonObject =>
@@ -61,58 +61,6 @@ const paletteColor = (value: string, kind: "textColor" | "backgroundColor"): str
   if (degrees < 300) return "purple";
   return "pink";
 };
-
-// Estimate description length without depending on image loading or the current
-// editor viewport. Count wrapped lines as well as explicit Markdown/HTML breaks.
-const hasLongDescription = (cell: unknown): boolean => {
-  const text = plainText(cell).replace(/BLACKDOCIMPORT(?:ANCHOR|IMAGE|VIDEO)\d+END/g, "").trim();
-  const lines = text.split(/\r?\n/).reduce((total, line) =>
-    total + Math.max(1, Math.ceil(Array.from(line).length / 40)), 0);
-  return Array.from(text).length > 600 || lines > 15;
-};
-
-const imageDescriptionPanes = (blocks: BlackDocBlock[]): BlackDocBlock[] => blocks.flatMap(block => {
-  if (block.type !== "table" || block.content.type !== "tableContent") return [block];
-  const rows = block.content.rows;
-  if (rows.length === 0 || rows.some(row => row.cells.length !== rows[0].cells.length)) return [block];
-  const columnCount = rows[0].cells.length;
-  if (columnCount < 2 || columnCount > 4) return [block];
-  const header = rows[0].cells.map(cell => plainText(cell).trim());
-  if (["状态", "图片", "说明"].every(label => header.includes(label))) return [block];
-  const isImageDescription = columnCount === 2 && header[0] === "图片" && header[1] === "说明";
-  const firstRow = isImageDescription ? 1 :
-    block.content.headerRows && !header.some(text => text.includes(IMAGE_MARKER)) ? 1 : 0;
-  const contentRows = rows.slice(firstRow);
-  if (!contentRows.length || contentRows.some(row =>
-    !row.cells.some(cell => plainText(cell).includes(IMAGE_MARKER)) ||
-    !row.cells.some(cell => plainText(cell).replace(/BLACKDOCIMPORTIMAGE\d+END/g, "").trim()))) return [block];
-  const cellContent = (cell: unknown) =>
-    isObject(cell) && Array.isArray(cell.content) ? cell.content : cell;
-  if (columnCount === 2 && contentRows.every(row =>
-    plainText(row.cells[0]).includes(IMAGE_MARKER))) {
-    return contentRows.map(row => {
-      const longDescription = hasLongDescription(row.cells[1]);
-      return {
-        ...(longDescription ? createSplitPane() : {}),
-        id: crypto.randomUUID(), type: longDescription ? "splitPane" : "columnList",
-        props: longDescription ? { leftWidth: 50, rightHeight: SPLIT_AUTO_HEIGHT } : {},
-        children: row.cells.map((cell, index) => ({
-          id: crypto.randomUUID(), type: longDescription ? "splitColumn" : "column",
-          props: longDescription ? { side: index === 0 ? "left" : "right" } : { width: 1 },
-          children: [{ id: crypto.randomUUID(), type: "paragraph", content: cellContent(cell), children: [] }],
-        })),
-      } as unknown as BlackDocBlock;
-    });
-  }
-  const displayRows = firstRow === 1 ? rows : contentRows;
-  return displayRows.map(row => ({
-    id: crypto.randomUUID(), type: "columnList", props: {},
-    children: row.cells.map(cell => ({
-      id: crypto.randomUUID(), type: "column", props: { width: 1 },
-      children: [{ id: crypto.randomUUID(), type: "paragraph", content: cellContent(cell), children: [] }],
-    })),
-  } as unknown as BlackDocBlock));
-});
 
 interface EmbeddedImage {
   url: string;
@@ -259,6 +207,42 @@ export const importMarkdownBlocks = (
   editor: BlackDocEditor,
   markdown: string,
 ): MarkdownImportResult => {
+  const scientific = new Map<string, { type: "diagram" | "mathBlock" | "math"; content: string }>();
+  const scientificPrefix = `BLACKDOCSCI${crypto.randomUUID().replaceAll("-", "")}X`;
+  const storeScientific = (type: "diagram" | "mathBlock" | "math", content: string) => {
+    const marker = `${scientificPrefix}${scientific.size}END`;
+    scientific.set(marker, { type, content });
+    return marker;
+  };
+  // Keep ordinary fenced code untouched while extracting Typora scientific syntax.
+  let fenced = false;
+  let fenceMarker = "";
+  let fenceLength = 0;
+  const lines = markdown.split("\n");
+  const prepared: string[] = [];
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const line = lines[lineIndex];
+    const fence = line.match(/^\s*(`{3,}|~{3,})([^\s]*)\s*$/);
+    if (!fenced && fence && fence[2].toLowerCase() === "mermaid") {
+      const source: string[] = [];
+      let end = lineIndex + 1;
+      while (end < lines.length && !new RegExp(`^\\s*${fence[1][0]}{${fence[1].length},}\\s*$`).test(lines[end])) source.push(lines[end++]);
+      if (end < lines.length) { prepared.push(storeScientific("diagram", source.join("\n"))); lineIndex = end; continue; }
+    }
+    if (!fenced && /^\s*\$\$\s*$/.test(line)) {
+      const source: string[] = [];
+      let end = lineIndex + 1;
+      while (end < lines.length && !/^\s*\$\$\s*$/.test(lines[end])) source.push(lines[end++]);
+      if (end < lines.length) { prepared.push(storeScientific("mathBlock", source.join("\n"))); lineIndex = end; continue; }
+    }
+    if (fence) {
+      if (!fenced) { fenced = true; fenceMarker = fence[1][0]; fenceLength = fence[1].length; }
+      else if (fence[1][0] === fenceMarker && fence[1].length >= fenceLength && !fence[2]) fenced = false;
+      prepared.push(line); continue;
+    }
+    prepared.push(fenced ? line : line.split(/(`+[^`]*`+)/g).map(part => part.startsWith("`") ? part : part.replace(/(?<![\\$])\$([^\s$](?:[^$\n]*?[^\s$])?)\$(?![\d$])/g, (_match, source: string) => storeScientific("math", source))).join(""));
+  }
+  markdown = prepared.join("\n");
   const anchors: string[] = [];
   const anchorHints: string[] = [];
   const masked = maskAssets(markdown);
@@ -276,7 +260,7 @@ export const importMarkdownBlocks = (
       return `${MARKER}${index}END${tag}`;
     });
   const parsed = restoreListDepths(normalized,
-    imageDescriptionPanes(editor.tryParseMarkdownToBlocks(normalized)));
+    editor.tryParseMarkdownToBlocks(normalized));
   if (parsed.length === 0) {
     throw new Error("Markdown 文档没有可导入的内容。");
   }
@@ -489,8 +473,9 @@ export const importMarkdownBlocks = (
       const video = masked.videos[index];
       if (!video || placedVideos.has(index)) continue;
       placedVideos.add(index);
-      const parsedVideo = editor.tryParseHTMLToBlocks(`<video src="${video.url}" controls></video>`);
-      if (parsedVideo.some(item => item.type === "video")) {
+      const mediaType = video.url.startsWith("data:audio/") ? "audio" : "video";
+      const parsedVideo = editor.tryParseHTMLToBlocks(`<${mediaType} src="${video.url}" controls></${mediaType}>`);
+      if (parsedVideo.some(item => item.type === mediaType)) {
         withImages.push(...parsedVideo);
       } else {
         warnings.push(`视频 ${video.name} 未能转换为视频块。`);
@@ -533,5 +518,31 @@ export const importMarkdownBlocks = (
   if (unresolvedLinks.length > 0) {
     warnings.push(`${unresolvedLinks.length} 个文内链接未能定位：${unresolvedLinks.join("；")}`);
   }
-  return { blocks: withImages, warnings };
+  const sciencePattern = new RegExp(`${scientificPrefix}\\d+END`, "g");
+  const restoreScience = (items: BlackDocBlock[]): BlackDocBlock[] => items.map(block => {
+    const source = scientific.get(plainText(block.content).trim());
+    if (block.type === "paragraph" && source && source.type !== "math") {
+      return { id: block.id, type: source.type, props: {}, content: [{ type: "text", text: source.content, styles: {} }], children: restoreScience(block.children) } as BlackDocBlock;
+    }
+    visit(block.content, object => {
+      if (!Array.isArray(object.content)) return;
+      object.content = restoreInline(object.content);
+    });
+    return { ...block, content: Array.isArray(block.content) ? restoreInline(block.content) : block.content, children: restoreScience(block.children) } as BlackDocBlock;
+  });
+  const restoreInline = (items: unknown[]): unknown[] => items.flatMap(item => {
+    if (!isObject(item) || item.type !== "text" || typeof item.text !== "string") return [item];
+    const result: unknown[] = [];
+    let offset = 0;
+    for (const match of item.text.matchAll(sciencePattern)) {
+      const source = scientific.get(match[0]);
+      if (!source || source.type !== "math") continue;
+      if (match.index > offset) result.push({ ...item, text: item.text.slice(offset, match.index) });
+      result.push({ type: "math", props: {}, content: source.content });
+      offset = match.index + match[0].length;
+    }
+    if (offset < item.text.length) result.push({ ...item, text: item.text.slice(offset) });
+    return result;
+  });
+  return { blocks: restoreScience(withImages), warnings };
 };

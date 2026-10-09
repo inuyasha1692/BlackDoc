@@ -8,6 +8,8 @@ import exampleDocumentSource from "../files/BlackDoc功能展示示例.bdoc?raw"
 import {
   bootstrapDesktop,
   chooseDesktopHtmlExportPath,
+  chooseDesktopMarkdownExportPath,
+  writeDesktopMarkdownExport,
   closeDesktopWindow,
   detachDesktopDocument,
   importDesktopMarkdown,
@@ -21,6 +23,7 @@ import {
 } from "./desktop";
 import { importMarkdownBlocks } from "./editor/markdownImport";
 import { buildStandaloneHtml } from "./export/standaloneHtml";
+import { buildMarkdown } from "./export/markdown";
 import { deleteDraft, writeDraft } from "./storage/draftStore";
 import { checkForUpdate } from "./updates";
 import { check as checkSignedUpdate } from "@tauri-apps/plugin-updater";
@@ -116,12 +119,15 @@ vi.mock("./desktop", () => ({
   detachDesktopDocument: vi.fn(),
   saveDesktopDocument: vi.fn(),
   chooseDesktopHtmlExportPath: vi.fn(),
+  chooseDesktopMarkdownExportPath: vi.fn(),
+  writeDesktopMarkdownExport: vi.fn(),
   writeDesktopHtmlExport: vi.fn(),
   openDesktopExport: vi.fn(),
   openExternalLink: vi.fn(),
   prepareDesktopUpdate: vi.fn(),
 }));
 vi.mock("./export/standaloneHtml", () => ({ buildStandaloneHtml: vi.fn() }));
+vi.mock("./export/markdown", () => ({ buildMarkdown: vi.fn() }));
 vi.mock("./editor/markdownImport", () => ({
   importMarkdownBlocks: vi.fn(),
 }));
@@ -408,6 +414,33 @@ describe("desktop App lifecycle", () => {
     expect(link).toHaveAttribute("title", path);
     await act(async () => { fireEvent.click(link); });
     expect(openDesktopExport).toHaveBeenCalledOnce();
+  });
+
+  it("chooses a Markdown path before generating and writing the document", async () => {
+    const selection = deferred<boolean>();
+    vi.mocked(chooseDesktopMarkdownExportPath).mockReturnValue(selection.promise);
+    vi.mocked(buildMarkdown).mockResolvedValue({ markdown: "# 文档\n", assets: [], warnings: [] });
+    vi.mocked(writeDesktopMarkdownExport).mockResolvedValue({ path: "C:/documents/Original.md", name: "Original.md" });
+    await mountApp();
+    await clickButton("导出 MD");
+    expect(chooseDesktopMarkdownExportPath).toHaveBeenCalledOnce();
+    expect(buildMarkdown).not.toHaveBeenCalled();
+    expect(screen.queryByText("正在生成 Markdown…")).not.toBeInTheDocument();
+    await act(async () => { selection.resolve(true); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(50); });
+    expect(buildMarkdown).toHaveBeenCalledOnce();
+    expect(writeDesktopMarkdownExport).toHaveBeenCalledWith("# 文档\n", []);
+    expect(screen.getByRole("alert")).toHaveTextContent("Markdown 已导出。");
+  });
+
+  it("does not generate Markdown or assets when path selection is cancelled", async () => {
+    vi.mocked(chooseDesktopMarkdownExportPath).mockResolvedValue(false);
+    await mountApp();
+    await clickButton("导出 MD");
+    await act(async () => { await vi.advanceTimersByTimeAsync(50); });
+    expect(buildMarkdown).not.toHaveBeenCalled();
+    expect(writeDesktopMarkdownExport).not.toHaveBeenCalled();
+    expect(screen.queryByText("正在生成 Markdown…")).not.toBeInTheDocument();
   });
 
   it("does not show an HTML link when export is cancelled", async () => {

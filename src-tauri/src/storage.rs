@@ -12,6 +12,30 @@ use tempfile::NamedTempFile;
 
 pub type Result<T> = std::result::Result<T, String>;
 
+#[derive(Deserialize)]
+pub struct MarkdownAsset { pub name: String, pub base64: String }
+
+pub fn write_markdown_export(target: &Path, markdown: &str, assets: &[MarkdownAsset]) -> Result<()> {
+    let directory = target.parent().ok_or("Missing export directory")?.join("assets");
+    let mut prepared = Vec::new();
+    for asset in assets {
+        if asset.name.is_empty() || asset.name.contains(['/', '\\', ':']) || asset.name.starts_with('.') {
+            return Err("Invalid Markdown asset filename".into());
+        }
+        let bytes = base64::engine::general_purpose::STANDARD.decode(&asset.base64).map_err(error)?;
+        let path = directory.join(&asset.name);
+        if path.exists() && fs::read(&path).map_err(error)? != bytes {
+            return Err(format!("Resource already exists with different content: {}", asset.name));
+        }
+        prepared.push((path, bytes));
+    }
+    if !prepared.is_empty() { fs::create_dir_all(&directory).map_err(error)?; }
+    for (path, bytes) in prepared {
+        if !path.exists() { atomic_write(&path, &bytes)?; }
+    }
+    atomic_write(target, markdown.as_bytes())
+}
+
 pub fn error(error: impl std::fmt::Display) -> String {
     error.to_string()
 }
@@ -100,6 +124,9 @@ fn asset_mime(path: &Path) -> Option<&'static str> {
         "bmp" => Some("image/bmp"),
         "avif" => Some("image/avif"),
         "mp4" => Some("video/mp4"),
+        "mp3" => Some("audio/mpeg"),
+        "wav" => Some("audio/wav"),
+        "ogg" => Some("audio/ogg"),
         _ => None,
     }
 }
@@ -164,7 +191,7 @@ pub fn read_markdown(path: &Path) -> Result<ImportedMarkdown> {
     let markdown_image = Regex::new(r#"!\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)"#).map_err(error)?;
     let html_image =
         Regex::new(r#"(?i)<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["'][^>]*>"#).map_err(error)?;
-    let local_video = Regex::new(r#"(\[[^\]]+\]\()([^)\s]+\.mp4)(\))"#).map_err(error)?;
+    let local_video = Regex::new(r#"(?i)(\[[^\]]+\]\()([^)\s]+\.(?:mp4|mp3|wav|ogg))(\))"#).map_err(error)?;
 
     let source = markdown_image.replace_all(&source, |captures: &Captures| {
         let url = captures.get(1).unwrap();

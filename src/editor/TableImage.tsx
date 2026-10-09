@@ -51,7 +51,7 @@ const TableImageContent = ({ inlineContent, editor, getPos }: ReactCustomInlineC
     const width = cell ? cell.clientWidth - (parseFloat(style!.paddingLeft) || 0) - (parseFloat(style!.paddingRight) || 0) : 0;
     return Math.max(24, width || image.current?.getBoundingClientRect().width || 24);
   };
-  const startResize = (event: PointerEvent<HTMLButtonElement>, side: "left" | "right") => {
+  const startResize = (side: "left" | "right") => (event: PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0 || !image.current || !editor.isEditable) return;
     event.preventDefault();
     event.stopPropagation();
@@ -110,7 +110,7 @@ const TableImageContent = ({ inlineContent, editor, getPos }: ReactCustomInlineC
     className={`table-image-resize-handle ${side}`}
     aria-label={`缩放表格图片（${side === "left" ? "左侧" : "右侧"}）`}
     title="拖动调整图片大小"
-    onPointerDown={event => startResize(event, side)}
+    onPointerDown={startResize(side)}
     onMouseDown={event => { event.preventDefault(); event.stopPropagation(); }}
     onKeyDown={event => {
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;

@@ -312,6 +312,8 @@ import { BlockMarqueeExtension } from "./editor/blockMarquee";
 import { OptimizedTrailingNodeExtension } from "./editor/trailingNodeExtension";
 import { CanvasEditorHost } from "./canvas/CanvasPreview";
 import { buildStandaloneHtml } from "./export/standaloneHtml";
+import { buildMarkdown } from "./export/markdown";
+import { chooseDesktopMarkdownExportPath, writeDesktopMarkdownExport } from "./desktop";
 import {
   deleteDraft,
   writeDraft,
@@ -947,6 +949,21 @@ export default function App() {
     }
   }, [editor, fileName]);
 
+  const exportCurrentMarkdown = useCallback(async () => {
+    setBusy(true);
+    try {
+      const suggestedName = htmlFileName(fileName ?? DEFAULT_DOCUMENT_FILE_NAME, editor.document).replace(/\.html$/i, ".md");
+      if (!await chooseDesktopMarkdownExportPath(suggestedName)) return;
+      setNotice({ tone: "info", message: "正在生成 Markdown…" });
+      await new Promise<void>(resolve => window.setTimeout(resolve, 50));
+      const result = await buildMarkdown(cloneDocument(editor.document));
+      const exported = await writeDesktopMarkdownExport(result.markdown, result.assets);
+      setNotice(exported ? { tone: result.warnings.length ? "warning" : "info", message: `Markdown 已导出。${result.warnings.join("；")}`, exportPath: exported.path } : null);
+    } catch (error) {
+      setNotice({ tone: "error", message: error instanceof Error ? error.message : "Markdown 导出失败。" });
+    } finally { setBusy(false); }
+  }, [editor, fileName]);
+
   const handleEditorChange = useCallback<Parameters<BlackDocEditor["onChange"]>[0]>((_editor, { getChanges }) => {
     if (suppressChangesRef.current || !desktopReady) {
       return;
@@ -1287,6 +1304,7 @@ export default function App() {
         busy={isSaving}
         documentName={documentName}
         onExport={() => void exportCurrentDocument()}
+        onExportMarkdown={() => void exportCurrentMarkdown()}
         onNew={requestNewDocument}
         onOpen={requestOpenDocument}
         onImportMarkdown={requestImportMarkdown}

@@ -10,7 +10,7 @@ import { PaintBucket } from "lucide-react";
 import { CellSelection } from "prosemirror-tables";
 import { useEffect, useState } from "react";
 import { colorTableCells } from "../editor/tableCellColors";
-import { TABLE_CELL_COLORS } from "./TableCellColorMenu";
+import { TABLE_CELL_COLORS } from "../editor/tableCellColors";
 import "./formattingColors.css";
 
 export function TableSelectionBackgroundColorButton() {

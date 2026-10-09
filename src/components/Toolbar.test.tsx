@@ -20,6 +20,7 @@ function createProps() {
     onSave: vi.fn(),
     onSaveAs: vi.fn(),
     onExport: vi.fn(),
+    onExportMarkdown: vi.fn(),
     onAbout: vi.fn(),
     onShortcuts: vi.fn(),
   };
@@ -47,6 +48,8 @@ describe("Toolbar primary actions and more menu", () => {
     fireEvent.click(screen.getByRole("button", { name: "导入 Markdown" }));
     expect(props.onNew).toHaveBeenCalledOnce();
     expect(props.onImportMarkdown).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: "导出 MD" }));
+    expect(props.onExportMarkdown).toHaveBeenCalledOnce();
     openMoreMenu();
     expect(trigger).toHaveAttribute("aria-expanded", "true");
     const documentMenu = within(screen.getByRole("group", { name: "文档" }));

@@ -14,7 +14,7 @@ import {
 } from "@blocknote/react";
 import { Menu as MantineMenu } from "@mantine/core";
 import { useMemo } from "react";
-import { TABLE_CELL_COLORS } from "./TableCellColorMenu";
+import { TABLE_CELL_COLORS } from "../editor/tableCellColors";
 import "./formattingColors.css";
 
 function TableHandleColors({ orientation }: TableHandleMenuProps) {

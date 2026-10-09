@@ -50,6 +50,7 @@ interface ToolbarProps {
   onSave: () => void;
   onSaveAs: () => void;
   onExport: () => void;
+  onExportMarkdown?: () => void;
   onAbout: () => void;
   onMoreOpen?: () => void;
   onShortcuts: () => void;
@@ -72,6 +73,7 @@ export function Toolbar({
   onSave,
   onSaveAs,
   onExport,
+  onExportMarkdown,
   onAbout,
   onMoreOpen,
   onShortcuts,
@@ -149,6 +151,9 @@ export function Toolbar({
         <button disabled={busy} onClick={onExport} title="导出单文件 HTML" type="button">
           <Download aria-hidden="true" size={17} />
           <span>导出 HTML</span>
+        </button>
+        <button disabled={busy} onClick={onExportMarkdown} title="导出 Markdown 和 assets 资源" type="button">
+          <Download aria-hidden="true" size={17} /><span>导出 MD</span>
         </button>
       </div>
 

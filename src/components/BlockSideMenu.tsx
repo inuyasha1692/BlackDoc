@@ -48,6 +48,10 @@ import { BlockColorsMenuItem } from "./BlockColorsMenuItem";
 import { AddBelowMenu, type BlockCreationMenuProps } from "./AddBelowMenu";
 import { ImageIndentMenu } from "./ImageIndentControls";
 
+import type { blackDocSchema } from "../editor/schema";
+
+type MenuBlock = { type: string; props: Record<string, unknown>; content?: unknown; children: readonly unknown[] };
+
 const emptySelection: readonly string[] = [];
 const noSelection = () => emptySelection;
 const noSubscribe = () => () => {};
@@ -107,8 +111,8 @@ const CopyBlockLinkItem = () => {
   );
 };
 
-const isEmptyTextBlock = (block: any): boolean =>
-  Array.isArray(block?.content) &&
+const isEmptyTextBlock = (block: MenuBlock | undefined): boolean =>
+  !!block && Array.isArray(block.content) &&
   block.content.length === 0 &&
   block.children.length === 0;
 
@@ -124,16 +128,16 @@ const convertibleBlockTypes = new Set([
 
 type BlockConversion = {
   title: string;
-  type: string;
-  level?: number;
+  type: "paragraph" | "heading" | "numberedListItem" | "bulletListItem" | "checkListItem" | "quote" | "codeBlock";
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
   icon: ReactNode;
 };
 
 const blockConversions: BlockConversion[] = [
   { title: "段落", type: "paragraph", icon: <Type size={18} /> },
-  ...[1, 2, 3, 4, 5, 6].map(level => ({
+  ...([1, 2, 3, 4, 5, 6] as const).map(level => ({
     title: `H${level}`,
-    type: "heading",
+    type: "heading" as const,
     level,
     icon: <span className="blackdoc-block-type-heading">H{level}</span>,
   })),
@@ -144,13 +148,13 @@ const blockConversions: BlockConversion[] = [
   { title: "代码块", type: "codeBlock", icon: <Braces size={18} /> },
 ];
 
-const isConvertibleTextBlock = (editor: any, block: any): boolean => {
-  if (!convertibleBlockTypes.has(block?.type)) return false;
+const isConvertibleTextBlock = (editor: { schema: { blockSchema: Record<string, { content: string }> } }, block: MenuBlock | undefined): boolean => {
+  if (!block || !convertibleBlockTypes.has(block.type)) return false;
   const contentType = editor.schema.blockSchema[block.type]?.content;
   return contentType === "inline" || contentType === "plain";
 };
 
-const blockTypeLabel = (block: any): string => {
+const blockTypeLabel = (block: MenuBlock): string => {
   if (block.type === "heading") return `标题 H${block.props.level}`;
   const labels: Record<string, string> = {
     paragraph: "正文段落",
@@ -174,9 +178,9 @@ const blockTypeLabel = (block: any): string => {
   return labels[block.type] ?? "内容块";
 };
 
-const blockTypeIcon = (block: any) => {
+const blockTypeIcon = (block: MenuBlock) => {
   if (block.type === "heading") {
-    return <span className="blackdoc-block-type-heading">H{block.props.level}</span>;
+    return <span className="blackdoc-block-type-heading">H{String(block.props.level)}</span>;
   }
 
   const icons: Record<string, ReactNode> = {
@@ -203,7 +207,7 @@ const blockTypeIcon = (block: any) => {
 
 const BlockTypeAndHandleButton = (creationMenuProps: BlockCreationMenuProps) => {
   const Components = useComponentsContext()!;
-  const editor = useBlockNoteEditor<any, any, any>();
+  const editor = useBlockNoteEditor<typeof blackDocSchema.blockSchema, typeof blackDocSchema.inlineContentSchema, typeof blackDocSchema.styleSchema>();
   const sideMenu = useExtension(SideMenuExtension);
   const block = useExtensionState(SideMenuExtension, {
     selector: state => state?.block,
@@ -222,12 +226,12 @@ const BlockTypeAndHandleButton = (creationMenuProps: BlockCreationMenuProps) => 
     try {
       const currentBlock = editor.getBlock(block.id);
       if (currentBlock && isConvertibleTextBlock(editor, currentBlock)) {
-        const updatedBlock = editor.updateBlock(currentBlock, {
-          type: conversion.type,
-          ...(conversion.level
-            ? { props: { level: conversion.level, isToggleable: true } }
-            : {}),
-        } as any);
+        const updatedBlock = conversion.level
+          ? editor.updateBlock(currentBlock, {
+            type: "heading",
+            props: { level: conversion.level, isToggleable: true },
+          })
+          : editor.updateBlock(currentBlock, { type: conversion.type });
         editor.setTextCursorPosition(updatedBlock, "end");
       }
     } catch {
@@ -393,7 +397,7 @@ const AddBlockButton = ({
   updateSlashMenuPlacement: () => void;
 }) => {
   const Components = useComponentsContext()!;
-  const editor = useBlockNoteEditor<any, any, any>();
+  const editor = useBlockNoteEditor<typeof blackDocSchema.blockSchema, typeof blackDocSchema.inlineContentSchema, typeof blackDocSchema.styleSchema>();
   const suggestionMenu = useExtension(SuggestionMenu);
   const sideMenu = useExtension(SideMenuExtension);
   const block = useExtensionState(SideMenuExtension, {
@@ -460,7 +464,7 @@ export const BlackDocSideMenuController = ({
 } & BlockCreationMenuProps) => {
   const editor = useBlockNoteEditor();
   const marquee = getBlockMarquee(editor);
-  const selectedIds = useSyncExternalStore(marquee?.subscribe ?? noSubscribe, marquee?.getSnapshot ?? noSelection);
+  useSyncExternalStore(marquee?.subscribe ?? noSubscribe, marquee?.getSnapshot ?? noSelection);
   const suggestionMenu = useExtension(SuggestionMenu);
   const sideMenu = useExtension(SideMenuExtension);
   const block = useExtensionState(SideMenuExtension, { selector: state => state?.block });
@@ -532,10 +536,12 @@ export const BlackDocSideMenuController = ({
     slashMenuWasOpenRef.current = slashMenuIsOpen;
   }, [block, pendingSlashBlockRef, sideMenu, suggestionMenuState?.show, suggestionMenuState?.triggerCharacter]);
 
+  const isMarqueeSelected = !!block && !!marquee?.includes(block.id);
+
   const SideMenuWithAddBlock = useCallback(
     (props: SideMenuProps) => (
       <SideMenu {...props}>
-        {isEmptyTextBlock(block) && (!block || !marquee?.includes(block.id)) ? (
+        {isEmptyTextBlock(block) && !isMarqueeSelected ? (
           <AddBlockButton
             pendingSlashBlockRef={pendingSlashBlockRef}
             updateSlashMenuPlacement={updateSlashMenuPlacement}
@@ -545,7 +551,7 @@ export const BlackDocSideMenuController = ({
         )}
       </SideMenu>
     ),
-    [block, marquee, pendingSlashBlockRef, selectedIds, updateSlashMenuPlacement, getBlockCreationItems, blockCreationMenu],
+    [block, isMarqueeSelected, pendingSlashBlockRef, updateSlashMenuPlacement, getBlockCreationItems, blockCreationMenu],
   );
 
   return (

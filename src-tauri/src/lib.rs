@@ -38,6 +38,7 @@ struct Session {
     file_lock: Option<std::fs::File>,
     last_export: Option<PathBuf>,
     pending_html_export: Option<PathBuf>,
+    pending_markdown_export: Option<PathBuf>,
     document: Option<Document>,
     draft: Option<Draft>,
     baseline: Option<Vec<u8>>,
@@ -202,6 +203,7 @@ fn create_window(
             file_lock,
             last_export: None,
             pending_html_export: None,
+            pending_markdown_export: None,
             document,
             draft,
             baseline,
@@ -620,6 +622,41 @@ async fn desktop_write_html_export(window: WebviewWindow, html: String) -> Resul
 }
 
 #[tauri::command]
+async fn desktop_choose_markdown_export_path(window: WebviewWindow, suggested_name: String) -> Result<bool> {
+    let label = window.label().to_string();
+    with_desktop(window.app_handle().clone(), move |_, desktop| {
+        desktop.sessions.get_mut(&label).ok_or("Window closed")?.pending_markdown_export = None;
+        Ok(())
+    }).await?;
+    let parent = window.clone();
+    let selected = tauri::async_runtime::spawn_blocking(move || {
+        parent.dialog().file().set_parent(&parent).set_title("Export Markdown")
+            .add_filter("Markdown", &["md"]).set_file_name(&suggested_name).blocking_save_file()
+    }).await.map_err(error)?;
+    let Some(selected) = selected else { return Ok(false); };
+    let target = storage::canonical_target(&selected.into_path().map_err(error)?.with_extension("md"))?;
+    with_desktop(window.app_handle().clone(), move |_, desktop| {
+        desktop.session(window.label())?;
+        if desktop.owner(&target).is_some() { return Err("Cannot export over an open document".into()); }
+        desktop.sessions.get_mut(window.label()).ok_or("Window closed")?.pending_markdown_export = Some(target);
+        Ok(true)
+    }).await
+}
+
+#[tauri::command]
+async fn desktop_write_markdown_export(window: WebviewWindow, markdown: String, assets: Vec<storage::MarkdownAsset>) -> Result<SavedDocument> {
+    with_desktop(window.app_handle().clone(), move |_, desktop| {
+        let selected = desktop.sessions.get_mut(window.label()).ok_or("Window closed")?
+            .pending_markdown_export.take().ok_or("Choose a Markdown export path first")?;
+        let target = storage::canonical_target(&selected)?;
+        if desktop.owner(&target).is_some() { return Err("Cannot export over an open document".into()); }
+        storage::write_markdown_export(&target, &markdown, &assets)?;
+        desktop.sessions.get_mut(window.label()).ok_or("Window closed")?.last_export = Some(target.clone());
+        Ok(SavedDocument { name: name(&target), path: target.to_string_lossy().into_owned() })
+    }).await
+}
+
+#[tauri::command]
 async fn desktop_open_export(window: WebviewWindow) -> Result<()> {
     with_desktop(window.app_handle().clone(), move |app, desktop| {
         let path = desktop
@@ -729,6 +766,8 @@ pub fn run() {
             desktop_delete_draft,
             desktop_choose_html_export_path,
             desktop_write_html_export,
+            desktop_choose_markdown_export_path,
+            desktop_write_markdown_export,
             desktop_open_export,
             desktop_close_window,
             desktop_prepare_update,
@@ -814,6 +853,7 @@ mod tests {
             file_lock: None,
             last_export: None,
             pending_html_export: None,
+            pending_markdown_export: None,
             document: None,
             draft: None,
             baseline: None,
@@ -973,6 +1013,7 @@ mod tests {
                 file_lock: None,
                 last_export: None,
                 pending_html_export: None,
+                pending_markdown_export: None,
                 document: None,
                 draft: None,
                 baseline: None,

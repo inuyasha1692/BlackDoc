@@ -6,6 +6,7 @@ import {
   useDictionary,
   useExtensionState,
 } from "@blocknote/react";
+import type { blackDocSchema } from "../editor/schema";
 import "./formattingColors.css";
 
 const colors = [
@@ -27,7 +28,7 @@ export function BlockColorsMenuItem({
   onColorApplied: () => void;
 }) {
   const Components = useComponentsContext()!;
-  const editor = useBlockNoteEditor<any, any, any>();
+  const editor = useBlockNoteEditor<typeof blackDocSchema.blockSchema, typeof blackDocSchema.inlineContentSchema, typeof blackDocSchema.styleSchema>();
   const dict = useDictionary();
   const block = useExtensionState(SideMenuExtension, {
     editor,
@@ -49,7 +50,7 @@ export function BlockColorsMenuItem({
     editor.updateBlock(block, {
       type: block.type,
       props: { [property]: color },
-    } as any);
+    });
     onColorApplied();
   };
 
@@ -60,7 +61,7 @@ export function BlockColorsMenuItem({
         ...(canSetTextColor ? { textColor: "default" } : {}),
         ...(canSetBackgroundColor ? { backgroundColor: "default" } : {}),
       },
-    } as any);
+    });
     onColorApplied();
   };
 

@@ -1,6 +1,18 @@
 use super::*;
 use serde_json::json;
 
+#[test]
+fn markdown_export_writes_assets_and_rejects_conflicts_and_traversal() {
+    let directory = tempfile::tempdir().unwrap();
+    let target = directory.path().join("document.md");
+    let asset = MarkdownAsset { name: "image.png".into(), base64: "YWJj".into() };
+    write_markdown_export(&target, "![image](./assets/image.png)", &[asset]).unwrap();
+    assert_eq!(fs::read(directory.path().join("assets/image.png")).unwrap(), b"abc");
+    assert!(write_markdown_export(&target, "changed", &[MarkdownAsset { name: "image.png".into(), base64: "ZA==".into() }]).is_err());
+    assert!(fs::read_to_string(&target).unwrap().starts_with("![image]"));
+    assert!(write_markdown_export(&target, "changed", &[MarkdownAsset { name: "../outside.png".into(), base64: "YWJj".into() }]).is_err());
+}
+
 fn blocks() -> Value {
     json!([{"type": "paragraph", "props": {}, "content": [], "children": []}])
 }

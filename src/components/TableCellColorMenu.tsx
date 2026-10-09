@@ -9,9 +9,8 @@ import {
   useDictionary,
   useExtensionState,
 } from "@blocknote/react";
-import { colorTableCells, colorTargetCells, type CellColorProperty } from "../editor/tableCellColors";
+import { TABLE_CELL_COLORS, colorTableCells, colorTargetCells, type CellColorProperty } from "../editor/tableCellColors";
 
-export const TABLE_CELL_COLORS = ["default", "gray", "brown", "red", "orange", "yellow", "green", "blue", "purple", "pink"] as const;
 
 function SelectionColorMenu() {
   const Components = useComponentsContext()!;
