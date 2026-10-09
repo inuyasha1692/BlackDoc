@@ -6,6 +6,7 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { openExternalLink } from "../desktop";
 import { AppThemeContext } from "../theme";
 import { parseScene, serializeScene } from "./scene";
+import { pasteEmbeddedImage } from "./pasteEmbeddedImage";
 
 export default function CanvasEditor({
   source,
@@ -15,10 +16,10 @@ export default function CanvasEditor({
   onChange: (scene: string) => void;
 }) {
   const theme = useContext(AppThemeContext);
-  const [initialData] = useState(() => ({
-    ...parseScene(source),
-    scrollToContent: true,
-  }));
+  const [initialData] = useState(() => {
+    const scene = parseScene(source);
+    return { ...scene, scrollToContent: scene.elements.some(element => !element.isDeleted) };
+  });
   const lastScene = useRef(serializeScene(initialData.elements, initialData.appState, initialData.files));
   const surface = useRef<HTMLDivElement>(null);
   const [api, setApi] = useState<ExcalidrawImperativeAPI | null>(null);
@@ -27,9 +28,13 @@ export default function CanvasEditor({
     let frame = 0;
     const observer = new ResizeObserver(() => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => api.scrollToContent(api.getSceneElements(), {
-        fitToViewport: true, viewportZoomFactor: 0.8, animate: false,
-      }));
+      frame = requestAnimationFrame(() => {
+        const elements = api.getSceneElements();
+        if (!elements.some(element => !element.isDeleted)) return;
+        api.scrollToContent(elements, {
+          fitToViewport: true, viewportZoomFactor: 0.8, animate: false,
+        });
+      });
     });
     observer.observe(surface.current);
     return () => { observer.disconnect(); cancelAnimationFrame(frame); };
@@ -45,6 +50,7 @@ export default function CanvasEditor({
       handleKeyboardGlobally={false}
       aiEnabled={false}
       validateEmbeddable={false}
+      onPaste={pasteEmbeddedImage}
       onChange={(elements, appState, files) => {
         // Excalidraw also emits changes for theme and other transient UI state.
         const scene = serializeScene(elements, appState, files);

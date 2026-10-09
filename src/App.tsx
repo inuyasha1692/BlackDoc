@@ -31,7 +31,7 @@ import {
 } from "@blocknote/react";
 import {
   AlertTriangle,
-  Columns2,
+  SquareSplitHorizontal,
   PenTool,
   X,
 } from "lucide-react";
@@ -152,7 +152,6 @@ const iconOnlySlashTitles = new Set([
   "代码块",
   "引用",
   "分隔线",
-  "双分区",
 ]);
 
 const slashIconOrder = [
@@ -169,7 +168,6 @@ const slashIconOrder = [
   "代码块",
   "引用",
   "分隔线",
-  "双分区",
 ];
 
 function CompactSlashMenu({
@@ -1228,8 +1226,8 @@ export default function App() {
               {
                 title: "双分区",
                 aliases: ["split", "columns", "scrollytelling", "shuangfenqu"],
-                group: "其他",
-                icon: <Columns2 aria-hidden="true" size={18} />,
+                group: "基础",
+                icon: <SquareSplitHorizontal aria-hidden="true" size={18} />,
                 onItemClick: () => {
                   const inserted = insertOrUpdateBlockForSlashMenu(
                     editor,

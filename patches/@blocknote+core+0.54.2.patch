@@ -37,14 +37,14 @@ diff --git a/node_modules/@blocknote/core/src/blocks/File/helpers/render/createR
 --- a/node_modules/@blocknote/core/src/blocks/File/helpers/render/createResizableFileBlockWrapper.ts
 +++ b/node_modules/@blocknote/core/src/blocks/File/helpers/render/createResizableFileBlockWrapper.ts
 @@ -113,7 +113,7 @@ export const createResizableFileBlockWrapper = (
-    }
-
-    // Min element width in px.
+     }
+ 
+     // Min element width in px.
 -    const minWidth = 64;
 +    const minWidth = wrapper.closest(".split-pane-column") ? 24 : 64;
-
-    // Ensures the element is not wider than the editor and not narrower than a
-    // predetermined minimum width.
+ 
+     // Ensures the element is not wider than the editor and not narrower than a
+     // predetermined minimum width.
 diff --git a/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts b/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts
 index 62d01c7..41a2106 100644
 --- a/node_modules/@blocknote/core/src/extensions/SuggestionMenu/SuggestionMenu.ts

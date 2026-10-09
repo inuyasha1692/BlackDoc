@@ -1,4 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import type { ClipboardData } from "@excalidraw/excalidraw/clipboard";
+import { pasteEmbeddedImage } from "../canvas/pasteEmbeddedImage";
+vi.mock("@excalidraw/excalidraw", () => ({
+  convertToExcalidrawElements: (elements: Record<string, unknown>[]) => elements.map((element, index) => ({ ...element, id: `pasted-${index}` })),
+}));
 import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { NodeSelection } from "@tiptap/pm/state";
 import { fireEvent } from "@testing-library/react";
@@ -24,7 +29,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   dispose(); editor._tiptapEditor.destroy(); document.body.innerHTML = "";
-  vi.restoreAllMocks(); vi.useRealTimers();
+  vi.restoreAllMocks(); vi.useRealTimers(); vi.unstubAllGlobals();
   if (originalExecCommand) Object.defineProperty(document, "execCommand", originalExecCommand);
   else Reflect.deleteProperty(document, "execCommand");
 });
@@ -114,7 +119,9 @@ it("restores the editing position before typing and preserves deliberate image c
   expect(editor.prosemirrorState.selection).toBeInstanceOf(NodeSelection);
 });
 
-it("copies the whole image block with Ctrl+C while its hover toolbar is active", () => {
+it("copies the whole image block with Ctrl+C and pastes its embedded image into the canvas", async () => {
+  const url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=";
+  editor.updateBlock("image", { props: { url, previewWidth: 120, caption: "图片说明" } });
   editor.prosemirrorView.focus();
   fireEvent.pointerOver(image());
   const values = new Map<string, string>();
@@ -138,6 +145,19 @@ it("copies the whole image block with Ctrl+C while its hover toolbar is active",
   expect(selection.node.type.name).toBe("blockContainer");
   expect(clipboard.getData("blocknote/html")).toContain('data-content-type="image"');
   expect(clipboard.getData("blocknote/html")).toContain('data-id="image"');
+  vi.stubGlobal("Image", class {
+    naturalWidth = 640;
+    naturalHeight = 320;
+    onload: (() => void) | null = null;
+    set src(_value: string) { this.onload?.(); }
+  });
+  const data: ClipboardData = { text: clipboard.getData("text/plain") };
+  const paste = new Event("paste");
+  Object.defineProperty(paste, "clipboardData", { value: clipboard });
+  expect(await pasteEmbeddedImage(data, paste as ClipboardEvent)).toBe(true);
+  expect(data.text).toBeUndefined();
+  expect(data.elements?.[0]).toMatchObject({ type: "image", width: 120, height: 60 });
+  expect(Object.values(data.files!)[0].dataURL).toBe(url);
 });
 
 it("maps the saved cursor through edits and closes on scroll", () => {

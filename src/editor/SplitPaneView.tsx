@@ -1,4 +1,4 @@
-import { Columns2, GripHorizontal, GripVertical, Trash2 } from "lucide-react";
+import { SquareSplitHorizontal, GripHorizontal, GripVertical, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import type { PointerEvent } from "react";
 import {
@@ -71,7 +71,7 @@ export function SplitPaneControls({
   return <div className="split-pane-controls" contentEditable={false} ref={ref}>
     <style>{`.bn-block-outer[data-id="${CSS.escape(id)}"] { --split-left-width: ${width}%; --split-right-height: ${autoHeight ? "auto" : `${height}px`}; --split-height-handle-top: ${autoHeight ? "auto" : `calc(var(--split-toolbar-height) + ${height}px)`}; --split-height-handle-bottom: ${autoHeight ? "14px" : "auto"}; }`}</style>
     <div className="split-pane-toolbar">
-      <span className="split-pane-label"><Columns2 size={15} aria-hidden="true" />双分区</span>
+      <span className="split-pane-label"><SquareSplitHorizontal size={15} aria-hidden="true" />双分区</span>
       {editable && <>
         <label className="split-height-label">右侧高度
           <select
