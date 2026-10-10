@@ -1183,6 +1183,7 @@ export default function App() {
   };
 
   const documentName = fileName ?? DEFAULT_DOCUMENT_FILE_NAME;
+  const editorDocumentName = documentName.replace(/\.[^.]+$/, "");
   useEffect(() => {
     if (desktopReady) {
       void getCurrentWindow().setTitle(`${documentName} - BlackDoc`);
@@ -1405,6 +1406,9 @@ export default function App() {
           onToggle={toggleOutline}
         />
         <main className="editor-region">
+          <div className="editor-document-name" title={editorDocumentName}>
+            {editorDocumentName}
+          </div>
           <BlockNoteView
             editor={editor}
             editable={desktopReady && !recoveryDraft && !opening}

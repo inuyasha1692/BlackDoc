@@ -19,12 +19,13 @@ type ImageContent = {
   inlineContent: { props: { url: string; name: string; previewWidth: number } };
 };
 
-const TableImageHTML = ({ inlineContent }: ImageContent) => <img
+// Keep the inline node marker on a span so block image parsing cannot claim it.
+const TableImageHTML = ({ inlineContent }: ImageContent) => <span><img
   src={inlineContent.props.url}
   alt={inlineContent.props.name}
   style={{ display: "inline-block", maxWidth: "100%", height: "auto", verticalAlign: "middle",
     width: inlineContent.props.previewWidth > 0 ? `${inlineContent.props.previewWidth}px` : undefined }}
-/>;
+/></span>;
 
 const TableImageContent = ({ inlineContent, editor, getPos }: ReactCustomInlineContentRenderProps<typeof tableImageConfig, StyleSchema>) => {
   const image = useRef<HTMLImageElement>(null);

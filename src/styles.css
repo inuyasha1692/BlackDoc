@@ -588,6 +588,15 @@ button {
   background: var(--app-surface);
 }
 
+.editor-document-name {
+  margin: 0 54px 20px;
+  color: var(--app-text);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 .document-name {
   overflow: hidden;
   max-width: 210px;
