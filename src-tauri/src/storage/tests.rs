@@ -2,6 +2,24 @@ use super::*;
 use serde_json::json;
 
 #[test]
+fn markdown_import_decodes_local_asset_names_once_and_preserves_svg_content() {
+    let directory = tempfile::tempdir().unwrap();
+    let assets = directory.path().join("assets");
+    fs::create_dir(&assets).unwrap();
+    let svg = br#"<svg xmlns="http://www.w3.org/2000/svg" content="drawio-metadata"></svg>"#;
+    fs::write(assets.join("流程 图.svg"), svg).unwrap();
+    fs::write(assets.join("图片.png"), b"png-bytes").unwrap();
+    fs::write(assets.join("literal%20.svg"), svg).unwrap();
+    let path = directory.path().join("document.md");
+    fs::write(&path, "![diagram](./assets/%E6%B5%81%E7%A8%8B%20%E5%9B%BE.svg)\n<img src='./assets/%E5%9B%BE%E7%89%87.png'>\n![literal](./assets/literal%2520.svg)").unwrap();
+    let imported = read_markdown(&path).unwrap();
+    let expected_svg = format!("data:image/svg+xml;base64,{}", base64::engine::general_purpose::STANDARD.encode(svg));
+    assert_eq!(imported.markdown.matches(&expected_svg).count(), 2);
+    assert!(imported.markdown.contains("data:image/png;base64,cG5nLWJ5dGVz"));
+    assert!(imported.warnings.is_empty());
+}
+
+#[test]
 fn markdown_export_writes_assets_and_rejects_conflicts_and_traversal() {
     let directory = tempfile::tempdir().unwrap();
     let target = directory.path().join("document.md");
@@ -315,6 +333,18 @@ fn markdown_import_rejects_missing_resources_and_other_extensions() {
     let other_path = directory.path().join("map.txt");
     fs::write(&other_path, "# Map").unwrap();
     assert!(read_markdown(&other_path).is_err());
+}
+
+#[test]
+fn provided_drawio_markdown_sample_imports_when_available() {
+    let Ok(path) = std::env::var("BLACKDOC_DRAWIO_IMPORT_SAMPLE") else {
+        return;
+    };
+    let imported = read_markdown(Path::new(&path)).unwrap();
+    assert!(imported.warnings.is_empty());
+    assert!(imported.markdown.contains("data:image/svg+xml;base64,"));
+    assert!(!imported.markdown.contains("./assets/"));
+    println!("Embedded {} image references, including {} SVG references", imported.markdown.matches("data:image/").count(), imported.markdown.matches("data:image/svg+xml;base64,").count());
 }
 
 #[test]

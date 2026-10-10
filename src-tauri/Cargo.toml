@@ -1,6 +1,6 @@
 [package]
 name = "blackdoc"
-version = "0.1.11"
+version = "0.1.12"
 description = "BlackDoc desktop editor"
 edition = "2021"
 license = "GPL-3.0-only"
@@ -25,6 +25,7 @@ chrono = { version = "0.4", default-features = false, features = ["clock"] }
 url = "2"
 base64 = "0.22"
 regex = "1"
+percent-encoding = "2"
 tauri-plugin-updater = "2"
 
 [features]

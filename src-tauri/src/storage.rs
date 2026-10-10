@@ -146,7 +146,10 @@ fn embed_asset(
     if let Some(cached) = cache.get(reference) {
         return cached.clone();
     }
-    let path = Path::new(reference);
+    // Markdown destinations use URL escaping, while the filesystem uses decoded names.
+    let decoded = percent_encoding::percent_decode_str(reference).decode_utf8();
+    let local_reference = decoded.as_deref().unwrap_or(reference);
+    let path = Path::new(local_reference);
     let path = if path.is_absolute() {
         path.to_path_buf()
     } else {
