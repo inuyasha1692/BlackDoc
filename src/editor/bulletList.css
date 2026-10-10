@@ -1,0 +1,39 @@
+/* Draw markers independently of font glyphs; keep the existing 28px marker gutter. */
+.bn-editor .bn-block-content[data-content-type="bulletListItem"]::before {
+  /* Override BlockNote's depth-specific glyph content. */
+  content: "" !important;
+  box-sizing: border-box;
+  display: block;
+  flex: 0 0 0.35em;
+  width: 0.35em;
+  min-width: 0;
+  height: 0.35em;
+  margin: 0.575em calc(20px - 0.35em) 0 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: currentColor;
+  font-size: inherit;
+  line-height: 1;
+}
+
+.bn-editor [data-content-type="bulletListItem"] ~ .bn-block-group > .bn-block-outer > .bn-block > .bn-block-content[data-content-type="bulletListItem"]::before {
+  flex-basis: 0.4em;
+  width: 0.4em;
+  height: 0.4em;
+  margin-top: 0.55em;
+  margin-right: calc(20px - 0.4em);
+  border: 0.06em solid currentColor;
+  background: transparent;
+}
+
+.bn-editor [data-content-type="bulletListItem"] ~ .bn-block-group [data-content-type="bulletListItem"] ~ .bn-block-group > .bn-block-outer > .bn-block > .bn-block-content[data-content-type="bulletListItem"]::before {
+  flex-basis: 0.35em;
+  width: 0.35em;
+  height: 0.35em;
+  margin-top: 0.575em;
+  margin-right: calc(20px - 0.35em);
+  border: 0;
+  border-radius: 0;
+  background: currentColor;
+}

@@ -4,6 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 import { buildStandaloneHtml } from "./standaloneHtml";
 import { HeadingSectionsExtension, setHeadingSectionExpanded } from "../editor/headingSections";
 
+// Vitest stubs CSS imports, including ?raw; use the actual shared export stylesheet.
+vi.mock("../editor/bulletList.css?raw", async () => {
+  const { readFileSync } = await import("node:fs");
+  return { default: readFileSync("src/editor/bulletList.css", "utf8") };
+});
+
 const block = (
   id: string,
   text: string,
@@ -83,6 +89,27 @@ const expectTarget = (document: Document, link: HTMLAnchorElement, id: string) =
 };
 
 describe("buildStandaloneHtml outline", () => {
+  it.each([false, true])("reserves the outline column and places the body in column two without outline entries (empty heading: %s)", async emptyHeading => {
+    const blocks = emptyHeading
+      ? [block("empty-heading", "", 1), block("body", "正文")]
+      : [block("body", "正文")];
+    const { document } = await exportDocument(blocks);
+    expect(document.querySelector(".document-outline")).toBeNull();
+    expect(document.querySelector(".document-layout")?.className).toBe("document-layout");
+    expect(document.querySelector("style")?.textContent).toContain(
+      "grid-template-columns: 250px minmax(0, 1fr);",
+    );
+    expect(document.querySelector("style")?.textContent).toContain(
+      ".document-layout main { grid-column: 2;",
+    );
+  });
+
+  it("keeps the sidebar layout when the document has outline entries", async () => {
+    const { document } = await exportDocument([block("heading", "标题", 1)]);
+    expect(document.querySelector(".document-outline")).not.toBeNull();
+    expect(document.querySelector(".document-layout")?.className).toBe("document-layout");
+  });
+
   it("exports current folds and synchronizes outline and headings without crossing split columns", async () => {
     const { BlockNoteEditor } = await import("@blocknote/core");
     const { blackDocSchema } = await import("../editor/schema");
@@ -203,7 +230,8 @@ describe("buildStandaloneHtml outline", () => {
       expect(css).toContain('[data-content-type="bulletListItem"]::before');
       expect(css).toContain('.bn-block-content[data-content-type="divider"] hr { flex: 1;');
       expect(document.querySelector('#block\\=demo-divider-bottom hr')).not.toBeNull();
-      expect(css).toContain('content: "•"; font-size: 1.5em; height: 1.1333em;');
+      expect(css).toContain('border: 0.06em solid currentColor;');
+      expect(css).toContain('margin-right: calc(20px - 0.4em);');
       expect(css).toContain('[data-content-type="checkListItem"] > div { display: flex; align-items: center;');
       expect(css).toContain('.bn-toggle-wrapper');
       expect(html).toContain('data-show-children="true"');
@@ -258,7 +286,7 @@ describe("buildStandaloneHtml outline", () => {
     expect(padding).toBeTruthy();
     expect(css).toContain(`.document-layout { width: ${width};`);
     expect(css).toContain(`grid-template-columns: ${columns};`);
-    expect(css).toContain(`.document-layout main { width: 100%; min-width: 0; padding: ${padding} `);
+    expect(css).toContain(`.document-layout main { grid-column: 2; width: 100%; min-width: 0; padding: ${padding} `);
     expect(css).toContain(".bn-editor { padding-inline: 54px; }");
     expect(css).toContain("@media (max-width: 980px)");
     expect(document.querySelector(".document-layout > main > .bn-editor")).not.toBeNull();

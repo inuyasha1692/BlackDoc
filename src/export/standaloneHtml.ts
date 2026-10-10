@@ -5,13 +5,15 @@ import { getOutlineItems } from "../editor/outline";
 import { isHeadingSectionExpanded } from "../editor/headingSections";
 import { canvasSvg } from "../canvas/export";
 import { exportScientificContent, serializeScientificContent } from "./scientificHtml";
+import bulletListStyles from "../editor/bulletList.css?raw";
 
 const EXPORT_STYLES = `
+${bulletListStyles}
 :root { color-scheme: light; font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; color: #202124; background: #fff; line-height: 1.5; }
 .document-layout { width: min(100%, 1680px); margin: 0 auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); }
-.document-layout main { width: 100%; min-width: 0; padding: 36px 24px 80px; }
+.document-layout main { grid-column: 2; width: 100%; min-width: 0; padding: 36px 24px 80px; }
 .bn-editor { padding-inline: 54px; }
 .document-outline { position: sticky; top: 24px; align-self: start; margin-top: 48px; max-height: calc(100vh - 48px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #d7dde2 transparent; font-size: 15px; }
 .document-outline:hover { scrollbar-color: #aab3bc transparent; }
@@ -43,8 +45,6 @@ body { margin: 0; color: #202124; background: #fff; line-height: 1.5; }
 .bn-block-content:is([data-content-type="numberedListItem"], [data-content-type="bulletListItem"], [data-content-type="checkListItem"]) > .bn-inline-content { margin: 0; }
 .bn-block-content:is([data-content-type="numberedListItem"], [data-content-type="bulletListItem"])::before { display: flex; align-items: center; justify-content: center; flex: 0 0 24px; height: 1.7em; padding-right: 4px; line-height: 1; }
 .bn-block-content[data-content-type="numberedListItem"]::before { content: attr(data-index) "."; }
-.bn-block-content[data-content-type="bulletListItem"]::before { content: "•"; font-size: 1.5em; height: 1.1333em; }
-.bn-block-content[data-content-type="bulletListItem"] ~ .bn-block-group > .bn-block-outer > .bn-block > .bn-block-content[data-content-type="bulletListItem"]::before { content: "◦"; }
 .bn-block-content[data-content-type="checkListItem"] > div { display: flex; align-items: center; height: 1.7em; }
 .bn-block-content[data-content-type="checkListItem"] input { width: 16px; height: 16px; margin: 0 8px 0 4px; }
 .bn-block-content[data-content-type="checkListItem"][data-checked="true"] .bn-inline-content { text-decoration: line-through; }

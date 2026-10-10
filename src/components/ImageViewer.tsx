@@ -2,6 +2,7 @@ import { useBlockNoteEditor, useComponentsContext, useEditorState } from "@block
 import { Maximize2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { NodeSelection } from "@tiptap/pm/state";
 import "./imageViewer.css";
 
 type ImageSource = { url: string; name: string };
@@ -13,6 +14,12 @@ export function ImageViewButton() {
   const image = useEditorState({
     editor,
     selector: ({ editor }): ImageSource | undefined => {
+      const selection = editor.prosemirrorState.selection;
+      if (selection instanceof NodeSelection && selection.node.type.name === "tableImage") {
+        const { url, name } = selection.node.attrs;
+        if (url) return { url, name: name || "图片" };
+        return;
+      }
       const blocks = editor.getSelection()?.blocks ?? [editor.getTextCursorPosition().block];
       if (blocks.length !== 1) return;
       const block = blocks[0];

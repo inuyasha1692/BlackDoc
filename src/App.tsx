@@ -1,6 +1,7 @@
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "./styles.css";
+import "./editor/bulletList.css";
 import { invoke } from "@tauri-apps/api/core";
 import { applyAiDocument } from "./editor/aiDocument";
 import { combineByGroup, formatKeyboardShortcut } from "@blocknote/core";

@@ -21,6 +21,7 @@ import {
   useExtension,
 } from "@blocknote/react";
 import { Link2, Type } from "lucide-react";
+import { NodeSelection } from "@tiptap/pm/state";
 import {
   type ChangeEvent,
   type KeyboardEvent,
@@ -33,6 +34,8 @@ import { FormattingColorButton } from "./FormattingColorButton";
 import { ImageViewButton } from "./ImageViewer";
 import { ImageIndentButton } from "./ImageIndentControls";
 import { TableSelectionBackgroundColorButton } from "./TableSelectionBackgroundColorButton";
+import { TableImageToolbar } from "./TableImageToolbar";
+import { ImageRenameButton } from "./ImageRenameButton";
 
 const normalizeLink = (url: string): string => {
   const blockId = parseBlockLink(url);
@@ -222,6 +225,13 @@ export const BlackDocFormattingToolbar = (
   props: FormattingToolbarProps,
 ) => {
   const editor = useBlockNoteEditor();
+  const tableImageSelected = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      const selection = editor.prosemirrorState.selection;
+      return selection instanceof NodeSelection && selection.node.type.name === "tableImage";
+    },
+  });
   const blockTypeItems = props.blockTypeSelectItems ?? [
     ...blockTypeSelectItems(editor.dictionary),
     ...getDiagramBlockTypeSelectItems(editor),
@@ -232,9 +242,15 @@ export const BlackDocFormattingToolbar = (
     .map(item => item.type === "heading"
       ? { ...item, props: { ...item.props, isToggleable: true } }
       : item);
+  if (tableImageSelected) {
+    return <TableImageToolbar />;
+  }
   return (
   <FormattingToolbar {...props}>
     {getFormattingToolbarItems(items).flatMap((item) => {
+      if (item.key === "fileRenameButton") {
+        return <ImageRenameButton key="fileRenameButton" />;
+      }
       if (item.key === "nestBlockButton" || item.key === "unnestBlockButton") {
         return [item, <ImageIndentButton key={`${item.key}-image`} increase={item.key === "nestBlockButton"} />];
       }

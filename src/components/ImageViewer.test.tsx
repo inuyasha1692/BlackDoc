@@ -6,6 +6,7 @@ import { ImageViewButton, ImageViewerHost } from "./ImageViewer";
 const { editor } = vi.hoisted(() => ({ editor: {
   getSelection: vi.fn(),
   getTextCursorPosition: vi.fn(),
+  prosemirrorState: { selection: {} as unknown },
 } }));
 vi.mock("@blocknote/react", () => ({
   useBlockNoteEditor: () => editor,
