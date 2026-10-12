@@ -5,6 +5,7 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet, type EditorView } from "@tiptap/pm/view";
 import type { BlackDocBlock, BlackDocEditor } from "./schema";
 import { RIGHT_SCROLL_SELECTOR } from "./splitPane";
+import { withBlockClipboardPayload } from "./blockClipboard";
 
 const key = new PluginKey<readonly string[]>("block-marquee");
 const controllers = new WeakMap<object, BlockMarqueeController>();
@@ -126,8 +127,9 @@ export class BlockMarqueeController {
     const blocks = this.blocks();
     const view = this.editor.prosemirrorView;
     const slice = new Slice(Fragment.fromArray(blocks.map(block => blockToNode(block, view.state.schema))), 0, 0);
-    data.setData("blocknote/html", view.serializeForClipboard(slice).dom.innerHTML);
-    data.setData("text/html", this.editor.blocksToHTMLLossy(blocks));
+    const internalHTML = view.serializeForClipboard(slice).dom.innerHTML;
+    data.setData("blocknote/html", internalHTML);
+    data.setData("text/html", withBlockClipboardPayload(view.dom.ownerDocument, this.editor.blocksToHTMLLossy(blocks), internalHTML));
     data.setData("text/plain", this.editor.blocksToMarkdownLossy(blocks));
     return slice;
   }

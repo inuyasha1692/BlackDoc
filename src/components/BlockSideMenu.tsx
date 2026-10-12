@@ -30,6 +30,7 @@ import {
   Quote,
   Scissors,
   Square,
+  SquareSplitHorizontal,
   Table2,
   Trash2,
   Type,
@@ -175,7 +176,7 @@ const blockTypeIcon = (block: MenuBlock) => {
     canvas: <PenTool size={16} />,
     diagram: <Workflow size={16} />,
     mathBlock: <span className="blackdoc-block-type-heading">ƒx</span>,
-    splitPane: <Square size={16} />,
+    splitPane: <SquareSplitHorizontal size={16} />,
   };
   return icons[block.type] ?? <Square size={16} />;
 };

@@ -240,7 +240,7 @@ export const importMarkdownBlocks = (
       else if (fence[1][0] === fenceMarker && fence[1].length >= fenceLength && !fence[2]) fenced = false;
       prepared.push(line); continue;
     }
-    prepared.push(fenced ? line : line.split(/(`+[^`]*`+)/g).map(part => part.startsWith("`") ? part : part.replace(/(?<![\\$])\$([^\s$](?:[^$\n]*?[^\s$])?)\$(?![\d$])/g, (_match, source: string) => storeScientific("math", source))).join(""));
+    prepared.push(fenced ? line : line.split(/(`+[^`]*`+)/g).map(part => part.startsWith("`") ? part : part.replace(/(?<![\\])&(?:nbsp|#160|#x0*a0);/gi, "\u00a0").replace(/(?<![\\$])\$([^\s$](?:[^$\n]*?[^\s$])?)\$(?![\d$])/g, (_match, source: string) => storeScientific("math", source))).join(""));
   }
   markdown = prepared.join("\n");
   const anchors: string[] = [];

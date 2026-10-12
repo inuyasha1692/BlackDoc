@@ -534,7 +534,7 @@ describe("desktop App lifecycle", () => {
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
   });
 
-  it.each([{ warnings: [] }, { warnings: ["图片缺失"] }])("dismisses completed Markdown import feedback after five seconds (warnings: $warnings)", async ({ warnings }) => {
+  it.each([{ warnings: [] }, { warnings: ["链接丢失"] }])("keeps Markdown warnings until dismissed and expires success feedback (warnings: $warnings)", async ({ warnings }) => {
     await mountApp();
     vi.mocked(importDesktopMarkdown).mockResolvedValue({ name: "map.md", markdown: "# Imported", warnings });
     vi.mocked(importMarkdownBlocks).mockReturnValue({ blocks: documentWithTitle("Imported"), warnings: [] });
@@ -543,7 +543,11 @@ describe("desktop App lifecycle", () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(4999); });
     expect(screen.getByRole("alert")).toHaveTextContent("Markdown 已导入");
     await act(async () => { await vi.advanceTimersByTimeAsync(1); });
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    if (warnings.length) {
+      expect(screen.getByRole("alert")).toHaveTextContent("链接丢失");
+    } else {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    }
   });
 
   it("keeps import feedback hidden while choosing a file and after canceling", async () => {

@@ -10,6 +10,17 @@ import { buildStandaloneHtml } from "../export/standaloneHtml";
 const image = "data:image/png;base64,iVBORw0KGgo=";
 
 describe("Markdown import", () => {
+  it("decodes nonbreaking spaces in highlighted table cells", () => {
+    const editor = BlockNoteEditor.create({ schema: blackDocSchema });
+    try {
+      const result = importMarkdownBlocks(editor, "| 等级 | 说明 |\n| --- | --- |\n| 1 | <mark>&nbsp;</mark> |\n| 2 | &nbsp; |\n| 3 | &#160; |\n| 4 | &#xA0; |");
+      expect(JSON.stringify(result.blocks)).not.toContain("&nbsp;");
+      expect(JSON.stringify(result.blocks)).not.toContain("&#160;");
+      expect(JSON.stringify(result.blocks)).not.toContain("&#xA0;");
+      const code = importMarkdownBlocks(editor, "`&nbsp;`\n\n```html\n&nbsp;\n```");
+      expect(JSON.stringify(code.blocks)).toContain("&nbsp;");
+    } finally { editor._tiptapEditor.destroy(); }
+  });
   it.each(["简短说明", "字".repeat(601), Array(16).fill("一行").join("<br>")])("keeps image description tables regardless of description length", description => {
     const editor = BlockNoteEditor.create({ schema: blackDocSchema });
     try {

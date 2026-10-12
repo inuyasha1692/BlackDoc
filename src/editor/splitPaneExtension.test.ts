@@ -295,6 +295,25 @@ describe("split pane structural protection", () => {
     expect(editor.getBlock("left")?.children).toHaveLength(1);
   });
 
+  it.each(["left", "right"])("keeps Delete at the end of %s inside the column", side => {
+    const editor = createEditor();
+    editor.setTextCursorPosition(`${side}-text`, "end");
+    const before = JSON.stringify(editor.document);
+    editor._tiptapEditor.commands.keyboardShortcut("Delete");
+    expect(JSON.stringify(editor.document)).toBe(before);
+    expect(editor.getBlock("after")?.content).toMatchObject([{ text: "After" }]);
+  });
+
+  it("allows Delete to merge paragraphs within the right column", () => {
+    const editor = createEditor();
+    editor.updateBlock("right-text", { content: "Right" });
+    editor.insertBlocks([{ id: "right-next", type: "paragraph", content: "Next" }], "right-text", "after");
+    editor.setTextCursorPosition("right-text", "end");
+    editor._tiptapEditor.commands.keyboardShortcut("Delete");
+    expect(editor.getBlock("right-text")?.content).toMatchObject([{ text: "RightNext" }]);
+    expect(editor.getBlock("after")?.content).toMatchObject([{ text: "After" }]);
+  });
+
   it.each(["left", "right"])("repairs deletion of the last paragraph in %s", side => {
     const confirm = vi.spyOn(window, "confirm");
     const editor = createEditor();

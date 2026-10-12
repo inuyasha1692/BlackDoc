@@ -284,6 +284,7 @@ import {
   parseBlockLink,
   revealBlock,
 } from "./editor/blockLinks";
+import { BlockClipboardExtension, pasteBlockClipboard } from "./editor/blockClipboard";
 import { pasteBlockLink } from "./editor/blockLinkPaste";
 import {
   cloneDocument,
@@ -376,6 +377,7 @@ export default function App() {
       TableEnterNavigationExtension(),
       HeadingSectionsExtension(),
       BlockMarqueeExtension(),
+      BlockClipboardExtension(),
       SplitPaneExtension(),
     ],
     tables: { cellBackgroundColor: true, cellTextColor: true },
@@ -403,6 +405,7 @@ export default function App() {
       },
     },
     pasteHandler: ({ event, editor: activeEditor, defaultPasteHandler }) => {
+      if (pasteBlockClipboard(activeEditor, event.clipboardData)) return true;
       if (pasteTableImage(activeEditor, event.clipboardData, fileToDataUrl, error => {
         setNotice({ tone: "error", message: `表格图片粘贴失败：${String(error)}` });
       })) return true;
@@ -868,7 +871,7 @@ export default function App() {
       schedulePersistence();
       const warnings = [...imported.warnings, ...converted.warnings];
       setNotice({
-        dismissAfterMs: 5000,
+        dismissAfterMs: warnings.length ? undefined : 5000,
         tone: warnings.length ? "warning" : "info",
         message: warnings.length
           ? `Markdown 已导入；${warnings.slice(0, 3).join("；")}`

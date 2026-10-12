@@ -120,7 +120,7 @@
       },
       {
         "styles": {},
-        "text": "选中文字设置颜色；复制内容块链接并插入文内跳转，点击即可定位并高亮对应内容。",
+        "text": "选中文字设置颜色；在目标内容处执行【复制跳转到此处为链接】，再回到引用位置粘贴，点击即可定位并高亮对应内容。",
         "type": "text"
       }
     ],
@@ -1055,21 +1055,9 @@
     "children": [],
     "content": [
       {
-        "styles": {},
-        "text": "在目标块左侧菜单复制块链接，再给文字设置该地址。点击文档开头的",
-        "type": "text"
-      },
-      {
-        "styles": {
-          "backgroundColor": "pink"
-        },
-        "text": "链接可定位到",
-        "type": "text"
-      },
-      {
-        "styles": {},
-        "text": "此处并短暂高亮；导出的 HTML 同样可跳转。",
-        "type": "text"
+        "type": "text",
+        "text": "要链接到本文其他内容：先到目标段落、图片或表格，执行“复制跳转到此处为链接”，再粘贴到这里。点击文档开头的内部链接可定位到此处并短暂高亮；导出的 HTML 同样可跳转。",
+        "styles": {}
       }
     ],
     "id": "demo-anchor-target-note",
@@ -1079,6 +1067,74 @@
       "textColor": "default"
     },
     "type": "paragraph"
+  },
+  {
+    "id": "demo-link-copy-step",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "先找到目标块：打开左侧块操作手柄菜单，选择【复制跳转到此处为链接】；也可以点击该块悬浮工具栏最右侧、竖线分隔后的转弯箭头按钮。画布预览工具栏也有这个入口。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "demo-link-insert-step",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "回到要插入链接的位置：选中一段文字，打开设置链接的窗口，将地址粘贴到【粘贴网址或本文内容链接】输入框并确认。也可以选中文字后直接粘贴，将文字变成链接。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "demo-link-check-step",
+    "type": "numberedListItem",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "点击刚创建的链接，检查是否跳转并高亮目标块。复制成功提示约 5 秒后会自动关闭；目标在折叠章节或双分区右侧时，会自动展开或滚动到对应位置。",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "demo-link-toolbar-note",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+      "textAlignment": "left"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "悬浮工具栏按钮复制当前单个块的跳转地址，多块选择时不显示；表格内图片工具栏上的按钮指向所在表格。未选中文字时，直接粘贴会插入以地址为文字的链接。文内跳转的目标内容需要存在于同一文档。",
+        "styles": {}
+      }
+    ],
+    "children": []
   },
   {
     "children": [],

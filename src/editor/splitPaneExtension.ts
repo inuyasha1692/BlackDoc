@@ -194,6 +194,21 @@ export const SplitPaneExtension = createExtension(() => {
   return {
     key: "split-pane-protection",
     keyboardShortcuts: {
+      Delete: ({ editor }) => {
+        const { $from, empty } = editor._tiptapEditor.state.selection;
+        if (!empty || !$from.parent.isTextblock || $from.parentOffset !== $from.parent.content.size) return false;
+        for (let columnDepth = $from.depth - 1; columnDepth > 0; columnDepth--) {
+          const column = $from.node(columnDepth);
+          if (column.type.name !== "blockContainer" || column.firstChild?.type.name !== "splitColumn") continue;
+          // Only intercept the last text position in the column. Native Delete
+          // remains available between siblings and within text.
+          for (let depth = $from.depth; depth > columnDepth; depth--) {
+            if ($from.indexAfter(depth - 1) < $from.node(depth - 1).childCount) return false;
+          }
+          return true;
+        }
+        return false;
+      },
       Backspace: ({ editor }) => {
         const { state, view } = editor._tiptapEditor;
         const { $from, empty } = state.selection;

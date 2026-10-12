@@ -26,7 +26,7 @@ BlackDoc 将文档保存在本地的 `.bdoc` 文件中。**`.bdoc` 使用明文 
 
 写图文并茂的长文档时，Markdown 往往需要为排版和资源管理额外花时间。BlackDoc 提供直接操作的编辑方式：
 
-- **文字与跳转**：选中文字设置颜色；复制内容块链接并插入文内跳转，点击即可定位并高亮对应内容。<img width="424" height="168" alt="image" src="https://github.com/user-attachments/assets/811bf017-55a4-42d7-9169-8ab621aa3221" /><img width="709" height="282" alt="image" src="https://github.com/user-attachments/assets/7cec9858-0864-45a9-a287-93330cc57b2c" />
+- **文字与跳转**：选中文字设置颜色；在目标内容处执行【复制跳转到此处为链接】，再回到引用位置粘贴，点击即可定位并高亮对应内容。<img width="424" height="168" alt="image" src="https://github.com/user-attachments/assets/811bf017-55a4-42d7-9169-8ab621aa3221" /><img width="709" height="282" alt="image" src="https://github.com/user-attachments/assets/7cec9858-0864-45a9-a287-93330cc57b2c" />
 
 
 - **图片与标注**：调整图片宽度和对齐方式；在正文中插入可编辑的 Excalidraw 画布，贴图、画箭头、圈注并添加文字。<img width="943" height="663" alt="image" src="https://github.com/user-attachments/assets/92913ad0-5efd-410b-ac7d-3c6db050d613" />
@@ -36,6 +36,8 @@ BlackDoc 将文档保存在本地的 `.bdoc` 文件中。**`.bdoc` 使用明文 
 - **标题编号**：二级及以下标题自动编号，调整章节结构后无需逐项修改编号。
 - **表格排版**：拖动调整列宽，还能把复制的图片块粘贴到单元格中并调整图片宽度。
 - **单文件分享**：导出包含正文、布局、块链接、已内嵌图片和画布预览的 HTML，打开浏览器即可阅读，无需另附 `assets` 文件夹。画布可放大查看；继续编辑使用 `.bdoc` 源文件。
+
+要创建文内跳转，先在目标段落、图片、表格或画布处执行【复制跳转到此处为链接】，再回到引用位置，选中文字并将地址粘贴到链接设置窗口。复制入口位于左侧块菜单，以及悬浮工具栏最右侧、竖线分隔后的转弯箭头按钮。详细步骤见[使用指南中的块链接说明](docs/user-guide.md#块链接)。
 
 HTML 导出会尝试内嵌远程图片。若图片源站禁止跨域读取或网络不可用，BlackDoc 会提示仍需联网加载这些图片；文档中已内嵌的图片和画布资源会随 HTML 一起保存。
 
