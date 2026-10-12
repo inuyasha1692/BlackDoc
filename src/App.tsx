@@ -320,6 +320,7 @@ import {
 } from "./storage/draftStore";
 
 type Notice = {
+  dismissAfterMs?: number;
   tone: "error" | "warning" | "info";
   message: string;
   exportPath?: string;
@@ -506,6 +507,13 @@ export default function App() {
   const [exportingHtml, setExportingHtml] = useState(false);
   const [desktopReady, setDesktopReady] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
+  useEffect(() => {
+    if (!notice?.dismissAfterMs) return;
+    const timer = window.setTimeout(() => {
+      setNotice(current => current === notice ? null : current);
+    }, notice.dismissAfterMs);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
@@ -838,8 +846,11 @@ export default function App() {
 
   const importSelectedMarkdown = useCallback(async () => {
     setBusy(true);
-    setImportingMarkdown(true);
+    let unlisten: (() => void) | undefined;
     try {
+      unlisten = await getCurrentWindow().listen("desktop-markdown-import-started", () => {
+        setImportingMarkdown(true);
+      });
       const imported = await importDesktopMarkdown();
       if (!imported) return;
       const converted = importMarkdownBlocks(editor, imported.markdown);
@@ -857,6 +868,7 @@ export default function App() {
       schedulePersistence();
       const warnings = [...imported.warnings, ...converted.warnings];
       setNotice({
+        dismissAfterMs: 5000,
         tone: warnings.length ? "warning" : "info",
         message: warnings.length
           ? `Markdown 已导入；${warnings.slice(0, 3).join("；")}`
@@ -868,6 +880,7 @@ export default function App() {
         message: error instanceof Error ? error.message : String(error),
       });
     } finally {
+      unlisten?.();
       setImportingMarkdown(false);
       setBusy(false);
     }
@@ -1096,7 +1109,7 @@ export default function App() {
 
   useEffect(() => {
     const handleCopied = () =>
-      setNotice({ tone: "info", message: "块链接已复制。" });
+      setNotice({ tone: "info", message: "链接已复制，可粘贴到链接地址框中。", dismissAfterMs: 5000 });
     const handleCopyFailed = () =>
       setNotice({ tone: "error", message: "无法访问剪贴板，块链接复制失败。" });
     const handleMissing = () =>

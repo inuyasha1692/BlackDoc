@@ -40,6 +40,7 @@ const harness = vi.hoisted(() => ({
   },
   closeListeners: new Set<() => void>(),
   openListeners: new Set<() => void>(),
+  markdownImportListeners: new Set<() => void>(),
   listen: vi.fn(),
   setTitle: vi.fn(),
   destroy: vi.fn(),
@@ -214,6 +215,7 @@ beforeEach(() => {
   localStorage.setItem("blackdoc:outline-collapsed", "false");
   harness.closeListeners.clear();
   harness.openListeners.clear();
+  harness.markdownImportListeners.clear();
   window.addEventListener("blackdoc-close-canvas", harness.closeCanvas);
   harness.editor.document = documentWithTitle("");
   harness.editor.isEditable = true;
@@ -222,6 +224,10 @@ beforeEach(() => {
   });
   harness.editor.transact.mockImplementation(callback => callback({ setMeta: vi.fn() }));
   harness.listen.mockImplementation(async (event: string, listener: () => void) => {
+    if (event === "desktop-markdown-import-started") {
+      harness.markdownImportListeners.add(listener);
+      return () => { harness.markdownImportListeners.delete(listener); };
+    }
     if (event === "desktop-open-started") {
       harness.openListeners.add(listener);
       return () => { harness.openListeners.delete(listener); };
@@ -528,16 +534,46 @@ describe("desktop App lifecycle", () => {
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
   });
 
-  it("shows import feedback while reading and clears it when the picker is canceled", async () => {
+  it.each([{ warnings: [] }, { warnings: ["图片缺失"] }])("dismisses completed Markdown import feedback after five seconds (warnings: $warnings)", async ({ warnings }) => {
+    await mountApp();
+    vi.mocked(importDesktopMarkdown).mockResolvedValue({ name: "map.md", markdown: "# Imported", warnings });
+    vi.mocked(importMarkdownBlocks).mockReturnValue({ blocks: documentWithTitle("Imported"), warnings: [] });
+    await clickButton("导入 MD");
+    expect(screen.getByRole("alert")).toHaveTextContent("Markdown 已导入");
+    await act(async () => { await vi.advanceTimersByTimeAsync(4999); });
+    expect(screen.getByRole("alert")).toHaveTextContent("Markdown 已导入");
+    await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("keeps import feedback hidden while choosing a file and after canceling", async () => {
     await mountApp();
     const pending = deferred<Awaited<ReturnType<typeof importDesktopMarkdown>>>();
     vi.mocked(importDesktopMarkdown).mockReturnValue(pending.promise);
 
     await clickButton("导入 MD");
-    expect(screen.getByText("正在导入 Markdown，请稍候…")).toBeInTheDocument();
+    expect(screen.queryByText("正在导入 Markdown，请稍候…")).not.toBeInTheDocument();
 
     await act(async () => { pending.resolve(null); await pending.promise; });
     expect(screen.queryByText("正在导入 Markdown，请稍候…")).not.toBeInTheDocument();
+    expect(harness.markdownImportListeners.size).toBe(0);
+  });
+
+  it("shows import feedback after file selection and clears it on failure", async () => {
+    await mountApp();
+    let rejectImport!: (reason: Error) => void;
+    const pending = new Promise<Awaited<ReturnType<typeof importDesktopMarkdown>>>((_resolve, reject) => {
+      rejectImport = reject;
+    });
+    vi.mocked(importDesktopMarkdown).mockReturnValue(pending);
+    await clickButton("导入 MD");
+    expect(screen.queryByText("正在导入 Markdown，请稍候…")).not.toBeInTheDocument();
+    await act(async () => { for (const listener of harness.markdownImportListeners) listener(); });
+    expect(screen.getByText("正在导入 Markdown，请稍候…")).toBeInTheDocument();
+    await act(async () => { rejectImport(new Error("Markdown 读取失败")); });
+    expect(screen.queryByText("正在导入 Markdown，请稍候…")).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Markdown 读取失败");
+    expect(harness.markdownImportListeners.size).toBe(0);
   });
 
   it("switches the editor theme without marking the document dirty or saving it", async () => {

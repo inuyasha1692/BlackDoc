@@ -23,6 +23,10 @@ beforeEach(() => {
 });
 
 describe("canvasSvg", () => {
+  it("uses compact padding when generating an editor preview", async () => {
+    await canvasSvg(JSON.stringify(emptyScene()), 4);
+    expect(exportToSvg.mock.calls[0][0].exportPadding).toBe(4);
+  });
   it("passes image resources as files with active elements and export options", async () => {
     const active = image("asset");
     const files = {

@@ -3,6 +3,7 @@ import { AlignCenter, AlignLeft, AlignRight, Download, ImagePlus, Pencil, Trash2
 import { NodeSelection } from "@tiptap/pm/state";
 import { useRef, useState } from "react";
 import { ImageViewButton } from "./ImageViewer";
+import { CopyBlockLinkButton } from "./CopyBlockLinkButton";
 
 export function TableImageToolbar() {
   const editor = useBlockNoteEditor();
@@ -92,5 +93,6 @@ export function TableImageToolbar() {
     {([ ["left", "左对齐", AlignLeft], ["center", "居中", AlignCenter], ["right", "右对齐", AlignRight] ] as const).map(([value, label, Icon]) =>
       <Button key={value} className="bn-button" label={label} mainTooltip={`${label}（所在单元格）`} isSelected={image.alignment === value} icon={<Icon size={17} />} onClick={() => align(value)} />)}
     {error && <span role="alert">{error}</span>}
+    <CopyBlockLinkButton />
   </FormattingToolbar>;
 }

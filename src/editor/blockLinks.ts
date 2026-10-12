@@ -5,6 +5,27 @@ export const BLOCK_LINK_PREFIX = "#block=";
 export const BLOCK_LINK_COPIED_EVENT = "blackdoc:block-link-copied";
 export const BLOCK_LINK_COPY_FAILED_EVENT = "blackdoc:block-link-copy-failed";
 export const BLOCK_LINK_MISSING_EVENT = "blackdoc:block-link-missing";
+export const COPY_BLOCK_LINK_LABEL = "复制跳转到此处为链接";
+
+export const copyBlockLink = async (blockId: string): Promise<void> => {
+  try {
+    const text = createBlockLink(blockId);
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const input = document.createElement("textarea");
+      input.value = text;
+      input.style.position = "fixed";
+      input.style.opacity = "0";
+      document.body.append(input);
+      try {
+        input.select();
+        if (!document.execCommand("copy")) throw new Error("Clipboard unavailable");
+      } finally { input.remove(); }
+    }
+    window.dispatchEvent(new Event(BLOCK_LINK_COPIED_EVENT));
+  } catch { window.dispatchEvent(new Event(BLOCK_LINK_COPY_FAILED_EVENT)); }
+};
 
 export const createBlockLink = (blockId: string): string =>
   `${BLOCK_LINK_PREFIX}${encodeURIComponent(blockId)}`;

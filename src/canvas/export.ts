@@ -1,7 +1,7 @@
 import "./assets";
 import { parseScene } from "./scene";
 
-export async function canvasSvg(source: string): Promise<string> {
+export async function canvasSvg(source: string, exportPadding = 24): Promise<string> {
   const scene = parseScene(source);
   for (const element of scene.elements) {
     if (element.type === "image" && !element.isDeleted &&
@@ -14,7 +14,7 @@ export async function canvasSvg(source: string): Promise<string> {
     elements: scene.elements.filter(element => !element.isDeleted),
     appState: { ...scene.appState, exportBackground: true, exportWithDarkMode: false },
     files: scene.files,
-    exportPadding: 24,
+    exportPadding,
   });
   // Render SVG as an image, never as active markup in the document.
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.outerHTML)}`;

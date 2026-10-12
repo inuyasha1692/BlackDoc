@@ -18,6 +18,7 @@ describe("canvas preview sizing", () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(300); });
     const uri = screen.getByRole("img", { name: "画布" }).getAttribute("src");
     expect(canvasSvg).toHaveBeenCalledTimes(1);
+    expect(canvasSvg).toHaveBeenCalledWith(props.source, 4);
     rerender(<AppThemeContext.Provider value="dark"><CanvasPreview {...props} /></AppThemeContext.Provider>);
     await act(async () => { await vi.advanceTimersByTimeAsync(300); });
     expect(screen.getByRole("img", { name: "画布" })).toHaveAttribute("src", uri);
@@ -45,7 +46,11 @@ describe("canvas preview sizing", () => {
     rerender(<CanvasPreview {...props} previewWidth={480} />);
     expect(container.querySelector(".canvas-preview-frame")).toHaveStyle({ width: "480px" });
     rerender(<CanvasPreview {...props} previewWidth={0} />);
+    expect(container.querySelector(".canvas-preview-frame")).toHaveStyle({ width: "320px" });
+    expect(container.querySelector(".canvas-preview")).toHaveClass("canvas-preview-empty");
+    rerender(<CanvasPreview {...props} previewWidth={0} source={JSON.stringify({ version: 1, elements: [{ id: "shape", type: "rectangle", x: 0, y: 0 }], appState: { viewBackgroundColor: "#ffffff" }, files: {} })} />);
     expect(container.querySelector(".canvas-preview-frame")).toHaveStyle({ width: "100%" });
+    expect(container.querySelector(".canvas-preview")).not.toHaveClass("canvas-preview-empty");
   });
 
   it("resizes with the keyboard without opening the editor and clamps the minimum", () => {

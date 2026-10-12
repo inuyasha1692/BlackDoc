@@ -366,6 +366,7 @@ async fn desktop_import_markdown(
         return Ok(None);
     };
     let path = selected.into_path().map_err(error)?;
+    window.emit("desktop-markdown-import-started", ()).map_err(error)?;
     tauri::async_runtime::spawn_blocking(move || storage::read_markdown(&path))
         .await
         .map_err(error)?

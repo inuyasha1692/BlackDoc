@@ -1,7 +1,9 @@
-import { Component, lazy, Suspense, useEffect, useRef, useState, type ReactNode, type PointerEvent, type KeyboardEvent } from "react";
+import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode, type PointerEvent, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { AlignLeft, AlignCenter, AlignRight, Pencil, PenTool, X } from "lucide-react";
+import { AlignLeft, AlignCenter, AlignRight, CornerUpLeft, Pencil, PenTool, X } from "lucide-react";
+import { copyBlockLink, COPY_BLOCK_LINK_LABEL } from "../editor/blockLinks";
 import { canvasSvg } from "./export";
+import { parseScene } from "./scene";
 import type { BlackDocEditor } from "../editor/schema";
 import "./canvas.css";
 
@@ -129,6 +131,10 @@ export function CanvasPreview({
   const frame = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; width: number; side: number; next: number } | null>(null);
   const [dragWidth, setDragWidth] = useState<number | null>(null);
+  const empty = useMemo(() => {
+    try { return !parseScene(source).elements.some(element => !element.isDeleted); }
+    catch { return false; }
+  }, [source]);
   const width = dragWidth ?? (Number.isFinite(previewWidth) && previewWidth > 0 ? previewWidth : undefined);
   const clampWidth = (value: number) => {
     const max = container.current?.clientWidth || 640;
@@ -169,7 +175,7 @@ export function CanvasPreview({
   useEffect(() => {
     let cancelled = false;
     const timer = setTimeout(() => {
-      void canvasSvg(source).then(uri => {
+      void canvasSvg(source, 4).then(uri => {
         if (!cancelled) { setImage(uri); setError(""); }
       }).catch((reason: unknown) => {
         if (!cancelled) setError(reason instanceof Error ? reason.message : "画布预览失败。");
@@ -179,8 +185,8 @@ export function CanvasPreview({
   }, [source]);
   return (
     <div ref={container} className="canvas-block" contentEditable={false}>
-      <div ref={frame} className="canvas-preview-frame" style={{ width: width ? `${width}px` : "100%", marginLeft: alignment === "left" ? 0 : "auto", marginRight: alignment === "right" ? 0 : "auto" }}>
-      <button className="canvas-preview" type="button" aria-label="编辑画布" onClick={() =>
+      <div ref={frame} className="canvas-preview-frame" style={{ width: width ? `${width}px` : empty ? "320px" : "100%", marginLeft: alignment === "left" ? 0 : "auto", marginRight: alignment === "right" ? 0 : "auto" }}>
+      <button className={`canvas-preview${empty ? " canvas-preview-empty" : ""}`} type="button" aria-label="编辑画布" onClick={() =>
         window.dispatchEvent(new CustomEvent(OPEN_CANVAS_EVENT, { detail: id }))
       }>
         {image && !error
@@ -199,6 +205,10 @@ export function CanvasPreview({
           onClick={() => window.dispatchEvent(new CustomEvent(OPEN_CANVAS_EVENT, { detail: id }))}>
           <Pencil size={15} aria-hidden="true" />编辑画布
         </button>
+        <span className="block-link-toolbar-separator" role="separator" aria-orientation="vertical" />
+        <button className="canvas-copy-link-button" type="button" aria-label={COPY_BLOCK_LINK_LABEL} title={COPY_BLOCK_LINK_LABEL}
+          onMouseDown={event => event.preventDefault()}
+          onClick={event => { event.stopPropagation(); void copyBlockLink(id); }}><CornerUpLeft size={16} aria-hidden="true" /></button>
       </div>
       {editable && (["left", "right"] as const).map(side => (
         <button

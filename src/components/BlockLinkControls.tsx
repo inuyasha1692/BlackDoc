@@ -36,6 +36,7 @@ import { ImageIndentButton } from "./ImageIndentControls";
 import { TableSelectionBackgroundColorButton } from "./TableSelectionBackgroundColorButton";
 import { TableImageToolbar } from "./TableImageToolbar";
 import { ImageRenameButton } from "./ImageRenameButton";
+import { CopyBlockLinkButton } from "./CopyBlockLinkButton";
 
 const normalizeLink = (url: string): string => {
   const blockId = parseBlockLink(url);
@@ -87,9 +88,10 @@ const BlockLinkForm = (props: BlockLinkFormProps) => {
         }
         onKeyDown={handleEnter}
         onSubmit={submit}
-        placeholder="粘贴链接或块链接"
+        placeholder="粘贴网址或本文内容链接"
         value={url}
       />
+      <p className="block-link-form-help">要链接到本文其他内容：先到目标段落、图片或表格，执行“复制跳转到此处为链接”，再粘贴到这里。</p>
       {props.showTextField !== false && (
         <Components.Generic.Form.TextInput
           className="bn-text-input"
@@ -274,6 +276,7 @@ export const BlackDocFormattingToolbar = (
       }
       return item;
     })}
+    <CopyBlockLinkButton />
   </FormattingToolbar>
   );
 };

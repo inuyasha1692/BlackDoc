@@ -40,9 +40,8 @@ import { creationMenuViewportPadding } from "../editor/creationMenuPosition";
 import { getBlockMarquee } from "../editor/blockMarquee";
 import { copyBlockToClipboard } from "../editor/blockClipboard";
 import {
-  BLOCK_LINK_COPIED_EVENT,
-  BLOCK_LINK_COPY_FAILED_EVENT,
-  createBlockLink,
+  copyBlockLink,
+  COPY_BLOCK_LINK_LABEL,
 } from "../editor/blockLinks";
 import { BlockColorsMenuItem } from "./BlockColorsMenuItem";
 import { AddBelowMenu, type BlockCreationMenuProps } from "./AddBelowMenu";
@@ -64,26 +63,6 @@ export type PendingSlashBlockRef = {
   } | null;
 };
 
-const copyText = async (text: string): Promise<void> => {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-
-  const input = document.createElement("textarea");
-  input.value = text;
-  input.style.position = "fixed";
-  input.style.opacity = "0";
-  document.body.append(input);
-  input.select();
-  const copied = document.execCommand("copy");
-  input.remove();
-
-  if (!copied) {
-    throw new Error("Clipboard unavailable");
-  }
-};
-
 const CopyBlockLinkItem = () => {
   const Components = useComponentsContext()!;
   const block = useExtensionState(SideMenuExtension, {
@@ -99,14 +78,10 @@ const CopyBlockLinkItem = () => {
       className="bn-menu-item"
       icon={<Link2 aria-hidden="true" size={16} />}
       onClick={() => {
-        void copyText(createBlockLink(block.id))
-          .then(() => window.dispatchEvent(new Event(BLOCK_LINK_COPIED_EVENT)))
-          .catch(() =>
-            window.dispatchEvent(new Event(BLOCK_LINK_COPY_FAILED_EVENT)),
-          );
+        void copyBlockLink(block.id);
       }}
     >
-      复制块链接
+      {COPY_BLOCK_LINK_LABEL}
     </Components.Generic.Menu.Item>
   );
 };
