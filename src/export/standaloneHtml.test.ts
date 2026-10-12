@@ -379,6 +379,31 @@ describe("buildStandaloneHtml outline", () => {
     expect(document.querySelector("article")).not.toBeNull();
   });
 
+  it("aligns a revision link and direct hash to the beginning of a tall heading section", async () => {
+    const blocks = [block("source", "修订记录"), block("target", "CB0.5 将领详情调整", 2), block("details", "长篇章节内容")];
+    const markup = document.createElement("div");
+    markup.innerHTML = fullHtml(blocks);
+    markup.querySelector(".bn-inline-content")!.innerHTML = '<a href="#block=target">新增，CB0.5，涉及将领详情的功能布局调整</a>';
+    const { html } = await exportDocument(blocks, markup.innerHTML);
+    // @ts-expect-error jsdom has no bundled type declarations.
+    const { JSDOM } = await import("jsdom");
+    const scroll = vi.fn();
+    const page = new JSDOM(html, { runScripts: "dangerously", url: "http://localhost/", beforeParse(window: Window & typeof globalThis) {
+      window.HTMLElement.prototype.scrollIntoView = scroll;
+      window.requestAnimationFrame = () => 1;
+    } });
+    try {
+      const doc = page.window.document as Document;
+      const target = doc.getElementById("block=target")!;
+      expect(target.querySelector("#block\\=details")).not.toBeNull();
+      doc.querySelector<HTMLAnchorElement>("article a")!.click();
+      expect(scroll).toHaveBeenLastCalledWith({ block: "start" });
+      expect(target.classList.contains("block-link-highlight")).toBe(true);
+      page.window.dispatchEvent(new page.window.Event("hashchange"));
+      expect(scroll).toHaveBeenLastCalledWith({ block: "start" });
+    } finally { page.window.close(); }
+  });
+
   it("preserves existing internal links and paragraph anchors alongside the outline", async () => {
     const id = "target /段落";
     const blocks = [

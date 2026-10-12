@@ -251,7 +251,7 @@ const OUTLINE_SCRIPT = `
   const schedule = () => {
     if (!frame) frame = requestAnimationFrame(update);
   };
-  const reveal = (hash, alignment = "center") => {
+  const reveal = (hash) => {
     let id;
     try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
     const target = document.getElementById(id);
@@ -265,9 +265,7 @@ const OUTLINE_SCRIPT = `
     for (let parent = target.parentElement; parent; parent = parent.parentElement) {
       if (parent.matches(".split-pane")) panes.unshift(parent);
     }
-    if (alignment === "center") {
-      target.scrollIntoView({ block: "center" });
-    } else if (panes.length) {
+    if (panes.length) {
       panes[0].scrollIntoView({ block: "start" });
       // Position nested targets inside their own scrolling column without
       // moving the document past the split pane's top edge.
@@ -290,7 +288,7 @@ const OUTLINE_SCRIPT = `
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     if (location.hash !== link.hash) history.pushState(null, "", link.hash);
-    reveal(link.hash, link.closest(".document-outline") ? "start" : "center");
+    reveal(link.hash);
   });
   window.addEventListener("hashchange", () => reveal(location.hash));
   window.addEventListener("scroll", schedule, { passive: true });

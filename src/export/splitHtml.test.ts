@@ -193,6 +193,8 @@ describe("standalone split layout", () => {
     scroll.scrollTop = 0;
     location.hash = "#block=right-heading";
     windowEvents.get("hashchange")?.(new Event("hashchange"));
-    expect(heading.scrollIntoView).toHaveBeenCalledWith({ block: "center" });
+    expect(scrollIntoView).toHaveBeenLastCalledWith({ block: "start" });
+    expect(scroll.scrollTop).toBe(300);
+    expect(heading.scrollIntoView).not.toHaveBeenCalled();
   });
 });
