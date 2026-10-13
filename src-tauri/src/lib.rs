@@ -549,15 +549,32 @@ async fn desktop_choose_html_export_path(
 ) -> Result<bool> {
     let label = window.label().to_string();
     let session_label = label.clone();
-    with_desktop(window.app_handle().clone(), move |_, desktop| {
+    let automatic_path_selected = with_desktop(window.app_handle().clone(), move |_, desktop| {
         let session = desktop
             .sessions
             .get_mut(&session_label)
             .ok_or("Unknown or closed document window")?;
         session.pending_html_export = None;
-        Ok(())
+        let target = session.path.as_ref().map(|path| path.with_extension("html"));
+        if let Some(target) = target {
+            let target = storage::save_target(target, true)?;
+            if desktop.owner(&target).is_some() {
+                return Err("Cannot export over an open document".into());
+            }
+            desktop
+                .sessions
+                .get_mut(&session_label)
+                .ok_or("Window closed")?
+                .pending_html_export = Some(target);
+            return Ok(true);
+        }
+        Ok(false)
     })
     .await?;
+
+    if automatic_path_selected {
+        return Ok(true);
+    }
 
     let parent = window.clone();
     let selected = tauri::async_runtime::spawn_blocking(move || {
