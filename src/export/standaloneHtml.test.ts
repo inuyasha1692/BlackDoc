@@ -203,7 +203,7 @@ describe("buildStandaloneHtml outline", () => {
       const css = document.querySelector("style")?.textContent ?? "";
       expect(tables).toHaveLength(2);
       expect(css).toContain(":is(th, td):not([colwidth]) { min-width: var(--default-cell-min-width, 120px); }");
-      expect(css).toContain("table { width: auto; margin: 0; word-break: break-word; }");
+      expect(css).toContain("table { width: auto; max-width: 100%; table-layout: fixed; margin: 0; word-break: break-word; }");
       expect(css).not.toContain("revision-history-table");
       expect(Array.from(tables, table => table.querySelectorAll("col:not([style])").length))
         .toEqual([5, 2]);
@@ -238,11 +238,13 @@ describe("buildStandaloneHtml outline", () => {
       expect(html).toContain('setToggle(wrapper, !expanded)');
       expect(css).toContain('.bn-block-content[data-content-type="table"] table');
       expect(css).toContain('[data-background-color="green"]');
-      expect(document.querySelector('#block\\=demo-table col[style="width: 260px;"]')).not.toBeNull();
       const table = document.querySelector<HTMLTableElement>('#block\\=demo-table table')!;
       const columnWidth = Array.from(table.querySelectorAll("col"))
         .reduce((sum, column) => sum + Number.parseFloat(column.style.width), 0);
-      expect(table.style.width).toBe(`${columnWidth}px`);
+      expect(columnWidth).toBeCloseTo(100);
+      expect(Array.from(table.querySelectorAll("col")).every(column => column.style.width.endsWith("%"))).toBe(true);
+      expect(Number.parseFloat(table.style.width)).toBeGreaterThan(0);
+      expect(css).toContain('max-width: 100%; table-layout: fixed;');
       expect(css).toContain('.bn-block-content[data-file-block][data-text-alignment="right"]');
       expect(html).toContain('target.classList.add("block-link-highlight")');
 

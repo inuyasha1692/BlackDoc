@@ -107,7 +107,7 @@ table { margin: 18px 0; border-collapse: collapse; }
 th, td { padding: 8px 10px; border: 1px solid #d0d7de; text-align: left; vertical-align: top; }
 :is(th, td).table-image-only-cell { vertical-align: middle; }
 .bn-block-content[data-content-type="table"] .tableWrapper { width: 100%; overflow-x: auto; overflow-y: hidden; padding: 9px 22px 22px 9px; }
-.bn-block-content[data-content-type="table"] table { width: auto; margin: 0; word-break: break-word; }
+.bn-block-content[data-content-type="table"] table { width: auto; max-width: 100%; table-layout: fixed; margin: 0; word-break: break-word; }
 .bn-block-content[data-content-type="table"] th, .bn-block-content[data-content-type="table"] td { padding: 5px 10px; }
 .bn-block-content[data-content-type="table"] :is(th, td):not([colwidth]) { min-width: var(--default-cell-min-width, 120px); }
 .bn-block-content[data-content-type="table"] :is(th, td) > p { margin: 0; min-height: 1.5em; }
@@ -452,7 +452,11 @@ const preserveTableWidths = (root: ParentNode): void => {
     const columns = Array.from(table.querySelectorAll<HTMLTableColElement>(":scope > colgroup > col"));
     const widths = columns.map(column => column.style.width);
     if (widths.length && widths.every(width => /^\d+(?:\.\d+)?px$/.test(width))) {
-      table.style.width = `${widths.reduce((sum, width) => sum + Number.parseFloat(width), 0)}px`;
+      const total = widths.reduce((sum, width) => sum + Number.parseFloat(width), 0);
+      table.style.width = `${total}px`;
+      if (total > 0) columns.forEach((column, index) => {
+        column.style.width = `${Number.parseFloat(widths[index]) / total * 100}%`;
+      });
     }
   }
 };
