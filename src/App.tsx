@@ -303,6 +303,7 @@ import { changesAffectOutline, getOutlineItems, type OutlineItem } from "./edito
 import { FindAndReplaceExtension } from "./editor/findAndReplace";
 import { InheritColumnFormatExtension } from "./editor/inheritColumnFormat";
 import { TableEnterNavigationExtension } from "./editor/tableEnterNavigation";
+import { TableEqualColumnWidthsExtension } from "./editor/tableEqualColumnWidths";
 import { BlackDocTableHandle } from "./components/TableHandleMenu";
 import { pasteTableImage } from "./editor/tableImagePaste";
 import { blackDocSchema, type BlackDocBlock, type BlackDocEditor } from "./editor/schema";
@@ -375,6 +376,7 @@ export default function App() {
       FindAndReplaceExtension(),
       InheritColumnFormatExtension(),
       TableEnterNavigationExtension(),
+      TableEqualColumnWidthsExtension(),
       HeadingSectionsExtension(),
       BlockMarqueeExtension(),
       BlockClipboardExtension(),
