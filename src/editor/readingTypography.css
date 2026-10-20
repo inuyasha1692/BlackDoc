@@ -1,0 +1,26 @@
+.editor-region .bn-editor { font-size: 16px; }
+
+.editor-region .bn-editor .bn-block-outer[data-reading-kind]:not([data-reading-kind="heading"]) {
+  margin-top: var(--reading-before, 0px);
+  margin-bottom: var(--reading-after, 0px);
+}
+
+.editor-region .bn-editor .bn-block-outer:is([data-reading-kind="paragraph"], [data-reading-kind="label"], [data-reading-kind="list"]) > .bn-block > .bn-block-content {
+  line-height: 1.6;
+}
+
+.editor-region .bn-editor .bn-block-outer[data-reading-kind="heading"] > .bn-block > .bn-block-content {
+  padding-top: var(--reading-before, 0px);
+  padding-bottom: var(--reading-after, 0px);
+}
+
+/* Table margins and its wrapper padding retain their existing values. */
+.editor-region .bn-editor [data-content-type="table"] :is(td, th) {
+  padding: 6px 13px;
+  line-height: 1.6;
+}
+
+.editor-region .bn-editor [data-content-type="table"] :is(td, th) p {
+  margin: 0;
+  line-height: inherit;
+}

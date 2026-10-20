@@ -1,4 +1,5 @@
-import { BlockNoteSchema, createExtension, defaultBlockSpecs } from "@blocknote/core";
+import { BlockNoteSchema, createExtension, defaultBlockSpecs, defaultStyleSpecs } from "@blocknote/core";
+import { inlineColorSpec } from "./inlineColors";
 import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
 import { createReactInlineMathSpec, createReactMathBlockSpec } from "@blocknote/math-block";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
@@ -111,6 +112,11 @@ function headingBlockSpec() {
 }
 
 export const blackDocSchema = withMultiColumn(BlockNoteSchema.create({
+  styleSpecs: {
+    ...defaultStyleSpecs,
+    textColor: inlineColorSpec("textColor"),
+    backgroundColor: inlineColorSpec("backgroundColor"),
+  },
   blockSpecs: {
     ...defaultBlockSpecs,
     table: {

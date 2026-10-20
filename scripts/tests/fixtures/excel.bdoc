@@ -1,0 +1,287 @@
+[
+  {
+    "id": "37c18cd6-8e0e-5b21-aab1-539ea63044e3",
+    "type": "heading",
+    "props": {
+      "level": 1,
+      "isToggleable": true
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Synthetic Excel",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "27be0e7b-e507-5e3b-8a47-8bc6d9760f10",
+    "type": "heading",
+    "props": {
+      "level": 2,
+      "isToggleable": true
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Interface",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "8effbb26-6f3b-5999-8b5c-e759e4c4941e",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "level": 3,
+      "isToggleable": true
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Overview",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "be6c104d-39e7-5ebc-964d-5e5f1bc70e57",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Parent item",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "41164325-45a0-5adf-9721-135a3b582b7e",
+        "type": "paragraph",
+        "props": {
+          "backgroundColor": "default"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nested detail",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "0101ac50-8bd0-5673-bb0a-8acbfbab56fd",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "yellow"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Revision marker",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "77a5622c-75b8-51b1-be20-1a01c8b67708",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "yellow"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Release ",
+        "styles": {
+          "bold": true,
+          "textColor": "red"
+        }
+      },
+      {
+        "type": "text",
+        "text": "detail",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "f489a2cf-eb66-50bc-b33b-04ebd0332117",
+    "type": "table",
+    "props": {},
+    "content": {
+      "type": "tableContent",
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Name",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Preview",
+                  "styles": {}
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Main",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Help",
+                  "styles": {}
+                },
+                {
+                  "type": "tableImage",
+                  "props": {
+                    "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+                    "name": "pic.png",
+                    "previewWidth": 240
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "bcf3ec8e-c7f6-56be-be6e-694cf32483ca",
+    "type": "splitPane",
+    "props": {
+      "leftWidth": 45,
+      "rightHeight": 400
+    },
+    "children": [
+      {
+        "id": "e78c48d8-4887-56d4-b159-3626f4f67a0a",
+        "type": "splitColumn",
+        "props": {
+          "side": "left"
+        },
+        "children": [
+          {
+            "id": "18794074-686c-50b0-9364-00f9e18771a5",
+            "type": "image",
+            "props": {
+              "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+              "name": "pic.png",
+              "previewWidth": 480,
+              "showPreview": true,
+              "textAlignment": "left",
+              "backgroundColor": "default"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "92561d02-f984-549a-948f-8e6ca763068a",
+        "type": "splitColumn",
+        "props": {
+          "side": "right"
+        },
+        "children": [
+          {
+            "id": "7837a7f0-7f24-5746-aa7e-b7177f222465",
+            "type": "paragraph",
+            "props": {
+              "backgroundColor": "default"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Image description",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "f121db07-5a8a-5776-9e99-3b2c6da294dd",
+            "type": "paragraph",
+            "props": {
+              "backgroundColor": "default"
+            },
+            "content": [
+              {
+                "type": "link",
+                "href": "#block=8effbb26-6f3b-5999-8b5c-e759e4c4941e",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Back to overview",
+                    "styles": {}
+                  }
+                ]
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+]

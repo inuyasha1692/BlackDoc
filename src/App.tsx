@@ -55,6 +55,8 @@ import exampleDocumentSource from "../files/BlackDoc功能展示示例.bdoc?raw"
 import { checkForUpdate, type UpdateCheckResult } from "./updates";
 import { scrollMenuItemIntoView } from "./editor/suggestionMenuScroll";
 import { HeadingSectionsExtension, RESET_DOCUMENT_FOLDS_META } from "./editor/headingSections";
+import { ReadingTypographyExtension } from "./editor/readingTypography";
+import "./editor/readingTypography.css";
 import { AppThemeContext } from "./theme";
 import { useAppTheme } from "./useAppTheme";
 
@@ -378,6 +380,7 @@ export default function App() {
       TableEnterNavigationExtension(),
       TableEqualColumnWidthsExtension(),
       HeadingSectionsExtension(),
+      ReadingTypographyExtension(),
       BlockMarqueeExtension(),
       BlockClipboardExtension(),
       SplitPaneExtension(),

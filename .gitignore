@@ -6,6 +6,8 @@ playwright-report/
 test-results/
 .playwright-cli/
 output/
+__pycache__/
+*.py[cod]
 
 # Local backups and rendered exports of the checked-in example document
 /files/BlackDoc功能展示示例.bdoc.backup-*

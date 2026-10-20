@@ -1,0 +1,263 @@
+[
+  {
+    "id": "536ae9e9-50a6-5c93-8ade-e29d5053547c",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "level": 1,
+      "isToggleable": true
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Example document",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "9f719daf-409f-5fdb-87ed-7458bb0e79f9",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "level": 2,
+      "isToggleable": true
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Example",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "9c7c7748-845e-5d94-aac7-7b891379ded2",
+    "type": "heading",
+    "props": {
+      "backgroundColor": "default",
+      "level": 3,
+      "isToggleable": true
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Conditions",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "cc3a968e-4234-5b51-8f3c-a34020417e9e",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Label",
+        "styles": {
+          "bold": true
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "ddea1c14-9267-5c05-a8b8-f3977513ff2f",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Normal detail",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "c11993a3-d411-5f8d-9956-37063cdfe858",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "yellow"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "2026.04.21 added",
+        "styles": {
+          "textColor": "#FF0000"
+        }
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "54944a5b-5267-5d31-a79f-aa2b09b7ddcd",
+    "type": "bulletListItem",
+    "props": {
+      "backgroundColor": "yellow"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Refresh",
+        "styles": {}
+      }
+    ],
+    "children": [
+      {
+        "id": "55d93f39-6e35-51bb-91b3-438c18d7a843",
+        "type": "paragraph",
+        "props": {
+          "backgroundColor": "yellow"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Refresh detail",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "23a7ce99-4153-5def-a11e-9ad0253d9c3f",
+    "type": "table",
+    "props": {},
+    "content": {
+      "type": "tableContent",
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Name",
+                  "styles": {
+                    "bold": true,
+                    "textColor": "#FFFFFF",
+                    "backgroundColor": "#0080FF"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Description",
+                  "styles": {}
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "type": "tableCell",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Duration",
+                  "styles": {}
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Seven days",
+                  "styles": {}
+                },
+                {
+                  "type": "text",
+                  "text": "\n",
+                  "styles": {}
+                },
+                {
+                  "type": "text",
+                  "text": "Configuration check",
+                  "styles": {}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "children": []
+  },
+  {
+    "id": "67ace7f9-9f08-5c0e-8253-0df16b842ca0",
+    "type": "codeBlock",
+    "props": {
+      "language": "text"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Field one\nField two",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "17083c4c-9001-5a31-bc89-b43234e7bbb6",
+    "type": "paragraph",
+    "props": {
+      "backgroundColor": "default"
+    },
+    "content": [
+      {
+        "type": "link",
+        "href": "#block=c11993a3-d411-5f8d-9956-37063cdfe858",
+        "content": [
+          {
+            "type": "text",
+            "text": "Go to change",
+            "styles": {}
+          }
+        ]
+      }
+    ],
+    "children": []
+  }
+]
