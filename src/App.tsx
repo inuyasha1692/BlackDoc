@@ -1203,7 +1203,7 @@ export default function App() {
   const editorDocumentName = documentName.replace(/\.[^.]+$/, "");
   useEffect(() => {
     if (desktopReady) {
-      void getCurrentWindow().setTitle(`${documentName} - BlackDoc`);
+      void getCurrentWindow().setTitle(`${documentName} - ${import.meta.env.DEV ? "BlackDoc Dev" : "BlackDoc"}`);
     }
   }, [desktopReady, documentName]);
   const isSaving =

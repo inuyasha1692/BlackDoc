@@ -1,12 +1,12 @@
 {
   "name": "blackdoc",
   "private": true,
-  "version": "0.1.18",
+  "version": "0.1.19",
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
     "tauri": "tauri",
-    "desktop:dev": "tauri dev",
+    "desktop:dev": "tauri dev --config src-tauri/tauri.dev.conf.json",
     "desktop:build": "tauri build --bundles nsis",
     "release:metadata": "node scripts/prepare-update-release.mjs",
     "webview:dev": "vite --force",

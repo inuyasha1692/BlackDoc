@@ -3,6 +3,8 @@
   --app-bg: #ffffff;
   --app-surface: #ffffff;
   --app-raised: #f6f7f8;
+  --app-table-row-odd-bg: var(--app-raised);
+  --app-table-row-even-bg: var(--app-surface);
   --app-text: #202124;
   --app-muted: #686e76;
   --app-subtle: #858b93;
@@ -37,6 +39,9 @@
   --app-bg: #1f1f1f;
   --app-surface: #1f1f1f;
   --app-raised: #292929;
+  --app-table-row-odd-bg: #292929;
+  --app-table-row-even-bg: #212121;
+  --app-table-border: #323232;
   --app-text: #e3e5e4;
   --app-muted: #b1b7b3;
   --app-subtle: #919894;
@@ -107,6 +112,19 @@
 
 .bn-editor a[href] {
   color: var(--bn-colors-highlights-blue-text, #0b6e99);
+}
+
+/* Default cell backgrounds follow the current row; explicit cell colors win. */
+.bn-editor [data-content-type="table"] tr:nth-child(odd) > :is(td, th):is(:not([data-background-color]), [data-background-color="default"]) {
+  background-color: var(--app-table-row-odd-bg);
+}
+
+.bn-editor [data-content-type="table"] tr:nth-child(even) > :is(td, th):is(:not([data-background-color]), [data-background-color="default"]) {
+  background-color: var(--app-table-row-even-bg);
+}
+
+:root[data-theme="dark"] .bn-editor [data-content-type="table"] :is(td, th) {
+  border-color: var(--app-table-border);
 }
 
 .bn-editor [data-inline-content-type="tableImage"] img {

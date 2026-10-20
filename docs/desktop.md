@@ -2,6 +2,8 @@
 
 ## 架构
 
+`npm run desktop:dev` 使用独立的开发配置，应用标识为 `com.blackdoc.desktop.dev`，窗口标题显示 `BlackDoc Dev`，可与安装版同时运行。开发版的草稿和 WebView 数据独立存放；两个版本同时打开同一文档时，仍受文件锁保护。
+
 React + BlockNote 负责编辑；`src/desktop.ts` 定义桌面命令接口；`src-tauri` 负责本地文件、草稿、窗口、文件关联及安装包。
 
 每窗口拥有自己的编辑器和保存状态。后端登记窗口与源文件的关联，规范化路径并阻止同一文件在多个窗口中同时写入。文档扩展名为 `.bdoc`，内容保持 BlockNote 原生 JSON 数组。

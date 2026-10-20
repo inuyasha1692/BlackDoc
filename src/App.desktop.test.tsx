@@ -655,7 +655,7 @@ describe("desktop App lifecycle", () => {
     expect(newDesktopWindow).not.toHaveBeenCalled();
     expectDocument(original);
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
-    expect(harness.setTitle).toHaveBeenLastCalledWith(`${file.name} - BlackDoc`);
+    expect(harness.setTitle).toHaveBeenLastCalledWith(`${file.name} - BlackDoc Dev`);
     await editDocument();
     await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS - 1); });
     expect(saveDesktopDocument).not.toHaveBeenCalled();
@@ -790,7 +790,7 @@ describe("desktop App lifecycle", () => {
     expectDocument(original);
     expect(screen.getByRole("textbox", { name: "Document" })).toBeEnabled();
     expect(screen.getByRole("status")).toHaveTextContent("已保存");
-    expect(harness.setTitle).toHaveBeenCalledWith(`${file.name} - BlackDoc`);
+    expect(harness.setTitle).toHaveBeenCalledWith(`${file.name} - BlackDoc Dev`);
 
     await editDocument();
     await act(async () => { await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS); });

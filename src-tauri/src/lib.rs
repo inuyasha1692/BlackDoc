@@ -13,6 +13,8 @@ use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindow, WebviewWindo
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;
 
+const APP_NAME: &str = if cfg!(debug_assertions) { "BlackDoc Dev" } else { "BlackDoc" };
+
 #[derive(Clone, Serialize)]
 struct Document {
     path: String,
@@ -192,8 +194,8 @@ fn create_window(
         },
     };
     let label = format!("doc-{id}");
-    let title = document.as_ref().map_or("BlackDoc".to_string(), |doc| {
-        format!("{} - BlackDoc", doc.name)
+    let title = document.as_ref().map_or(APP_NAME.to_string(), |doc| {
+        format!("{} - {APP_NAME}", doc.name)
     });
     desktop.sessions.insert(
         label.clone(),
@@ -336,7 +338,7 @@ async fn desktop_open_window(
     window.emit("desktop-open-started", ()).map_err(error)?;
     with_desktop(window.app_handle().clone(), move |app, desktop| {
         if let Some(document) = desktop.try_reuse_document(window.label(), &path, reuse_current)? {
-            let _ = window.set_title(&format!("{} - BlackDoc", document.name));
+            let _ = window.set_title(&format!("{} - {APP_NAME}", document.name));
             return Ok(Some(document));
         }
         open_document(app, desktop, &path)?;
@@ -497,7 +499,7 @@ async fn desktop_save_document(
             name: saved.name.clone(),
             blocks,
         });
-        let _ = window.set_title(&format!("{} - BlackDoc", saved.name));
+        let _ = window.set_title(&format!("{} - {APP_NAME}", saved.name));
         Ok(Some(saved))
     })
     .await
