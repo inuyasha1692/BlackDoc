@@ -47,6 +47,47 @@ it.each(["paragraph", "codeBlock"] as const)("keeps a native partial-text copy c
   } finally { source._tiptapEditor.destroy(); target._tiptapEditor.destroy(); }
 });
 
+it.each(["heading", "paragraph", "codeBlock"].flatMap(type => ["blocknote/html", "text/html"].flatMap(format => [false, true].map(existing => ({ type: type as "heading" | "paragraph" | "codeBlock", format, existing })))))("keeps a table partial-text copy correct when pasting into $type using $format (existing text: $existing)", ({ type, format, existing }) => {
+  const source = BlockNoteEditor.create({ extensions: [BlockClipboardExtension()], initialContent: [{ id: "source", type: "table", content: { type: "tableContent", rows: [{ cells: [{ type: "tableCell", content: [
+    { type: "text", text: "before ", styles: {} }, { type: "text", text: "selected", styles: { bold: true } }, { type: "text", text: " after", styles: {} },
+  ] }] }] } }] });
+  const target = BlockNoteEditor.create({ initialContent: [{ id: "target", type, content: existing ? "标题前后" : undefined }], pasteHandler: ({ editor, event, defaultPasteHandler }) => pasteBlockClipboard(editor, event.clipboardData) || defaultPasteHandler() });
+  source.mount(document.body.appendChild(document.createElement("div")));
+  target.mount(document.body.appendChild(document.createElement("div")));
+  const values = new Map<string, string>();
+  const clipboard = { types: ["text/html", "text/plain"], getData: (type: string) => values.get(type) ?? "", setData: (type: string, value: string) => values.set(type, value), clearData: () => values.clear() };
+  vi.stubGlobal("ClipboardEvent", Event);
+  try {
+    const view = source.prosemirrorView;
+    let start = 0;
+    view.state.doc.descendants((node, pos) => { if (node.isText && node.text === "selected") start = pos; });
+    view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, start, start + 8)));
+    const copy = new Event("copy", { bubbles: true, cancelable: true });
+    Object.defineProperty(copy, "clipboardData", { value: clipboard });
+    view.dom.dispatchEvent(copy);
+    expect(clipboard.getData("text/html")).toContain("data-blackdoc-clipboard");
+    expect(clipboard.getData("text/plain")).not.toContain("before");
+    target.setTextCursorPosition("target", "start");
+    if (existing) {
+      const targetView = target.prosemirrorView;
+      const position = targetView.state.selection.from + 2;
+      targetView.dispatch(targetView.state.tr.setSelection(TextSelection.create(targetView.state.doc, position)));
+    }
+    const paste = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", { value: { ...clipboard, types: [format, "text/plain"] } });
+    target.prosemirrorView.dom.dispatchEvent(paste);
+    expect(target.document[0].type).toBe(type);
+    const selected = type === "codeBlock" ? clipboard.getData("text/plain") : "selected";
+    expect(target.document[0].content).toEqual(type === "codeBlock"
+      ? [{ type: "text", text: existing ? `标题${selected}前后` : selected, styles: {} }]
+      : [
+        ...(existing ? [{ type: "text", text: "标题", styles: {} }] : []),
+        { type: "text", text: selected, styles: { bold: true } },
+        ...(existing ? [{ type: "text", text: "前后", styles: {} }] : []),
+      ]);
+  } finally { source._tiptapEditor.destroy(); target._tiptapEditor.destroy(); }
+});
+
 function layoutFixture(type: string): BlackDocPartialBlock {
   const pane: BlackDocPartialBlock = type === "table" ? {
     id: "table", type: "table", content: { type: "tableContent", columnWidths: [160, 240], headerRows: 1, rows: [

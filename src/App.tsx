@@ -154,7 +154,6 @@ const iconOnlySlashTitles = new Set([
   "检查清单",
   "代码块",
   "引用",
-  "分隔线",
 ]);
 
 const slashIconOrder = [
@@ -170,7 +169,6 @@ const slashIconOrder = [
   "检查清单",
   "代码块",
   "引用",
-  "分隔线",
 ];
 
 function CompactSlashMenu({
@@ -1276,7 +1274,7 @@ export default function App() {
           ...item,
           subtext: undefined,
           iconOnly,
-          group: iconOnly ? "基础" : item.group,
+          group: iconOnly || item.title === "分隔线" ? "基础" : item.group,
         };
       });
 

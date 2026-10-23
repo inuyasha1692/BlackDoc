@@ -1,6 +1,6 @@
 import { createExtension, getNodeById, type BlockNoteEditor, type BlockSchema, type InlineContentSchema, type StyleSchema } from "@blocknote/core";
 import { Fragment, Slice } from "@tiptap/pm/model";
-import { NodeSelection, Plugin } from "@tiptap/pm/state";
+import { NodeSelection, Plugin, TextSelection } from "@tiptap/pm/state";
 
 export function withBlockClipboardPayload(owner: Document, externalHTML: string, internalHTML: string): string {
   const payload = owner.createElement("template");
@@ -18,8 +18,18 @@ export const BlockClipboardExtension = createExtension(() => ({
       // Preserve its exact selection after that handler has finished bubbling.
       const preserve = (event: ClipboardEvent) => {
         if (!(event.target instanceof Node) || !view.dom.contains(event.target) || !event.clipboardData) return;
-        const internalHTML = event.clipboardData.getData("blocknote/html");
+        let internalHTML = event.clipboardData.getData("blocknote/html");
         if (!internalHTML) return;
+        const { selection, doc } = view.state;
+        const { $from, $to } = selection;
+        // Text selected inside one cell is inline content. Keeping its table
+        // ancestors in the clipboard slice can make insertion into a heading fail.
+        if (event.type === "copy" && selection instanceof TextSelection && $from.sameParent($to)
+          && $from.parent.isTextblock && Array.from({ length: $from.depth }, (_, index) => $from.node(index + 1))
+            .some(node => node.type.spec.tableRole === "cell" || node.type.spec.tableRole === "header_cell")) {
+          internalHTML = view.serializeForClipboard(new Slice(doc.slice(selection.from, selection.to).content, 0, 0)).dom.innerHTML;
+          event.clipboardData.setData("blocknote/html", internalHTML);
+        }
         const externalHTML = event.clipboardData.getData("text/html");
         if (externalHTML.includes('<template data-blackdoc-clipboard="1">')) return;
         event.clipboardData.setData("text/html", withBlockClipboardPayload(owner, externalHTML, internalHTML));
