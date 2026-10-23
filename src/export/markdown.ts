@@ -133,6 +133,10 @@ export async function buildMarkdown(blocks: readonly BlackDocBlock[]) {
     else if (node.type === "diagram" || node.type === "mathBlock") {
       const source = typeof node.content === "string" ? node.content : (Array.isArray(node.content) ? node.content.map((item: Node) => item.text ?? "").join("") : "");
       body = node.type === "diagram" ? `\`\`\`mermaid\n${source}\n\`\`\`` : `$$\n${source}\n$$`;
+    } else if (node.type === "highlight") {
+      const title = await inline(node.content);
+      const contents = [title, children.length ? await renderMany(children) : ""].filter(Boolean).join("\n\n");
+      body = `> [!NOTE]\n${contents.split("\n").map(line => `> ${line}`).join("\n")}`;
     } else if (node.type === "table") {
       const content = node.content as { rows: { cells: unknown[] }[]; headerRows?: number; headerCols?: number };
       const cell = (value: unknown) => Array.isArray(value) ? { content: value, props: {} } : value as Node;

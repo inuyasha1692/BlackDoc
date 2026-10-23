@@ -8,6 +8,7 @@ import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { CanvasBlock } from "../canvas/CanvasBlock";
 import { SplitColumnBlock, SplitPaneBlock } from "./SplitPaneBlock";
 import { TableImage } from "./TableImage";
+import { HighlightBlock } from "./HighlightBlock";
 import { TableImageAlignmentExtension } from "./tableImageAlignment";
 import { transactionTouchesNodeTypes } from "./transactionTouchesNodeTypes";
 import { renderSectionHeading } from "./headingSections";
@@ -126,6 +127,7 @@ export const blackDocSchema = withMultiColumn(BlockNoteSchema.create({
     heading: headingBlockSpec(),
     numberedListItem: numberedListItemBlockSpec(),
     canvas: CanvasBlock(),
+    highlight: HighlightBlock(),
     splitPane: SplitPaneBlock(),
     splitColumn: SplitColumnBlock(),
   },

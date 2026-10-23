@@ -12,6 +12,7 @@ import {
   BasicTextStyleButton,
   FormattingToolbar,
   blockTypeSelectItems,
+  type BlockTypeSelectItem,
   type FormattingToolbarProps,
   getFormattingToolbarItems,
   type LinkToolbarProps,
@@ -20,7 +21,7 @@ import {
   useEditorState,
   useExtension,
 } from "@blocknote/react";
-import { Link2, Type } from "lucide-react";
+import { Link2, PanelTop, Type } from "lucide-react";
 import { NodeSelection } from "@tiptap/pm/state";
 import {
   type ChangeEvent,
@@ -234,10 +235,11 @@ export const BlackDocFormattingToolbar = (
       return selection instanceof NodeSelection && selection.node.type.name === "tableImage";
     },
   });
-  const blockTypeItems = props.blockTypeSelectItems ?? [
+  const blockTypeItems: BlockTypeSelectItem[] = props.blockTypeSelectItems ?? [
     ...blockTypeSelectItems(editor.dictionary),
     ...getDiagramBlockTypeSelectItems(editor),
     ...getMathBlockTypeSelectItems(editor),
+    { name: "高亮块", type: "highlight", props: {}, icon: PanelTop },
   ];
   const items = blockTypeItems
     .filter(item => item.type !== "heading" || item.props?.isToggleable !== true)

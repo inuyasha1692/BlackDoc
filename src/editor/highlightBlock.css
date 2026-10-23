@@ -1,0 +1,43 @@
+.bn-block:has(> .bn-block-content[data-content-type="highlight"]) {
+  padding: 10px 14px;
+  margin: 6px 0;
+  border: 1px solid #c9dcf6;
+  border-radius: 6px;
+  background: #eaf3ff;
+}
+
+.bn-block > .bn-block-content[data-content-type="highlight"] {
+  position: relative;
+  padding: 0;
+  font-weight: 600;
+}
+
+.bn-block > .bn-block-content[data-content-type="highlight"]::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.bn-block-content[data-content-type="highlight"] > .bn-inline-content {
+  width: 100%;
+}
+
+.bn-block:has(> .bn-block-content[data-content-type="highlight"]) > .bn-block-group {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0;
+}
+
+.bn-editor .bn-block:has(> .bn-block-content[data-content-type="highlight"]) > .bn-block-group > .bn-block-outer::before {
+  display: none;
+}
+
+:root[data-theme="dark"] .bn-block:has(> .bn-block-content[data-content-type="highlight"]) {
+  border-color: #385779;
+  background: #23364d;
+}

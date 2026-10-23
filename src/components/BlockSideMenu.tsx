@@ -26,6 +26,7 @@ import {
   ListOrdered,
   Minus,
   PenTool,
+  PanelTop,
   Plus,
   Quote,
   Scissors,
@@ -93,6 +94,7 @@ const isEmptyTextBlock = (block: MenuBlock | undefined): boolean =>
   block.children.length === 0;
 
 const convertibleBlockTypes = new Set([
+  "highlight",
   "paragraph",
   "heading",
   "numberedListItem",
@@ -104,7 +106,7 @@ const convertibleBlockTypes = new Set([
 
 type BlockConversion = {
   title: string;
-  type: "paragraph" | "heading" | "numberedListItem" | "bulletListItem" | "checkListItem" | "quote" | "codeBlock";
+  type: "paragraph" | "heading" | "numberedListItem" | "bulletListItem" | "checkListItem" | "quote" | "codeBlock" | "highlight";
   level?: 1 | 2 | 3 | 4 | 5 | 6;
   icon: ReactNode;
 };
@@ -122,6 +124,7 @@ const blockConversions: BlockConversion[] = [
   { title: "检查清单", type: "checkListItem", icon: <ListChecks size={18} /> },
   { title: "引用", type: "quote", icon: <Quote size={18} /> },
   { title: "代码块", type: "codeBlock", icon: <Braces size={18} /> },
+  { title: "高亮块", type: "highlight", icon: <PanelTop size={18} /> },
 ];
 
 const isConvertibleTextBlock = (editor: { schema: { blockSchema: Record<string, { content: string }> } }, block: MenuBlock | undefined): boolean => {
@@ -146,6 +149,7 @@ const blockTypeLabel = (block: MenuBlock): string => {
     audio: "音频",
     file: "文件",
     divider: "分隔线",
+    highlight: "高亮块",
     canvas: "画布",
     diagram: "图表",
     mathBlock: "块级公式",
@@ -173,6 +177,7 @@ const blockTypeIcon = (block: MenuBlock) => {
     audio: <AudioLines size={16} />,
     file: <FileText size={16} />,
     divider: <Minus size={16} />,
+    highlight: <PanelTop size={16} />,
     canvas: <PenTool size={16} />,
     diagram: <Workflow size={16} />,
     mathBlock: <span className="blackdoc-block-type-heading">ƒx</span>,

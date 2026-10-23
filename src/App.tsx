@@ -2,6 +2,7 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "./styles.css";
 import "./editor/bulletList.css";
+import "./editor/highlightBlock.css";
 import { invoke } from "@tauri-apps/api/core";
 import { applyAiDocument } from "./editor/aiDocument";
 import { combineByGroup, formatKeyboardShortcut } from "@blocknote/core";
@@ -34,6 +35,7 @@ import {
   AlertTriangle,
   SquareSplitHorizontal,
   PenTool,
+  PanelTop,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -353,6 +355,7 @@ export default function App() {
   const { theme, toggleTheme } = useAppTheme();
   const editor = useCreateBlockNote({
     schema: blackDocSchema,
+    placeholders: { ...zh.placeholders, highlight: "高亮块标题" },
     initialContent: EMPTY_DOCUMENT,
     dictionary: {
       ...zh,
@@ -1260,6 +1263,16 @@ export default function App() {
               },
             ]
           : []),
+        {
+          title: "高亮块",
+          aliases: ["highlight", "callout", "alert", "gaoliang"],
+          group: "基础",
+          icon: <PanelTop aria-hidden="true" size={18} />,
+          onItemClick: () => insertOrUpdateBlockForSlashMenu(editor, {
+            type: "highlight",
+            children: [{ type: "paragraph" }],
+          }),
+        },
         {
           title: "画布",
           aliases: ["canvas", "drawing", "huabu"],

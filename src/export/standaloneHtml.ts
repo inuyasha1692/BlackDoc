@@ -4,11 +4,13 @@ import { getHeadingNumbers } from "../editor/headingNumbers";
 import { getOutlineItems } from "../editor/outline";
 import { isHeadingSectionExpanded } from "../editor/headingSections";
 import { canvasSvg } from "../canvas/export";
+import highlightStyles from "../editor/highlightBlock.css?inline";
 import { exportScientificContent, serializeScientificContent } from "./scientificHtml";
 import bulletListStyles from "../editor/bulletList.css?raw";
 
 const EXPORT_STYLES = `
 ${bulletListStyles}
+${highlightStyles}
 :root { color-scheme: light; font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; color: #202124; background: #fff; line-height: 1.5; }
