@@ -21,5 +21,8 @@ export const BlackDocLinkToolbar = (props: LinkToolbarProps) => (
       range={props.range}
       setToolbarOpen={props.setToolbarOpen}
     />
+    <span className="block-link-toolbar-hint">
+      Ctrl＋单击打开链接，直接单击编辑文字
+    </span>
   </LinkToolbar>
 );

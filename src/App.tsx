@@ -396,6 +396,10 @@ export default function App() {
         }
 
         event.preventDefault();
+        if (!event.ctrlKey) {
+          return false;
+        }
+
         const blockId = parseBlockLink(href);
         if (blockId) {
           if (!revealBlock(blockId, "center")) {
