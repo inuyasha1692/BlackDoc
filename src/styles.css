@@ -589,7 +589,7 @@ button {
   grid-template-columns: 250px minmax(0, 1fr);
   width: min(100%, 1680px);
   min-height: calc(100vh - 57px);
-  margin: 0 auto;
+  margin: 0;
   transition: grid-template-columns 240ms ease;
 }
 
@@ -942,7 +942,9 @@ button {
   align-self: start;
   min-width: 0;
   width: 100%;
+  height: calc(100vh - 57px);
   max-height: calc(100vh - 57px);
+  background: var(--app-raised);
   padding: 30px 16px 40px 6px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -954,7 +956,10 @@ button {
 .outline:hover { scrollbar-color: var(--app-subtle) transparent; }
 
 .workspace.outline-collapsed .outline {
+  height: auto;
   padding-right: 6px;
+  padding-bottom: 0;
+  background: transparent;
   overflow: hidden;
 }
 
@@ -1020,7 +1025,6 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0;
-  border-left: 1px solid var(--app-border);
 }
 
 .outline-row { display: flex; align-items: center; }
@@ -1459,7 +1463,7 @@ button {
     max-height: none;
     border-right: 1px solid var(--app-border);
     box-shadow: 12px 0 30px var(--app-shadow);
-    background: var(--app-surface);
+    background: var(--app-raised);
     transition: width 240ms ease, padding 240ms ease, background-color 240ms ease;
   }
 

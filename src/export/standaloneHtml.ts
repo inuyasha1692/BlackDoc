@@ -14,7 +14,8 @@ ${highlightStyles}
 :root { color-scheme: light; font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; color: #202124; background: #fff; line-height: 1.5; }
-.document-layout { width: min(100%, 1680px); margin: 0 auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); }
+.document-layout { width: min(100%, 1680px); margin: 0; display: grid; grid-template-columns: 250px minmax(0, 1fr); }
+.document-layout:has(> .document-outline) { min-height: 100vh; background: linear-gradient(to right, #f6f7f8 0 250px, #fff 250px 100%); }
 .document-layout main { grid-column: 2; width: 100%; min-width: 0; padding: 36px 24px 80px; }
 .bn-editor { padding-inline: 54px; }
 .document-outline { position: sticky; top: 24px; align-self: start; margin-top: 48px; max-height: calc(100vh - 48px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #d7dde2 transparent; font-size: 15px; }
@@ -133,6 +134,13 @@ figure { max-width: 100%; margin: 18px 0; }
 .canvas-viewer button { width: 34px; height: 34px; border: 0; background: #f3f4f5; cursor: pointer; font-size: 20px; }
 .canvas-viewer .canvas-viewer-scroll { height: calc(100% - 52px); overflow: auto; }
 .canvas-viewer img { max-width: none; width: 100%; margin: 0; }
+.bn-editor img.export-zoomable { cursor: zoom-in; }
+.export-image-viewer { width: 100vw; height: 100vh; max-width: none; max-height: none; padding: 0; border: 0; background: transparent; }
+.export-image-viewer::backdrop { background: rgb(0 0 0 / 80%); }
+.export-image-viewer header { height: 52px; display: flex; gap: 12px; justify-content: flex-end; align-items: center; padding: 8px 16px; }
+.export-image-viewer button { padding: 6px 12px; border: 0; border-radius: 4px; color: #fff; background: rgb(255 255 255 / 18%); cursor: pointer; }
+.export-image-viewer .image-viewer-surface { height: calc(100% - 52px); overflow: auto; display: flex; }
+.export-image-viewer img { display: block; flex: none; margin: auto; max-width: none; max-height: none; object-fit: contain; }
 figcaption { margin-top: 6px; color: #656d76; font-size: .875rem; text-align: center; }
 hr { margin: 28px 0; border: 0; border-top: 1px solid #d8dee4; }
 .bn-block-content[data-content-type="divider"] hr { flex: 1; margin: .5em 0; border-top-color: #7d797a; }
@@ -144,9 +152,11 @@ details { margin: 6px 0; }
 }
 @media (max-width: 980px) {
   .document-layout { display: flex; flex-direction: column; }
+  .document-layout:has(> .document-outline) { background: #fff; }
   .document-layout main { padding: 20px 12px 80px; }
-  .document-outline { position: static; order: -1; width: 100%; margin-top: 20px; max-height: 35vh; }
+  .document-outline { position: static; order: -1; width: 100%; margin-top: 20px; max-height: 35vh; background: #f6f7f8; }
 }
+@media print { .document-layout:has(> .document-outline) { min-height: 0; background: #fff; } }
 @media print { .document-layout { display: block; } .document-outline { display: none; } .document-layout main { width: 100%; padding: 0; } .bn-editor { padding-inline: 0; } a { color: inherit; } }
 @media print { .split-pane-right-scroll { height: auto; max-height: none; overflow: visible; } .split-pane { break-inside: auto; } }
 `;
@@ -336,6 +346,71 @@ const CANVAS_VIEWER = `
   });
   zoom.addEventListener("input", () => { image.style.width = Number(zoom.value) * 100 + "%"; });
   dialog.querySelector("button").addEventListener("click", () => dialog.close());
+})();
+</script>`;
+
+const IMAGE_VIEWER = `
+<dialog class="export-image-viewer" aria-label="放大查看图片">
+  <header><button type="button" class="image-size" aria-pressed="false">原始大小</button><button type="button" class="image-close" aria-label="关闭图片查看">×</button></header>
+  <div class="image-viewer-surface"><img alt=""></div>
+</dialog>
+<script>
+(() => {
+  const dialog = document.querySelector('.export-image-viewer');
+  const image = dialog.querySelector('img');
+  const surface = dialog.querySelector('.image-viewer-surface');
+  const size = dialog.querySelector('.image-size');
+  const resizeImage = () => {
+    if (!image.naturalWidth || !image.naturalHeight || !dialog.open) return;
+    const scale = surface.classList.contains('original') ? 1 : Math.min(
+      surface.clientWidth / image.naturalWidth,
+      surface.clientHeight / image.naturalHeight,
+    );
+    image.style.width = image.naturalWidth * scale + 'px';
+    image.style.height = image.naturalHeight * scale + 'px';
+  };
+  image.addEventListener('load', resizeImage);
+  window.addEventListener('resize', resizeImage);
+  const open = source => {
+    if (!source.currentSrc && !source.src) return;
+    image.src = source.currentSrc || source.src;
+    image.alt = source.alt || '图片';
+    surface.classList.remove('original');
+    size.textContent = '原始大小';
+    size.setAttribute('aria-pressed', 'false');
+    dialog.showModal();
+    resizeImage();
+    surface.scrollTo(0, 0);
+  };
+  document.querySelectorAll('.bn-editor img').forEach(source => {
+    if (source.closest('.canvas-export-button, a, button')) return;
+    source.classList.add('export-zoomable');
+    source.tabIndex = 0;
+    source.setAttribute('role', 'button');
+    source.setAttribute('aria-label', (source.alt || '图片') + '，放大查看');
+    source.addEventListener('click', () => open(source));
+    source.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(source); }
+    });
+  });
+  size.addEventListener('click', () => {
+    const original = surface.classList.toggle('original');
+    size.textContent = original ? '适应窗口' : '原始大小';
+    size.setAttribute('aria-pressed', String(original));
+    resizeImage();
+    surface.scrollTo(0, 0);
+  });
+  dialog.querySelector('.image-close').addEventListener('click', () => dialog.close());
+  let down = null;
+  dialog.addEventListener('pointerdown', event => {
+    down = { target: event.target, x: event.clientX, y: event.clientY };
+  });
+  dialog.addEventListener('click', event => {
+    if (down && down.target === event.target &&
+      (event.target === dialog || event.target === surface || event.target === dialog.querySelector('header')) &&
+      Math.hypot(event.clientX - down.x, event.clientY - down.y) < 5) dialog.close();
+    down = null;
+  });
 })();
 </script>`;
 
@@ -646,6 +721,7 @@ export const buildStandaloneHtml = async (
   </div>
   <script>${OUTLINE_SCRIPT}</script>
   ${canvases.size ? CANVAS_VIEWER : ""}
+  ${IMAGE_VIEWER}
 </body>
 </html>`;
 
