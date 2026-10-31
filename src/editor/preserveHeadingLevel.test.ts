@@ -26,6 +26,33 @@ const createEditor = () => {
 };
 
 describe("deleting a heading block", () => {
+  it("preserves the next heading when Delete removes an empty paragraph", () => {
+    const editor = createEditor();
+    editor.updateBlock("heading-2", { type: "paragraph" });
+    editor.updateBlock("heading-3", { content: [{ type: "text", text: "三级标题", styles: { bold: true } }], children: [{ id: "child", type: "paragraph", content: "子内容" }] });
+    const heading = structuredClone(editor.getBlock("heading-3"));
+    editor.setTextCursorPosition("heading-2", "start");
+
+    editor._tiptapEditor.commands.keyboardShortcut("Delete");
+
+    expect(editor.document).toHaveLength(1);
+    expect(editor.getBlock("heading-3")).toEqual(heading);
+    expect(editor.getTextCursorPosition().block.id).toBe("heading-3");
+    editor.undo();
+    expect(editor.document).toHaveLength(2);
+    expect(editor.getBlock("heading-3")).toEqual(heading);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("does not remove a nonempty paragraph on Delete", () => {
+    const editor = createEditor();
+    editor.updateBlock("heading-2", { type: "paragraph", content: "正文" });
+    editor.setTextCursorPosition("heading-2", "start");
+    editor._tiptapEditor.commands.keyboardShortcut("Delete");
+    expect(editor.getBlock("heading-2")).toBeDefined();
+    expect(editor.getBlock("heading-3")?.type).toBe("heading");
+    editor._tiptapEditor.destroy();
+  });
   it("preserves the following heading level when backspace removes the previous heading", () => {
     const editor = createEditor();
     editor.setTextCursorPosition("heading-3", "start");

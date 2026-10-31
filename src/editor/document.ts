@@ -2,11 +2,6 @@ import type { BlackDocBlock, BlackDocPartialBlock } from "./schema";
 
 export const EMPTY_DOCUMENT: BlackDocPartialBlock[] = [
   {
-    type: "heading",
-    props: { level: 1 },
-    content: [],
-  },
-  {
     type: "paragraph",
     content: [],
   },

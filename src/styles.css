@@ -663,11 +663,15 @@ button {
 
 .bn-editor [data-content-type="heading"]:has(.ProseMirror-trailingBreak:only-child)::after {
   position: absolute;
-  top: 18px;
+  top: var(--reading-before, 18px);
   inset-inline: 0;
   padding-inline-start: var(--blackdoc-heading-number-indent, 0px);
   text-align: start;
   white-space: nowrap;
+}
+
+.editor-region .bn-editor [data-content-type="heading"][data-level="1"]:has(.ProseMirror-trailingBreak:only-child)::after {
+  line-height: 1.2;
 }
 
 .bn-editor [data-content-type="heading"][data-text-alignment="center"]::after {
