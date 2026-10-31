@@ -5,6 +5,7 @@ import {
   FileUp,
   FolderOpen,
   BookOpen,
+  Bot,
   Info,
   Keyboard,
   Save,
@@ -54,6 +55,7 @@ interface ToolbarProps {
   onAbout: () => void;
   onMoreOpen?: () => void;
   onShortcuts: () => void;
+  onAiCollaboration: () => void;
   updateAvailable?: boolean;
   updateGuideStage?: "more" | "about" | "check" | "done";
 }
@@ -77,6 +79,7 @@ export function Toolbar({
   onAbout,
   onMoreOpen,
   onShortcuts,
+  onAiCollaboration,
   updateAvailable = false,
   updateGuideStage = "done",
 }: ToolbarProps) {
@@ -167,6 +170,15 @@ export function Toolbar({
           type="button"
         >
           <Search aria-hidden="true" size={18} />
+        </button>
+        <button
+          aria-label="Agent 共同编辑安装帮助"
+          className="icon-button"
+          onClick={onAiCollaboration}
+          title="Agent 共同编辑安装帮助"
+          type="button"
+        >
+          <Bot aria-hidden="true" size={18} />
         </button>
         <div className="toolbar-more" ref={moreMenuRef}>
           <button

@@ -4,6 +4,18 @@ import { Toolbar } from "./Toolbar";
 
 afterEach(cleanup);
 
+it("opens AI collaboration from the toolbar", () => {
+  const props = createProps();
+  render(<Toolbar {...props} />);
+  const utilities = screen.getByRole("toolbar", { name: "编辑器工具" });
+  const buttons = within(utilities).getAllByRole("button");
+  expect(buttons.map(button => button.getAttribute("aria-label"))).toEqual([
+    "查找替换", "Agent 共同编辑安装帮助", "更多操作",
+  ]);
+  fireEvent.click(screen.getByRole("button", { name: "Agent 共同编辑安装帮助" }));
+  expect(props.onAiCollaboration).toHaveBeenCalledOnce();
+});
+
 function createProps() {
   return {
     theme: "light" as const,
@@ -23,6 +35,7 @@ function createProps() {
     onExportMarkdown: vi.fn(),
     onAbout: vi.fn(),
     onShortcuts: vi.fn(),
+    onAiCollaboration: vi.fn(),
   };
 }
 

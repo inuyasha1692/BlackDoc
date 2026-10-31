@@ -41,6 +41,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActionDialog } from "./components/ActionDialog";
 import { AboutDialog, type UpdateAction } from "./components/AboutDialog";
+import { AiCollaborationDialog } from "./components/AiCollaborationDialog";
 import { ShortcutsDialog } from "./components/ShortcutsDialog";
 import { BlackDocFormattingToolbar } from "./components/BlockLinkControls";
 import { ImageViewerHost } from "./components/ImageViewer";
@@ -529,6 +530,7 @@ export default function App() {
   }, [notice]);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [aiCollaborationOpen, setAiCollaborationOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
   const [updateDismissed, setUpdateDismissed] = useState(false);
   const [update, setUpdate] = useState<UpdateCheckResult | { kind: "checking" }>({ kind: "checking" });
@@ -1350,6 +1352,7 @@ export default function App() {
         onAbout={openAboutDialog}
         onMoreOpen={() => advanceUpdateGuide("more", "about")}
         onShortcuts={() => setShortcutsOpen(true)}
+        onAiCollaboration={() => setAiCollaborationOpen(true)}
         updateAvailable={update.kind === "available"}
         updateGuideStage={updateGuideStage}
         status={status}
@@ -1515,6 +1518,7 @@ export default function App() {
         />
       )}
       {shortcutsOpen && <ShortcutsDialog onClose={() => setShortcutsOpen(false)} />}
+      {aiCollaborationOpen && <AiCollaborationDialog onClose={() => setAiCollaborationOpen(false)} />}
       {recoveryDraft && (
         <ActionDialog
           actions={[

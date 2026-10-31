@@ -1596,6 +1596,7 @@ button {
 
 .block-link-toolbar-separator { flex: 0 0 1px; width: 1px; height: 22px; margin: 0 6px; background: var(--app-border); align-self: center; }
 .block-link-form-help { max-width: 320px; margin: 4px 0; color: var(--app-muted); font-size: 12px; line-height: 1.5; }
+.ai-collaboration-prompt { padding: 12px; border-radius: 6px; background: var(--app-raised); overflow-wrap: anywhere; user-select: text; }
 .block-link-toolbar-hint { max-width: 220px; margin: 0 6px; color: var(--app-muted); font-size: 12px; line-height: 1.5; white-space: normal; }
 .canvas-copy-link-button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--app-muted); cursor: pointer; }
 .canvas-copy-link-button:hover { background: var(--app-hover); }
