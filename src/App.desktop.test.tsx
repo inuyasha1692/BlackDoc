@@ -131,6 +131,7 @@ vi.mock("./export/standaloneHtml", () => ({ buildStandaloneHtml: vi.fn() }));
 vi.mock("./export/markdown", () => ({ buildMarkdown: vi.fn() }));
 vi.mock("./editor/markdownImport", () => ({
   importMarkdownBlocks: vi.fn(),
+  prepareMarkdownImageWidths: vi.fn(async () => ({ widths: new Map(), warnings: [] })),
 }));
 vi.mock("./storage/draftStore", () => ({
   writeDraft: vi.fn(),

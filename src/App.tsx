@@ -298,7 +298,7 @@ import {
 } from "./editor/document";
 import { PreserveHeadingLevelExtension } from "./editor/preserveHeadingLevel";
 import { HeadingNumberExtension } from "./editor/headingNumberExtension";
-import { importMarkdownBlocks } from "./editor/markdownImport";
+import { importMarkdownBlocks, prepareMarkdownImageWidths } from "./editor/markdownImport";
 import { filterSlashMenuItems, shouldOpenSlashMenu } from "./editor/slashMenuSearch";
 import { imageToolbarFloatingUIOptions, installImageToolbarHover } from "./editor/imageToolbarHover";
 import { installSplitDividerHover } from "./editor/splitDividerHover";
@@ -868,7 +868,8 @@ export default function App() {
       });
       const imported = await importDesktopMarkdown();
       if (!imported) return;
-      const converted = importMarkdownBlocks(editor, imported.markdown);
+      const imageSizes = await prepareMarkdownImageWidths(imported.markdown);
+      const converted = importMarkdownBlocks(editor, imported.markdown, imageSizes.widths);
       await detachDesktopDocument();
       clearSaveTimer();
       replaceDocument(converted.blocks);
@@ -881,7 +882,7 @@ export default function App() {
       setStatus("unsaved");
       await deleteDraft();
       schedulePersistence();
-      const warnings = [...imported.warnings, ...converted.warnings];
+      const warnings = [...imported.warnings, ...imageSizes.warnings, ...converted.warnings];
       setNotice({
         dismissAfterMs: warnings.length ? undefined : 5000,
         tone: warnings.length ? "warning" : "info",

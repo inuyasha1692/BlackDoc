@@ -65,7 +65,11 @@ const paletteColor = (value: string, kind: "textColor" | "backgroundColor"): str
 interface EmbeddedImage {
   url: string;
   name: string;
+  source: string;
   previewWidth?: number;
+  zoom?: number;
+  maxWidth?: number;
+  explicitWidth?: number;
 }
 
 interface EmbeddedVideo {
@@ -88,11 +92,20 @@ const maskAssets = (markdown: string): {
       const imageUrl = url ?? match.match(/\bsrc\s*=\s*["']([^"']+)["']/i)?.[1];
       if (!imageUrl) return match;
       const name = alt ?? match.match(/\balt\s*=\s*["']([^"']*)["']/i)?.[1] ?? "";
-      const width = match.match(/(?:max-width\s*:\s*|\bwidth\s*=\s*["']?)(\d+)px?/i)?.[1];
+      const style = match.match(/\bstyle\s*=\s*["']([^"']*)["']/i)?.[1] ?? "";
+      const width = style.match(/(?:^|;)\s*width\s*:\s*(\d+(?:\.\d+)?)px\s*(?:;|$)/i)?.[1]
+        ?? match.match(/(?:^|\s)width\s*=\s*["']?(\d+(?:\.\d+)?)(?:px)?["']?(?=\s|\/?>)/i)?.[1];
+      const maxWidth = style.match(/(?:^|;)\s*max-width\s*:\s*(\d+(?:\.\d+)?)px\s*(?:;|$)/i)?.[1];
+      const zoom = style.match(/(?:^|;)\s*zoom\s*:\s*(\d+(?:\.\d+)?)(%)?\s*(?:;|$)/i);
+      const zoomValue = zoom ? Number(zoom[1]) / (zoom[2] ? 100 : 1) : undefined;
       const index = images.push({
         url: imageUrl,
         name,
-        previewWidth: width ? Number(width) : undefined,
+        source: match,
+        previewWidth: width ? Number(width) : maxWidth ? Number(maxWidth) : undefined,
+        explicitWidth: width ? Number(width) : undefined,
+        maxWidth: maxWidth ? Number(maxWidth) : undefined,
+        zoom: zoomValue && Number.isFinite(zoomValue) ? zoomValue : undefined,
       }) - 1;
       return `${IMAGE_MARKER}${index}END`;
     });
@@ -102,6 +115,51 @@ const maskAssets = (markdown: string): {
     });
   });
   return { markdown: lines.join("\n"), images, videos };
+};
+
+// Resolve Typora-style zoom against the intrinsic size before creating blocks.
+export const prepareMarkdownImageWidths = async (markdown: string): Promise<{
+  widths: Map<string, number>;
+  warnings: string[];
+}> => {
+  const images = maskAssets(markdown.replace(/\r\n?/g, "\n")).images;
+  const widths = new Map<string, number>();
+  const dimensions = new Map<string, Promise<number | undefined>>();
+  const imageWidth = (url: string): Promise<number | undefined> => {
+    const cached = dimensions.get(url);
+    if (cached) return cached;
+    const result = new Promise<number | undefined>(resolve => {
+      if (!url.startsWith("data:image/")) { resolve(undefined); return; }
+      const image = new Image();
+      const timer = window.setTimeout(() => finish(undefined), 5000);
+      const finish = (width: number | undefined) => {
+        window.clearTimeout(timer);
+        image.onload = null;
+        image.onerror = null;
+        resolve(width);
+      };
+      image.onload = () => finish(image.naturalWidth || undefined);
+      image.onerror = () => finish(undefined);
+      image.src = url;
+    });
+    dimensions.set(url, result);
+    return result;
+  };
+  let next = 0;
+  let unresolved = 0;
+  const worker = async () => {
+    while (next < images.length) {
+      const index = next++;
+      const image = images[index];
+      if (!image.zoom) continue;
+      const width = image.explicitWidth ?? await imageWidth(image.url);
+      if (!width) { unresolved++; continue; }
+      const limited = image.maxWidth ? Math.min(width, image.maxWidth) : width;
+      widths.set(image.source, Math.max(1, Math.round(limited * image.zoom)));
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(images.length, 4) }, worker));
+  return { widths, warnings: unresolved ? [`${unresolved} 张图片的缩放尺寸无法读取`] : [] };
 };
 
 const isListItem = (block: BlackDocBlock): boolean =>
@@ -206,7 +264,10 @@ const restoreListDepths = (markdown: string, blocks: BlackDocBlock[]): BlackDocB
 export const importMarkdownBlocks = (
   editor: BlackDocEditor,
   markdown: string,
+  imageWidths?: ReadonlyMap<string, number>,
 ): MarkdownImportResult => {
+  // BlockNote's Markdown parser expects LF line endings for list markers.
+  markdown = markdown.replace(/\r\n?/g, "\n");
   const scientific = new Map<string, { type: "diagram" | "mathBlock" | "math"; content: string }>();
   const scientificPrefix = `BLACKDOCSCI${crypto.randomUUID().replaceAll("-", "")}X`;
   const storeScientific = (type: "diagram" | "mathBlock" | "math", content: string) => {
@@ -246,6 +307,13 @@ export const importMarkdownBlocks = (
   const anchors: string[] = [];
   const anchorHints: string[] = [];
   const masked = maskAssets(markdown);
+  // Only group standalone source lines; separate lines and table cells keep their structure.
+  const imageRows = new Set(masked.markdown.split("\n").flatMap(line => {
+    const row = line.match(/^ {0,3}((?:BLACKDOCIMPORTIMAGE\d+END[ \t]*){2,3})$/);
+    if (!row) return [];
+    return [[...row[1].matchAll(/BLACKDOCIMPORTIMAGE(\d+)END/g)]
+      .map(match => match[1]).join(",")];
+  }));
   const normalized = masked.markdown
     .replace(/<br\s*$/gim, "<br>")
     .replace(ANCHOR_TAG, (tag, id: string, offset: number, source: string) => {
@@ -328,9 +396,8 @@ export const importMarkdownBlocks = (
       return null;
     }
     placedImages.add(index);
-    return source.previewWidth
-      ? { ...image, props: { ...image.props, previewWidth: source.previewWidth } }
-      : image;
+    const previewWidth = imageWidths?.get(source.source) ?? source.previewWidth;
+    return { ...image, props: { ...image.props, textAlignment: "center", ...(previewWidth ? { previewWidth } : {}) } };
   };
   const embedTableImages = (block: BlackDocBlock): void => {
     visit(block, object => {
@@ -348,7 +415,7 @@ export const importMarkdownBlocks = (
             placedImages.add(index);
             inline.push({
               type: "tableImage",
-              props: { url: source.url, name: source.name, previewWidth: source.previewWidth ?? 0 },
+              props: { url: source.url, name: source.name, previewWidth: imageWidths?.get(source.source) ?? source.previewWidth ?? 0 },
             });
           }
           start = match.index + match[0].length;
@@ -356,14 +423,50 @@ export const importMarkdownBlocks = (
         if (start < item.text.length) inline.push({ ...item, text: item.text.slice(start) });
         return inline;
       });
+      const content = object.content as unknown[];
+      const onlyImages = content.some(item => isObject(item) && item.type === "tableImage") &&
+        content.every(item => isObject(item) && (item.type === "tableImage" ||
+          (item.type === "text" && typeof item.text === "string" && !item.text.trim())));
+      if (onlyImages && isObject(object.props) &&
+        (!object.props.textAlignment || object.props.textAlignment === "left")) {
+        object.props.textAlignment = "center";
+      }
     });
   };
-  const expandTextImages = (block: BlackDocBlock): BlackDocBlock[] => {
-    const children = block.children.flatMap(expandTextImages);
+  const expandTextImages = (block: BlackDocBlock, insideColumns = false): BlackDocBlock[] => {
+    const nestedInColumns = insideColumns || block.type === "columnList" || block.type === "column";
+    const children = block.children.flatMap(child => expandTextImages(child, nestedInColumns));
     const isListItem = block.type === "bulletListItem" ||
       block.type === "numberedListItem" || block.type === "checkListItem";
     if ((block.type !== "paragraph" && !isListItem) || !Array.isArray(block.content)) {
       return [{ ...block, children }];
+    }
+    if (block.type === "paragraph" && !insideColumns && block.content.every(item => item.type === "text")) {
+      const text = plainText(block.content);
+      if (/^\s*(?:BLACKDOCIMPORTIMAGE\d+END[ \t]*){2,3}\s*$/.test(text)) {
+        const indexes = [...text.matchAll(imagePattern)].map(match => Number(match[1]));
+        if (imageRows.has(indexes.join(","))) {
+          const images = indexes.map(imageBlock);
+          if (images.every(image => image !== null)) {
+            const columns: BlackDocBlock = {
+              id: block.id,
+              type: "columnList",
+              props: {},
+              content: undefined,
+              children: images.map(image => ({
+                id: crypto.randomUUID(),
+                type: "column",
+                props: { width: 1 },
+                content: undefined,
+                children: [image!],
+              })),
+            };
+            return children.length
+              ? [columns, { ...block, id: crypto.randomUUID(), content: [], children }]
+              : [columns];
+          }
+        }
+      }
     }
     const expanded: BlackDocBlock[] = [];
     let pending: typeof block.content = [];
@@ -444,7 +547,7 @@ export const importMarkdownBlocks = (
     }
     return expanded;
   };
-  for (const block of blocks.flatMap(expandTextImages)) {
+  for (const block of blocks.flatMap(block => expandTextImages(block))) {
     embedTableImages(block);
     if (block.type === "splitPane" || block.type === "columnList") {
       withImages.push(block);
