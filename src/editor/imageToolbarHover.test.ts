@@ -99,6 +99,50 @@ it("keeps the toolbar open while moving across the gap into its controls", () =>
   expect(toolbar().state).toBe(false);
 });
 
+it("keeps the lower image selected while crossing the upper image to its toolbar", () => {
+  editor.insertBlocks([{ id: "upper", type: "image", props: { url: "upper.png" } }], "image", "before");
+  const upper = editor.prosemirrorView.dom.querySelector('[data-id="upper"] img')!;
+  const controls = document.createElement("div");
+  controls.className = "bn-toolbar";
+  document.body.append(controls);
+  fireEvent.pointerOver(editor.prosemirrorView.dom.querySelector('[data-id="image"] img')!);
+  fireEvent.pointerOver(upper);
+  fireEvent.pointerMove(upper);
+  vi.advanceTimersByTime(100);
+  fireEvent.pointerMove(controls);
+  vi.advanceTimersByTime(300);
+  expect(toolbar().state).toBe(true);
+  expect(editor.getTextCursorPosition().block.id).toBe("image");
+});
+
+it("switches to the adjacent image when the pointer remains on it", () => {
+  editor.insertBlocks([{ id: "upper", type: "image", props: { url: "upper.png" } }], "image", "before");
+  const upper = editor.prosemirrorView.dom.querySelector('[data-id="upper"] img')!;
+  fireEvent.pointerOver(editor.prosemirrorView.dom.querySelector('[data-id="image"] img')!);
+  fireEvent.pointerOver(upper);
+  fireEvent.pointerMove(upper);
+  vi.advanceTimersByTime(250);
+  expect(toolbar().state).toBe(true);
+  expect(editor.getTextCursorPosition().block.id).toBe("upper");
+});
+
+it("keeps the current image while the pointer rests in the gap below its toolbar", () => {
+  editor.insertBlocks([{ id: "upper", type: "image", props: { url: "upper.png" } }], "image", "before");
+  const lower = editor.prosemirrorView.dom.querySelector('[data-id="image"] img')!;
+  const upper = editor.prosemirrorView.dom.querySelector('[data-id="upper"] img')!;
+  const controls = document.createElement("div");
+  controls.className = "bn-toolbar bn-formatting-toolbar";
+  document.body.append(controls);
+  vi.spyOn(controls, "getBoundingClientRect").mockReturnValue({ left: 100, right: 300, top: 50, bottom: 90, width: 200, height: 40 } as DOMRect);
+  vi.spyOn(lower, "getBoundingClientRect").mockReturnValue({ left: 0, right: 500, top: 100, bottom: 400, width: 500, height: 300 } as DOMRect);
+  fireEvent.pointerOver(lower);
+  fireEvent.pointerOver(upper, { clientX: 150, clientY: 95 });
+  fireEvent.pointerMove(upper, { clientX: 150, clientY: 95 });
+  vi.advanceTimersByTime(500);
+  expect(toolbar().state).toBe(true);
+  expect(editor.getTextCursorPosition().block.id).toBe("image");
+});
+
 it("restores the cursor immediately when entering the split divider", () => {
   const selection = editor.prosemirrorState.selection.toJSON();
   fireEvent.pointerOver(image());

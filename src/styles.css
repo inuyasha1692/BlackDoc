@@ -586,8 +586,8 @@ button {
 
 .workspace {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  width: min(100%, 1680px);
+  grid-template-columns: 300px minmax(0, 1fr);
+  width: min(100%, 1730px);
   min-height: calc(100vh - 57px);
   margin: 0;
   transition: grid-template-columns 240ms ease;
@@ -1010,7 +1010,7 @@ button {
 }
 
 .outline-content {
-  width: 228px;
+  width: 278px;
   opacity: 1;
   visibility: visible;
   transform: translateX(0);

@@ -23,10 +23,25 @@ export function installImageToolbarHover<B extends BlockSchema, I extends Inline
   let saved: SelectionBookmark | null = null;
   let previousToolbar = false;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
+  let switchTimer: ReturnType<typeof setTimeout> | undefined;
+  let pendingImage: Element | null = null;
   const cancelHide = () => { clearTimeout(hideTimer); hideTimer = undefined; };
+  const cancelSwitch = () => { clearTimeout(switchTimer); switchTimer = undefined; pendingImage = null; };
   const inToolbar = (target: Element | null) => Boolean(target?.closest(".bn-toolbar, .bn-form-popover, .bn-menu-dropdown"));
+  const inToolbarGap = (event: PointerEvent) => {
+    if (!active) return false;
+    const controls = document.querySelector(".bn-formatting-toolbar");
+    if (!controls) return false;
+    const toolbarRect = controls.getBoundingClientRect();
+    const imageRect = active.getBoundingClientRect();
+    return toolbarRect.width > 0 && toolbarRect.height > 0 &&
+      toolbarRect.bottom <= imageRect.top + 12 &&
+      event.clientX >= toolbarRect.left - 8 && event.clientX <= toolbarRect.right + 8 &&
+      event.clientY >= toolbarRect.bottom - 2 && event.clientY <= imageRect.top + 2;
+  };
   const restore = () => {
     cancelHide();
+    cancelSwitch();
     if (!active) return;
     active = null;
     const bookmark = saved;
@@ -41,13 +56,9 @@ export function installImageToolbarHover<B extends BlockSchema, I extends Inline
   const mapSelection = ({ transaction }: { transaction: Transaction }) => {
     if (saved) saved = saved.map(transaction.mapping);
   };
-  const enter = (event: PointerEvent) => {
-    if (!editor.isEditable || event.buttons || event.pointerType === "touch") return;
-    if (inToolbar(document.activeElement)) return;
-    const target = event.target instanceof Element ? event.target : null;
-    const image = target?.closest("img.bn-visual-media");
+  const activate = (image: Element) => {
     const block = image?.closest('[data-content-type="image"]');
-    if (!image || !block) return;
+    if (!block) return;
     cancelHide();
     if (active === image) return;
     restore();
@@ -62,10 +73,31 @@ export function installImageToolbarHover<B extends BlockSchema, I extends Inline
     view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, node.posBeforeNode + 1)));
     toolbar.store.setState(true);
   };
+  const enter = (event: PointerEvent) => {
+    if (!editor.isEditable || event.buttons || event.pointerType === "touch") return;
+    if (inToolbar(document.activeElement)) return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (inToolbarGap(event)) { cancelSwitch(); cancelHide(); return; }
+    const image = target?.closest("img.bn-visual-media");
+    if (!image || !image.closest('[data-content-type="image"]')) return;
+    if (image === active) { cancelSwitch(); cancelHide(); return; }
+    if (!active) { activate(image); return; }
+    if (pendingImage === image) return;
+    cancelSwitch();
+    cancelHide();
+    pendingImage = image;
+    switchTimer = setTimeout(() => {
+      switchTimer = undefined;
+      pendingImage = null;
+      if (image.isConnected && editor.isEditable && !inToolbar(document.activeElement)) activate(image);
+    }, 250);
+  };
   const move = (event: PointerEvent) => {
     if (!active) return;
     const target = event.target instanceof Element ? event.target : null;
-    if ((target && active.contains(target)) || inToolbar(target)) { cancelHide(); return; }
+    if ((target && active.contains(target)) || inToolbar(target) || inToolbarGap(event)) { cancelSwitch(); cancelHide(); return; }
+    if (target && pendingImage?.contains(target)) { cancelHide(); return; }
+    cancelSwitch();
     if (hideTimer === undefined) hideTimer = setTimeout(() => {
       hideTimer = undefined;
       if (inToolbar(document.activeElement)) return;
@@ -73,6 +105,7 @@ export function installImageToolbarHover<B extends BlockSchema, I extends Inline
     }, 250);
   };
   const pointerDown = (event: PointerEvent) => {
+    cancelSwitch();
     const target = event.target instanceof Element ? event.target : null;
     if (target && active?.contains(target)) {
       // A deliberate click takes over from the temporary hover selection.

@@ -97,7 +97,7 @@ describe("buildStandaloneHtml outline", () => {
     expect(document.querySelector(".document-outline")).toBeNull();
     expect(document.querySelector(".document-layout")?.className).toBe("document-layout");
     expect(document.querySelector("style")?.textContent).toContain(
-      "grid-template-columns: 250px minmax(0, 1fr);",
+      "grid-template-columns: 300px minmax(0, 1fr);",
     );
     expect(document.querySelector("style")?.textContent).toContain(
       ".document-layout main { grid-column: 2;",

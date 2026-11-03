@@ -14,8 +14,8 @@ ${highlightStyles}
 :root { color-scheme: light; font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; color: #202124; background: #fff; line-height: 1.5; }
-.document-layout { width: min(100%, 1680px); margin: 0; display: grid; grid-template-columns: 250px minmax(0, 1fr); }
-.document-layout:has(> .document-outline) { min-height: 100vh; background: linear-gradient(to right, #f6f7f8 0 250px, #fff 250px 100%); }
+.document-layout { width: min(100%, 1730px); margin: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+.document-layout:has(> .document-outline) { min-height: 100vh; background: linear-gradient(to right, #f6f7f8 0 300px, #fff 300px 100%); }
 .document-layout main { grid-column: 2; width: 100%; min-width: 0; padding: 36px 24px 80px; }
 .bn-editor { padding-inline: 54px; }
 .document-outline { position: sticky; top: 24px; align-self: start; margin-top: 48px; max-height: calc(100vh - 48px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #d7dde2 transparent; font-size: 15px; }
