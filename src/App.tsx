@@ -4,7 +4,7 @@ import "./styles.css";
 import "./editor/bulletList.css";
 import "./editor/highlightBlock.css";
 import { invoke } from "@tauri-apps/api/core";
-import { applyAiDocument } from "./editor/aiDocument";
+import { applyAiDocument, createAiRevision } from "./editor/aiDocument";
 import { combineByGroup, formatKeyboardShortcut } from "@blocknote/core";
 import {
   insertOrUpdateBlockForSlashMenu,
@@ -580,7 +580,6 @@ export default function App() {
 
   const desktopPathRef = useRef<string | null>(null);
   const aiDocumentGenerationRef = useRef(0);
-  const aiRevisionRef = useRef({ content: "", revision: "" });
   const closingRef = useRef(false);
   const openingRef = useRef(false);
   const [opening, setOpening] = useState(false);
@@ -1014,34 +1013,47 @@ export default function App() {
     if (!desktopReady) return;
     let disposed = false;
     let timer: ReturnType<typeof setTimeout>;
-    let response: unknown = null;
-    const revision = () => {
-      const content = JSON.stringify([desktopPathRef.current, editor.document]);
-      if (content !== aiRevisionRef.current.content) {
-        aiRevisionRef.current = { content, revision: crypto.randomUUID() };
-      }
-      return aiRevisionRef.current.revision;
+    let reply: { documentKey: string; response: unknown } | null = null;
+    const getRevision = createAiRevision();
+    const revision = (key: string) => getRevision({
+      doc: editor.prosemirrorState.doc, key, path: desktopPathRef.current,
+    });
+    const sendReply = async () => {
+      if (!reply) return;
+      await invoke("desktop_ai_respond", reply);
+      reply = null;
     };
     const poll = async () => {
       try {
-        const pending = await invoke<boolean>("desktop_ai_pending", { path: desktopPathRef.current, documentKey: String(aiDocumentGenerationRef.current) });
-        if (!pending) {
-          if (!disposed) timer = setTimeout(() => void poll(), 750);
-          return;
-        }
-        const request = await invoke<{ id?: unknown; operation?: string } | null>("desktop_ai_exchange", {
-          snapshot: { revision: revision(), path: desktopPathRef.current, blocks: editor.document }, response,
+        await sendReply();
+        if (disposed) return;
+        const documentKey = String(aiDocumentGenerationRef.current);
+        const request = await invoke<{ id: string; operation?: string } | null>("desktop_ai_take_request", {
+          path: desktopPathRef.current, documentKey,
         });
-        response = null;
-        if (!disposed && request && request.operation !== "read") {
+        if (!disposed && request) {
+          let response: unknown;
           try {
-            if (openingRef.current || closingRef.current) throw new Error("文档正在切换或关闭。");
-            applyAiDocument(editor, request, revision());
-            response = { id: request.id, ok: true, revision: revision() };
-            schedulePersistence(0);
+            if (openingRef.current || closingRef.current || documentKey !== String(aiDocumentGenerationRef.current)) {
+              throw new Error("文档正在切换或关闭。");
+            }
+            if (request.operation === "read") {
+              response = { id: request.id, ok: true, snapshot: {
+                revision: revision(documentKey), path: desktopPathRef.current, blocks: editor.document,
+              } };
+            } else if (request.operation === "apply") {
+              if (editor.prosemirrorView.composing) throw new Error("正在使用输入法输入，请上屏后重试。");
+              const changed = applyAiDocument(editor, request, revision(documentKey));
+              response = { id: request.id, ok: true, revision: revision(documentKey) };
+              if (changed) schedulePersistence(0);
+            } else {
+              throw new Error("无效的 AI 操作。");
+            }
           } catch (error) {
             response = { id: request.id, ok: false, error: String(error) };
           }
+          reply = { documentKey, response };
+          await sendReply();
         }
       } catch (error) {
         if (!disposed) setNotice({ tone: "error", message: String(error) });

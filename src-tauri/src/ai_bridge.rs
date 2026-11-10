@@ -8,11 +8,15 @@ use std::{
 };
 use tauri::{Manager, WebviewWindow};
 
+// Full-document AI edits include embedded media, so their requests can be large.
+const MAX_AI_REQUEST_BYTES: u64 = 128 * 1024 * 1024;
+
 pub struct Session {
     pub path: PathBuf,
     token: String,
     document: Option<String>,
     document_key: Option<String>,
+    pending_id: Option<String>,
     owner: Option<fs::File>,
 }
 impl Drop for Session {
@@ -71,24 +75,25 @@ fn create_session(document: Option<String>, document_key: Option<String>) -> Res
         token: uuid::Uuid::new_v4().to_string(),
         document,
         document_key,
+        pending_id: None,
         owner: None,
     };
     session.owner = Some(owner_lock(&session.path.join("owner.lock"), true)?);
     atomic_write(
         &session.path.join("connection.json"),
         &serde_json::to_vec(&json!({
-            "protocol": 2, "token": session.token, "path": session.document
+            "protocol": 2, "token": session.token, "path": session.document, "textEdits": true
         }))
         .map_err(error)?,
     )?;
     Ok(session)
 }
 #[tauri::command]
-pub fn desktop_ai_pending(
+pub fn desktop_ai_take_request(
     window: WebviewWindow,
     path: Option<String>,
     document_key: Option<String>,
-) -> Result<bool> {
+) -> Result<Option<Value>> {
     let state = window.state::<AiBridge>();
     let mut sessions = state.0.lock().map_err(error)?;
     let label = window.label().to_string();
@@ -107,43 +112,54 @@ pub fn desktop_ai_pending(
         atomic_write(
             &session.path.join("connection.json"),
             &serde_json::to_vec(&json!({
-                "protocol": 2, "token": session.token, "path": session.document
+                "protocol": 2, "token": session.token, "path": session.document, "textEdits": true
             }))
             .map_err(error)?,
         )?;
     }
-    Ok(sessions[&label].path.join("request.json").exists()
-        || sessions[&label].path.join("awaiting-response").exists())
+    take_request(session)
 }
 #[tauri::command]
-pub fn desktop_ai_exchange(
+pub fn desktop_ai_respond(
     window: WebviewWindow,
-    snapshot: Value,
-    response: Option<Value>,
-) -> Result<Option<Value>> {
+    document_key: Option<String>,
+    response: Value,
+) -> Result<()> {
     let state = window.state::<AiBridge>();
-    let sessions = state.0.lock().map_err(error)?;
-    let session = sessions
-        .get(window.label())
-        .ok_or("AI connection is unavailable")?;
-    exchange(session, snapshot, response)
+    let mut sessions = state.0.lock().map_err(error)?;
+    let Some(session) = sessions
+        .get_mut(window.label())
+        .filter(|session| session.document_key == document_key)
+    else {
+        return Ok(()); // The originating document session has closed.
+    };
+    write_response(session, response)
 }
-fn exchange(session: &Session, snapshot: Value, response: Option<Value>) -> Result<Option<Value>> {
-    let path = &session.path;
-    if let Some(response) = response {
-        atomic_write(
-            &path.join("response.json"),
-            &serde_json::to_vec(&response).map_err(error)?,
-        )?;
-        let _ = fs::remove_file(path.join("awaiting-response"));
+fn write_response(session: &mut Session, response: Value) -> Result<()> {
+    let id = session
+        .pending_id
+        .as_deref()
+        .ok_or("AI connection is unavailable")?;
+    if response.get("id").and_then(Value::as_str) != Some(id) {
+        return Err("AI response does not match the request".into());
     }
-    let request = path.join("request.json");
-    if !request.exists() {
-        return Ok(None);
-    }
-    if fs::metadata(&request).map_err(error)?.len() > 16 * 1024 * 1024 {
+    atomic_write(
+        &session.path.join("response.json"),
+        &serde_json::to_vec(&response).map_err(error)?,
+    )?;
+    session.pending_id = None;
+    Ok(())
+}
+fn take_request(session: &mut Session) -> Result<Option<Value>> {
+    let request = session.path.join("request.json");
+    let metadata = match fs::metadata(&request) {
+        Ok(metadata) => metadata,
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(err) => return Err(error(err)),
+    };
+    if metadata.len() > MAX_AI_REQUEST_BYTES {
         fs::remove_file(&request).map_err(error)?;
-        return Err("AI request exceeds 16 MB".into());
+        return Err("AI request exceeds 128 MB".into());
     }
     let bytes = fs::read(&request).map_err(error)?;
     fs::remove_file(&request).map_err(error)?;
@@ -151,25 +167,17 @@ fn exchange(session: &Session, snapshot: Value, response: Option<Value>) -> Resu
     if request.get("token").and_then(Value::as_str) != Some(session.token.as_str()) {
         return Err("Invalid AI connection credential".into());
     }
+    let id = request
+        .get("id")
+        .and_then(Value::as_str)
+        .filter(|id| !id.is_empty())
+        .ok_or("Invalid AI request ID")?
+        .to_owned();
     request
         .as_object_mut()
         .ok_or("Invalid AI request")?
         .remove("token");
-    match request.get("operation").and_then(Value::as_str) {
-        Some("read") => {
-            atomic_write(
-                &path.join("response.json"),
-                &serde_json::to_vec(&json!({
-                    "id": request["id"], "ok": true, "snapshot": snapshot
-                }))
-                .map_err(error)?,
-            )?;
-        }
-        Some("apply") => {
-            atomic_write(&path.join("awaiting-response"), b"")?;
-        }
-        _ => return Err("Unknown AI operation".into()),
-    }
+    session.pending_id = Some(id);
     Ok(Some(request))
 }
 
@@ -177,33 +185,53 @@ fn exchange(session: &Session, snapshot: Value, response: Option<Value>) -> Resu
 mod tests {
     use super::*;
     #[test]
-    fn lazy_snapshot_and_authenticated_read_apply() {
-        let session = create_session(Some("test.bdoc".into()), None).unwrap();
+    fn read_and_apply_take_only_authenticated_requests_and_match_responses() {
+        let mut session = create_session(Some("test.bdoc".into()), None).unwrap();
         assert!(!session.path.join("snapshot.json").exists());
         let snapshot = json!({"revision": "v1", "blocks": []});
+        let connection: Value =
+            serde_json::from_slice(&fs::read(session.path.join("connection.json")).unwrap())
+                .unwrap();
+        assert_eq!(connection["protocol"], 2);
+        assert_eq!(connection["textEdits"], true);
+        assert!(take_request(&mut session).unwrap().is_none());
         atomic_write(
             &session.path.join("request.json"),
             br#"{"token":"wrong","operation":"read"}"#,
         )
         .unwrap();
-        assert!(exchange(&session, snapshot.clone(), None).is_err());
+        assert!(take_request(&mut session).is_err());
         assert!(!session.path.join("response.json").exists());
         for operation in ["read", "apply"] {
+            let mut request = json!({
+                "id": operation, "token": session.token, "operation": operation,
+            });
+            if operation == "apply" {
+                request["revision"] = json!("v1");
+                request["changes"] = json!([{"op":"updateContent","blockId":"p","content":[]}]);
+            }
             atomic_write(
                 &session.path.join("request.json"),
-                &serde_json::to_vec(&json!({
-                    "id": operation, "token": session.token, "operation": operation,
-                    "revision": "v1", "blocks": []
-                }))
-                .unwrap(),
+                &serde_json::to_vec(&request).unwrap(),
             )
             .unwrap();
-            let request = exchange(&session, snapshot.clone(), None).unwrap().unwrap();
-            assert!(request.get("token").is_none());
+            let received = take_request(&mut session).unwrap().unwrap();
+            request.as_object_mut().unwrap().remove("token");
+            assert_eq!(received, request);
+            assert!(take_request(&mut session).unwrap().is_none());
+            assert!(write_response(&mut session, json!({"id":"wrong","ok":true})).is_err());
+            let response = if operation == "read" {
+                json!({"id":operation,"ok":true,"snapshot":snapshot})
+            } else {
+                json!({"id":operation,"ok":true,"revision":"v2"})
+            };
+            write_response(&mut session, response.clone()).unwrap();
+            let written: Value =
+                serde_json::from_slice(&fs::read(session.path.join("response.json")).unwrap())
+                    .unwrap();
+            assert_eq!(written, response);
+            assert!(session.pending_id.is_none());
         }
-        assert!(session.path.join("awaiting-response").exists());
-        exchange(&session, snapshot, Some(json!({"id":"apply","ok":true}))).unwrap();
-        assert!(!session.path.join("awaiting-response").exists());
         let path = session.path.clone();
         drop(session);
         assert!(!path.exists());

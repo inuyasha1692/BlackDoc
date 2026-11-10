@@ -22,7 +22,7 @@ if ($Command -eq 'list') {
       if (-not (Test-Path -LiteralPath $file)) { continue }
       try {
         $connection = $jsonSerializer.DeserializeObject([IO.File]::ReadAllText($file, $utf8))
-        $connections += [pscustomobject]@{ directory = $item.FullName; path = $connection.path; protocol = $connection.protocol }
+        $connections += [pscustomobject]@{ directory = $item.FullName; path = $connection.path; protocol = $connection.protocol; textEdits = ($connection.textEdits -eq $true) }
       } catch { continue }
     }
   }
@@ -33,9 +33,17 @@ if (-not $Directory) { throw 'Provide -Directory with a connection returned by l
 $connection = $jsonSerializer.DeserializeObject([IO.File]::ReadAllText((Join-Path $Directory 'connection.json'), $utf8))
 if ($connection.protocol -ne 2 -or -not $connection.token) { throw 'Unsupported AI connection protocol.' }
 if ($Command -eq 'apply') {
-  if (-not $InputPath) { throw 'Provide -InputPath containing revision and blocks.' }
+  if (-not $InputPath) { throw 'Provide -InputPath containing revision and changes (or legacy blocks).' }
   $request = $jsonSerializer.DeserializeObject([IO.File]::ReadAllText((Resolve-Path -LiteralPath $InputPath).Path, $utf8))
-  if (-not $request.revision -or $null -eq $request.blocks) { throw 'Request requires revision and blocks.' }
+  if ($request -isnot [System.Collections.IDictionary] -or $request.revision -isnot [string] -or -not $request.revision) {
+    throw 'Request requires a revision.'
+  }
+  if ($request.ContainsKey('changes') -eq $request.ContainsKey('blocks')) {
+    throw 'Provide exactly one of changes or legacy blocks.'
+  }
+  if ($request.ContainsKey('changes') -and $connection.textEdits -ne $true) {
+    throw 'This BlackDoc version does not support text edits. Update BlackDoc or explicitly use legacy blocks.'
+  }
 } else { $request = @{} }
 $request['operation'] = $Command
 $request['token'] = $connection.token
@@ -45,13 +53,15 @@ $lock = [IO.File]::Open($lockPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Wr
 try {
   $requestPath = Join-Path $Directory 'request.json'
   if (Test-Path -LiteralPath $requestPath) { throw 'A request is already pending.' }
+  $responsePath = Join-Path $Directory 'response.json'
   $temporary = Join-Path $Directory ($request.id + '.tmp')
   [IO.File]::WriteAllText($temporary, $jsonSerializer.Serialize($request), $utf8)
+  # The previous read may contain a full document. Clear it under the client lock.
+  [IO.File]::Delete($responsePath)
   [IO.File]::Move($temporary, $requestPath)
   $deadline = [DateTime]::UtcNow.AddSeconds(15)
   $result = $null
   while ([DateTime]::UtcNow -lt $deadline) {
-    $responsePath = Join-Path $Directory 'response.json'
     if (Test-Path -LiteralPath $responsePath) {
       try {
         $response = $jsonSerializer.DeserializeObject([IO.File]::ReadAllText($responsePath, $utf8))

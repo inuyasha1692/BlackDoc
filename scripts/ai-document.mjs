@@ -17,7 +17,7 @@ if (directory === "list") {
       const snapshotPath = join(path, "connection.json");
       const snapshot = JSON.parse(await readFile(snapshotPath, "utf8"));
       const metadata = await stat(snapshotPath);
-      connections.push({ directory: path, path: snapshot.path, protocol: snapshot.protocol,
+      connections.push({ directory: path, path: snapshot.path, protocol: snapshot.protocol, textEdits: snapshot.textEdits === true,
         updatedAt: metadata.mtime.toISOString() });
     } catch (error) { if (error.code !== "ENOENT") throw error; }
   }
@@ -38,10 +38,18 @@ if (command === "read") {
     source = "";
     for await (const chunk of process.stdin) source += chunk.toString();
   } else {
-    if (!input) throw new Error("Provide a JSON file containing revision and blocks.");
+    if (!input) throw new Error("Provide a JSON file containing revision and changes (or legacy blocks).");
     source = await readFile(input, "utf8");
   }
-  request = { ...JSON.parse(source), operation: "apply" };
+  const edit = JSON.parse(source);
+  if (typeof edit?.revision !== "string" || !edit.revision) throw new Error("Request requires a revision.");
+  if (Object.hasOwn(edit, "changes") === Object.hasOwn(edit, "blocks")) {
+    throw new Error("Provide exactly one of changes or legacy blocks.");
+  }
+  if (Object.hasOwn(edit, "changes") && connection.textEdits !== true) {
+    throw new Error("This BlackDoc version does not support text edits. Update BlackDoc or explicitly use legacy blocks.");
+  }
+  request = { ...edit, operation: "apply" };
 }
 request.token = connection.token;
 request.id = randomUUID();
@@ -52,14 +60,16 @@ request.id = randomUUID();
   try {
     try { await access(join(directory, "request.json")); throw new Error("A request is already pending."); }
     catch (error) { if (error.code !== "ENOENT") throw error; }
+    const responsePath = join(directory, "response.json");
     const temporary = join(directory, `${request.id}.tmp`);
     await writeFile(temporary, JSON.stringify(request));
+    await unlink(responsePath).catch(error => { if (error.code !== "ENOENT") throw error; });
     await rename(temporary, join(directory, "request.json"));
     const deadline = Date.now() + 15000;
     let result;
     while (Date.now() < deadline) {
       try {
-        const response = JSON.parse(await readFile(join(directory, "response.json"), "utf8"));
+        const response = JSON.parse(await readFile(responsePath, "utf8"));
         if (response.id === request.id) { result = response; break; }
       } catch (error) { if (error.code !== "ENOENT") throw error; }
       await new Promise(resolve => setTimeout(resolve, 200));

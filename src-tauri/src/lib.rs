@@ -774,8 +774,8 @@ pub fn run() {
                 .build(),
         )
         .invoke_handler(tauri::generate_handler![
-            ai_bridge::desktop_ai_pending,
-            ai_bridge::desktop_ai_exchange,
+            ai_bridge::desktop_ai_take_request,
+            ai_bridge::desktop_ai_respond,
             desktop_bootstrap,
             desktop_new_window,
             desktop_open_window,

@@ -18,7 +18,22 @@ node scripts/ai-document.mjs "C:\...\blackdoc-ai\..." apply "request.json"
 
 `list` 列出连接目录与文档路径。使用【功能示例】打开的是未绑定仓库文件的文档副本；修改仓库里的示例文件不会刷新该副本。要修改当前窗口，AI 必须通过连接脚本的 `read` 读取当前文档，再通过 `apply` 提交。
 
-`read` 返回当前编辑器的 `revision`、`path` 和完整 `blocks`。`apply` 的输入是 JSON 对象，包含读取时的 `revision` 和修改后的完整 `blocks` 数组。保留已有块的 ID；新增块使用新的唯一 ID。未修改的块、图片数据和画布数据应完整保留。可调整正文、标题、表格、插入或删除块。
+`read` 返回当前编辑器的 `revision`、`path` 和完整 `blocks`。如果 `list` 显示 `textEdits: true`，修改段落、标题和列表正文时，提交读取时的版本号和目标块的行内内容：
+
+```json
+{
+  "revision": "<读取的版本号>",
+  "changes": [
+    { "op": "updateContent", "blockId": "<目标块 ID>", "content": [
+      { "type": "text", "text": "改后的正文", "styles": { "bold": true } }
+    ] }
+  ]
+}
+```
+
+每项 `content` 替换该块的全部行内内容，需保留仍需要的加粗、链接等格式。每个块 ID 一批只能出现一次，任一项失败时整批不应用。
+
+表格或文档结构改动仍可提交 `revision` 和完整 `blocks`。已有块保留 ID，新增块使用唯一 ID，未改的内容和内嵌资源完整保留。旧版 BlackDoc 只支持完整 `blocks`。
 
 修改会显示在编辑器中，作为一次可撤销操作，并触发现有自动保存。成功响应表示已应用到编辑器，磁盘保存状态以应用顶部提示为准。未保存的文档继续暂存为草稿。
 

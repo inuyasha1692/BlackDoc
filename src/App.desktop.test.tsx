@@ -36,6 +36,13 @@ const harness = vi.hoisted(() => ({
     transact: vi.fn(),
     focus: vi.fn(),
     getExtension: vi.fn(() => null),
+    prosemirrorState: { get doc(): Block[] { return harness.editor.document; } },
+    prosemirrorView: {
+      composing: false,
+      state: { selection: { head: 1 } },
+      coordsAtPos: () => ({ top: 0, bottom: 24, left: 0, right: 0 }),
+      dom: document.createElement("div"),
+    },
     isEditable: true,
   },
   closeListeners: new Set<() => void>(),
@@ -58,7 +65,9 @@ vi.mock("./updates", () => ({
   checkForUpdate: vi.fn(async () => ({ kind: "unavailable" })),
 }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
-vi.mock("./editor/aiDocument", () => ({ applyAiDocument: vi.fn() }));
+vi.mock("./editor/aiDocument", async (importOriginal) => ({
+  ...await importOriginal<typeof import("./editor/aiDocument")>(), applyAiDocument: vi.fn(),
+}));
 vi.mock("@tauri-apps/plugin-updater", () => ({ check: vi.fn() }));
 vi.mock("@blocknote/diagram-block", () => ({
   getDiagramSlashMenuItems: () => [],
@@ -220,6 +229,7 @@ beforeEach(() => {
   window.addEventListener("blackdoc-close-canvas", harness.closeCanvas);
   harness.editor.document = documentWithTitle("");
   harness.editor.isEditable = true;
+  harness.editor.prosemirrorView.composing = false;
   harness.editor.replaceBlocks.mockImplementation((_previous: Block[], blocks: Block[]) => {
     harness.editor.document = structuredClone(blocks);
   });
@@ -263,29 +273,33 @@ afterEach(async () => {
 describe("desktop App lifecycle", () => {
   it("registers the default connection without publishing document content while idle", async () => {
     vi.mocked(invoke).mockImplementation(async (command) => {
-      if (command === "desktop_ai_pending") return false;
+      if (command === "desktop_ai_take_request") return null;
       throw new Error(`Unexpected command ${command}`);
     });
     await mountApp();
     await act(async () => { await vi.advanceTimersByTimeAsync(1600); });
-    expect(invoke).toHaveBeenCalledWith("desktop_ai_pending", expect.objectContaining({ path: file.path }));
-    expect(vi.mocked(invoke).mock.calls.some(([command]) => command === "desktop_ai_exchange")).toBe(false);
+    expect(invoke).toHaveBeenCalledWith("desktop_ai_take_request", { path: file.path, documentKey: "0" });
+    expect(vi.mocked(invoke).mock.calls.every(([command]) => command === "desktop_ai_take_request")).toBe(true);
     await clickButton("更多操作");
     expect(screen.queryByRole("button", { name: "启用 AI 文档连接" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "关闭 AI 文档连接" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "复制 AI 连接目录" })).not.toBeInTheDocument();
   });
-  it("applies an AI request from the live connection, persists and acknowledges it", async () => {
-    let delivered = false;
+  it("only sends the snapshot for read, then applies, saves and acknowledges a small edit", async () => {
+    let polls = 0;
+    let revision: string | undefined;
+    const changes = [{ op: "updateContent", blockId: "title", content: edited[0].content }];
     vi.mocked(invoke).mockImplementation(async (command, args) => {
-      if (command === "desktop_ai_pending") return true;
-      if (command === "desktop_ai_exchange") {
-        const snapshot = (args as { snapshot: { revision: string } }).snapshot;
-        if (!delivered) {
-          delivered = true;
-          return { id: "live-request", revision: snapshot.revision, blocks: edited };
-        }
+      if (command === "desktop_ai_take_request") {
+        expect(args).toEqual({ path: file.path, documentKey: "0" });
+        if (++polls === 1) return { id: "read-request", operation: "read" };
+        if (polls === 2) return { id: "live-request", operation: "apply", revision, changes };
         return null;
+      }
+      if (command === "desktop_ai_respond") {
+        const { response } = args as { response: { id: string; snapshot?: { revision: string } } };
+        if (response.id === "read-request") revision = response.snapshot?.revision;
+        return undefined;
       }
       throw new Error(`Unexpected command ${command}`);
     });
@@ -294,16 +308,53 @@ describe("desktop App lifecycle", () => {
       fireEvent.change(screen.getByRole("textbox", { name: "Document" }), {
         target: { value: JSON.stringify(edited) },
       });
+      return true;
     });
     await mountApp();
-    expectDocument(edited);
-    expect(screen.queryByRole("button", { name: "关闭 AI 文档连接" })).not.toBeInTheDocument();
+    expectDocument(original);
     await act(async () => { await vi.advanceTimersByTimeAsync(800); });
+    expectDocument(edited);
     expect(saveDesktopDocument).toHaveBeenCalledWith(edited, file.path, file.name, false);
-    expect(invoke).toHaveBeenCalledWith("desktop_ai_exchange", expect.objectContaining({
-      response: expect.objectContaining({ id: "live-request", ok: true }),
-    }));
-
+    expect(invoke).toHaveBeenCalledWith("desktop_ai_respond", {
+      documentKey: "0", response: { id: "read-request", ok: true, snapshot: { revision, path: file.path, blocks: original } },
+    });
+    const reply = vi.mocked(invoke).mock.calls.find(([command, args]) =>
+      command === "desktop_ai_respond" && (args as { response: { id: string } }).response.id === "live-request",
+    )?.[1];
+    expect(reply).toEqual({ documentKey: "0", response: { id: "live-request", ok: true, revision: expect.any(String) } });
+    expect(reply).not.toMatchObject({ response: { revision } });
+  });
+  it("does not apply a request received while the user is composing text", async () => {
+    harness.editor.prosemirrorView.composing = true;
+    vi.mocked(invoke).mockImplementation(async command => {
+      if (command === "desktop_ai_take_request") return { id: "while-composing", operation: "apply" };
+      if (command === "desktop_ai_respond") return undefined;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    await mountApp();
+    expectDocument(original);
+    expect(applyAiDocument).not.toHaveBeenCalled();
+    expect(invoke).toHaveBeenCalledWith("desktop_ai_respond", {
+      documentKey: "0", response: { id: "while-composing", ok: false, error: expect.stringContaining("输入法") },
+    });
+  });
+  it("rejects an in-flight edit when the window switches documents", async () => {
+    const request = deferred<unknown>();
+    vi.mocked(invoke).mockImplementation(async command => {
+      if (command === "desktop_ai_take_request") return request.promise;
+      if (command === "desktop_ai_respond") return undefined;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    vi.mocked(bootstrapDesktop).mockResolvedValue({ document: null, draft: null });
+    vi.mocked(openDesktopWindow).mockResolvedValue({ ...file, blocks: original });
+    await mountApp();
+    await clickButton("打开");
+    await act(async () => { request.resolve({ id: "stale-session", operation: "apply" }); });
+    expectDocument(original);
+    expect(applyAiDocument).not.toHaveBeenCalled();
+    expect(invoke).toHaveBeenCalledWith("desktop_ai_respond", {
+      documentKey: "0", response: { id: "stale-session", ok: false, error: expect.stringContaining("切换") },
+    });
   });
   it("opens the example once on first launch without saving over the bundled file", async () => {
     localStorage.removeItem("blackdoc:first-launch-completed");
