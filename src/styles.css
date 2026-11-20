@@ -794,6 +794,15 @@ button {
   padding-inline-end: 8px;
 }
 
+.blackdoc-column-divider-hover .bn-side-menu {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.blackdoc-column-divider-hover .bn-editor .bn-block-column .bn-resize-handle {
+  pointer-events: none;
+}
+
 .bn-side-menu .mantine-UnstyledButton-root.blackdoc-block-control-trigger {
   display: flex;
   width: auto;

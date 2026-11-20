@@ -302,6 +302,7 @@ import { importMarkdownBlocks, prepareMarkdownImageWidths } from "./editor/markd
 import { filterSlashMenuItems, shouldOpenSlashMenu } from "./editor/slashMenuSearch";
 import { imageToolbarFloatingUIOptions, installImageToolbarHover } from "./editor/imageToolbarHover";
 import { installSplitDividerHover } from "./editor/splitDividerHover";
+import { installColumnDividerHover } from "./editor/columnDividerHover";
 import { changesAffectOutline, getOutlineItems, type OutlineItem } from "./editor/outline";
 import { FindAndReplaceExtension } from "./editor/findAndReplace";
 import { InheritColumnFormatExtension } from "./editor/inheritColumnFormat";
@@ -511,6 +512,7 @@ export default function App() {
   }, [editor]);
 
   useEffect(() => installSplitDividerHover(editor), [editor]);
+  useEffect(() => installColumnDividerHover(editor), [editor]);
 
   const bootstrappedRef = useRef(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -1237,7 +1239,8 @@ export default function App() {
     async (query: string, blockId?: string) => {
       const defaultItems = getDefaultReactSlashMenuItems(editor)
         .filter(item =>
-          !item.title.startsWith("可折叠")
+          !item.title.startsWith("可折叠") &&
+          item.title !== editor.dictionary.slash_menu.emoji.title
         )
         .map(item => {
           const shortcut = headingShortcuts.get(item.title);
@@ -1467,6 +1470,7 @@ export default function App() {
             editable={desktopReady && !recoveryDraft && !opening}
             formattingToolbar={false}
             linkToolbar={false}
+            emojiPicker={false}
             onSelectionChange={updateSlashMenuPlacement}
             onChange={handleEditorChange}
             sideMenu={false}

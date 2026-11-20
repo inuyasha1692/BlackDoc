@@ -15,6 +15,38 @@ const css = (props: Record<string, unknown> = {}) => [
   props.backgroundColor && props.backgroundColor !== "default" ? `background:${backgrounds[String(props.backgroundColor)] ?? props.backgroundColor}` : "",
 ].filter(Boolean).join(";");
 
+function readEmbeddedResource(url: string) {
+  const comma = url.indexOf(",");
+  if (comma < 0) throw new Error("Missing data URL separator");
+  const header = url.slice(5, comma);
+  const mime = header.split(";", 1)[0].trim().toLowerCase();
+  const fragment = url.indexOf("#", comma + 1);
+  const payload = url.slice(comma + 1, fragment < 0 ? undefined : fragment);
+  if (/; *base64\s*$/i.test(header)) {
+    const binary = atob(payload.includes("%") ? decodeURIComponent(payload) : payload);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+    return { mime, bytes };
+  }
+
+  // Canvas SVG and scene JSON use percent escapes. Decode directly to bytes so
+  // other embedded resources can also contain percent-escaped binary data.
+  const bytes = new TextEncoder().encode(payload);
+  let size = 0;
+  for (let index = 0; index < bytes.length; index++) {
+    if (bytes[index] === 37 && index + 2 < bytes.length) {
+      const pair = String.fromCharCode(bytes[index + 1], bytes[index + 2]);
+      if (/^[a-f\d]{2}$/i.test(pair)) {
+        bytes[size++] = Number.parseInt(pair, 16);
+        index += 2;
+        continue;
+      }
+    }
+    bytes[size++] = bytes[index];
+  }
+  return { mime, bytes: bytes.subarray(0, size) };
+}
+
 export async function buildMarkdown(blocks: readonly BlackDocBlock[]) {
   const assets: MarkdownAsset[] = [];
   const warnings = new Set<string>();
@@ -31,12 +63,14 @@ export async function buildMarkdown(blocks: readonly BlackDocBlock[]) {
   const resource = async (url: string, name: string) => {
     if (!url.startsWith("data:")) { if (url) warnings.add("外部资源保留原链接。"); return url; }
     if (cache.has(url)) return cache.get(url)!;
-    const response = await fetch(url);
-    const bytes = new Uint8Array(await response.arrayBuffer());
+    // WebView's connect-src blocks fetch(data:), even for images already embedded in the document.
+    const { bytes, mime } = (() => {
+      try { return readEmbeddedResource(url); }
+      catch { throw new Error(`无法导出内嵌资源「${name || "未命名"}」：数据格式无效。`); }
+    })();
     const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
     const hash = Array.from(digest).map(byte => byte.toString(16).padStart(2, "0")).join("");
     if (cache.has(url)) return cache.get(url)!;
-    const mime = response.headers.get("content-type")?.split(";")[0] ?? "";
     const extension = ({ "image/png": "png", "image/jpeg": "jpg", "image/svg+xml": "svg", "image/gif": "gif", "image/webp": "webp", "video/mp4": "mp4", "audio/mpeg": "mp3", "audio/wav": "wav", "audio/ogg": "ogg", "application/pdf": "pdf", "application/json": "excalidraw" } as Record<string, string>)[mime] ?? name.match(/\.([a-zA-Z0-9]{1,10})$/)?.[1] ?? "bin";
     const stem = name.replace(/\.[^.]+$/, "").replace(/[^\p{L}\p{N}_-]/gu, "-").slice(0, 60) || "asset";
     const filename = `${stem}-${hash}.${extension}`;
